@@ -248,7 +248,7 @@ void loop() {
           Serial.print(" setting new position for pattern ");
           Serial.println(index);
 #endif
-          if ((index - 1) < 0) {
+          if (index == 0) {
             seq.voice->pos = seq.voice->pattern()->length;
           } else {
             // TODO: need to decide when global time advances. Right now play
