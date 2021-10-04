@@ -369,7 +369,6 @@ void loop() {
       }
     }
   }
-
   trellis.show();
 
   int now = millis();
@@ -395,5 +394,6 @@ void loop() {
     }
     trellis.sendMIDI();
   }
+  delayMicroseconds(10);
   globalPos++;
 }
