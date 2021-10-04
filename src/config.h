@@ -20,7 +20,7 @@
 #define KEY_PASTE 5
 #define KEY_CLEAR 12
 #define KEY_UNDO 13
-#define KEY_SHIFT 28
+#define KEY_ROTATE 28
 
 #define KEY_SEQ_POS_0 0
 #define KEY_SEQ_POS_1 1

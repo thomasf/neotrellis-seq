@@ -3,12 +3,26 @@
 #include <Adafruit_Sensor.h>
 #include <Arduino.h>
 #include <SPI.h>
+#include <algorithm>
 #include <array>
 #include <cstdint>
+#include <vector>
 
 #include "colors.h"
 #include "config.h"
 #include "delay.h"
+
+template <typename T> int rotate_array_elements(T &v, int dir) {
+  if (dir > 0) {
+    std::rotate(v.rbegin(), v.rbegin() + dir, v.rend());
+    return 0;
+  } else if (dir < 0) {
+    std::rotate(v.begin(), v.begin() + abs(dir), v.end());
+    return 0;
+  } else {
+    return 1;
+  }
+}
 
 Adafruit_ADXL343 accel = Adafruit_ADXL343(123, &Wire1);
 
@@ -121,6 +135,15 @@ void setup() {
   trellis.setPixelColor(KEY_VOICE_SELECT_3, trellis.gamma32(COLOR_VOC3));
   trellis.setPixelColor(KEY_VOICE_SELECT_4, trellis.gamma32(COLOR_VOC4));
   trellis.setPixelColor(KEY_VOICE_SELECT_5, trellis.gamma32(COLOR_VOC5));
+
+  trellis.setPixelColor(KEY_PATTERN_LEN, trellis.gamma32(COLOR_PMOD));
+  trellis.setPixelColor(KEY_PATTERN_POS, trellis.gamma32(COLOR_PMOD));
+  trellis.setPixelColor(KEY_ROTATE, trellis.gamma32(COLOR_PMOD));
+
+  trellis.setPixelColor(KEY_COPY, trellis.gamma32(COLOR_PACT));
+  trellis.setPixelColor(KEY_PASTE, trellis.gamma32(COLOR_PACT));
+  trellis.setPixelColor(KEY_CLEAR, trellis.gamma32(COLOR_PACT));
+  // trellis.setPixelColor(KEY_UNDO, trellis.gamma32(COLOR_PACT));
 
   trellis.show();
   start_time = millis();
@@ -277,7 +300,6 @@ void loop() {
             patterns[current_voice][current_patterns[current_voice]].steps[i] =
                 0;
           }
-
         } else if (is_numpad_key(key)) {
 
           uint32_t index = index_of(step_key, 16, key);
@@ -326,7 +348,11 @@ void loop() {
             current_patterns[5] = index;
           }
 
-          if (!voice_select_modifier_held) {
+          if (trellis.isPressed(KEY_ROTATE)) {
+            rotate_array_elements(
+                patterns[current_voice][current_patterns[current_voice]].steps,
+                index);
+          } else if (!voice_select_modifier_held) {
             if (patterns[current_voice][current_patterns[current_voice]]
                     .steps[index] == 0) {
               patterns[current_voice][current_patterns[current_voice]]
@@ -339,7 +365,7 @@ void loop() {
           }
 
         } else {
-          trellis.setPixelColor(key, trellis.gamma32(COLOR_PPOS));
+          // trellis.setPixelColor(key, trellis.gamma32(COLOR_PPOS));
         }
       }
     } else if (e.bit.EVENT == KEY_JUST_RELEASED) {
@@ -365,7 +391,7 @@ void loop() {
         trellis.setPixelColor(key, trellis.gamma32(COLOR_VOC5));
 
       } else {
-        trellis.setPixelColor(key, trellis.gamma32(COLOR_OFF));
+        // trellis.setPixelColor(key, trellis.gamma32(COLOR_OFF));
       }
     }
   }

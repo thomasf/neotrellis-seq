@@ -26,15 +26,17 @@ var (
 	}
 
 	defaultTheme = Theme{
-		Off:          "#000000",
-		PlayPosition: "#d0d0d0",
-		Voice0:       "#2050e0",
-		Voice1:       "#ad8920",
-		Voice2:       "#20bcaf",
-		Voice3:       "#489120",
-		Voice4:       "#b030b0",
-		Voice5:       "#d0d040",
-		Tool:         "#902020",
+		Off:             "#000000",
+		PlayPosition:    "#d0d0d0",
+		Voice0:          "#2050e0",
+		Voice1:          "#ad8920",
+		Voice2:          "#20bcaf",
+		Voice3:          "#489120",
+		Voice4:          "#b030b0",
+		Voice5:          "#d0d040",
+		Tool:            "#902020",
+		PatternAction:   "#8080b0",
+		PatternModifier: "#808b80",
 		ActiveVoices: func(t Theme) Theme {
 			return t.ChangeLightness(0.15)
 		},
@@ -63,17 +65,19 @@ var (
 )
 
 type Theme struct {
-	Off            HexColor
-	PlayPosition   HexColor
-	Voice0         HexColor
-	Voice1         HexColor
-	Voice2         HexColor
-	Voice3         HexColor
-	Voice4         HexColor
-	Voice5         HexColor
-	ActiveVoices   func(Theme) Theme
-	InactiveVoices func(Theme) Theme
-	Tool           HexColor
+	Off             HexColor
+	PlayPosition    HexColor
+	Voice0          HexColor
+	Voice1          HexColor
+	Voice2          HexColor
+	Voice3          HexColor
+	Voice4          HexColor
+	Voice5          HexColor
+	ActiveVoices    func(Theme) Theme
+	InactiveVoices  func(Theme) Theme
+	Tool            HexColor
+	PatternAction   HexColor
+	PatternModifier HexColor
 }
 
 func (b *Theme) modifyColors(fn func(c *HexColor)) {
@@ -86,6 +90,8 @@ func (b *Theme) modifyColors(fn func(c *HexColor)) {
 	fn(&b.Voice4)
 	fn(&b.Voice5)
 	fn(&b.Tool)
+	fn(&b.PatternAction)
+	fn(&b.PatternModifier)
 }
 
 func (b Theme) ChangeLightness(amount float64) Theme {
@@ -120,6 +126,8 @@ func (p Theme) NamedColors() NamedColors {
 		"VOC4": HexColor(p.Voice4),
 		"VOC5": HexColor(p.Voice5),
 		"TOOL": HexColor(p.Tool),
+		"PMOD": HexColor(p.PatternModifier),
+		"PACT": HexColor(p.PatternAction),
 	}
 }
 
