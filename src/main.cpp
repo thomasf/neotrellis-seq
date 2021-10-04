@@ -379,7 +379,7 @@ void loop() {
       // patterns[voice][currentPattern].length >
       // 0) {
       // TODO: turn off only playing notes
-      trellis.noteOff(FIRST_MIDI_NOTE + voice, 64);
+      trellis.noteOff(FIRST_MIDI_NOTE + voice, MIDI_NOTE_OFF_VELOCITY);
       // }
     }
     trellis.sendMIDI();

@@ -2,7 +2,7 @@
 #define CONFIG_H
 
 #define MIDI_CHANNEL 0 // default channel # is 0
-
+#define MIDI_NOTE_OFF_VELOCITY 64
 // Set the value of first note, C is a good choice. Lowest C is 0.
 // 36 is a good default. 48 is a high range. Set to 24 for a bass machine.
 #define FIRST_MIDI_NOTE 36
