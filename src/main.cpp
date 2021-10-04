@@ -338,7 +338,12 @@ void loop() {
           }
 
           if (trellis.isPressed(KEY_ROTATE)) {
-            rotate_array_elements(seq.voice->pattern()->steps, index);
+            if (index == 0) {
+              std::reverse(seq.voice->pattern()->steps.begin(),
+                           seq.voice->pattern()->steps.end());
+            } else {
+              rotate_array_elements(seq.voice->pattern()->steps, index);
+            }
           } else if (!voice_select_modifier_held) {
             if (seq.voice->pattern()->steps[index].v == 0) {
               seq.voice->pattern()->steps[index].v = 100;
