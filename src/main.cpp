@@ -24,6 +24,12 @@ unsigned long last_step_time;
 
 Adafruit_NeoTrellisM4 trellis = Adafruit_NeoTrellisM4();
 
+// TODO: Step represents a single sequencer step
+class Step {
+  uint32_t value;
+};
+
+// Pattern is a sequence of steps.
 class Pattern {
 
   // NOTE: pattern undo data here uses about 50% of total RAM, step values
@@ -70,24 +76,22 @@ uint32_t Pattern::get() { return steps[pos]; }
 
 uint32_t Pattern::get(uint32_t idx) { return steps[idx]; }
 
-//
-// TODO: voice class
-//
-// class Voice {
-// public:
-//   Pattern patterns[16]
-// }
+// TODO: Voice is a collection of patterns
+class Voice {
+public:
+  Pattern patterns[16];
+};
 
 // std::array<Voice, VOICES> voices;
 
-Pattern copyBuffer;
+Pattern copy_buffer;
 Pattern patterns[VOICES][16]; // 16 patterns for each voice
-uint32_t currentPatterns[VOICES];
+uint32_t current_patterns[VOICES];
 
 void setup() {
   Serial.begin(115200);
   for (uint32_t i = 0; i < VOICES; i++) {
-    currentPatterns[i] = 0;
+    current_patterns[i] = 0;
   }
 #ifdef DEBUG
   while (!Serial)
@@ -125,13 +129,13 @@ void setup() {
 
 uint32_t globalPos = 0;
 
-uint32_t currentVoice = 0;
-uint32_t currentStepValue = 0;
+uint32_t current_voice = 0;
+uint32_t current_step_value = 0;
 
 uint32_t seq_color_set = COLOR_VOC0_SET;
 uint32_t seq_color_bg = COLOR_VOC0_UNSET;
 
-const uint32_t stepKey[16] = {
+const uint32_t step_key[16] = {
     // row 0
     KEY_SEQ_POS_0, KEY_SEQ_POS_1, KEY_SEQ_POS_2, KEY_SEQ_POS_3,
     // row 1
@@ -143,7 +147,7 @@ const uint32_t stepKey[16] = {
 
 };
 
-uint32_t indexOf(const uint32_t a[], uint32_t size, uint32_t value) {
+uint32_t index_of(const uint32_t a[], uint32_t size, uint32_t value) {
   uint32_t index = 0;
 
   while (index < size && a[index] != value)
@@ -152,7 +156,7 @@ uint32_t indexOf(const uint32_t a[], uint32_t size, uint32_t value) {
   return (index == size ? -1 : index);
 }
 
-bool voiceSelectModifierHeld = false;
+bool voice_select_modifier_held = false;
 
 #define is_numpad_key(key)                                                     \
   (key >= KEY_SEQ_POS_0 && key <= KEY_SEQ_POS_3) ||                            \
@@ -161,20 +165,20 @@ bool voiceSelectModifierHeld = false;
       (key >= KEY_SEQ_POS_12 && key <= KEY_SEQ_POS_15)
 
 void loop() {
-  voiceSelectModifierHeld = false;
+  voice_select_modifier_held = false;
   trellis.tick();
 
   for (uint32_t i = 0; i < 16; i++) {
-    if (i == patterns[currentVoice][currentPatterns[currentVoice]].pos) {
-      trellis.setPixelColor(stepKey[i], trellis.gamma32(COLOR_PPOS));
-    } else if (patterns[currentVoice][currentPatterns[currentVoice]].length <=
-               i) {
-      trellis.setPixelColor(stepKey[i], trellis.gamma32(COLOR_OFF));
-    } else if (patterns[currentVoice][currentPatterns[currentVoice]].get(i) >
+    if (i == patterns[current_voice][current_patterns[current_voice]].pos) {
+      trellis.setPixelColor(step_key[i], trellis.gamma32(COLOR_PPOS));
+    } else if (patterns[current_voice][current_patterns[current_voice]]
+                   .length <= i) {
+      trellis.setPixelColor(step_key[i], trellis.gamma32(COLOR_OFF));
+    } else if (patterns[current_voice][current_patterns[current_voice]].get(i) >
                0) {
-      trellis.setPixelColor(stepKey[i], trellis.gamma32(seq_color_set));
+      trellis.setPixelColor(step_key[i], trellis.gamma32(seq_color_set));
     } else {
-      trellis.setPixelColor(stepKey[i], trellis.gamma32(seq_color_bg));
+      trellis.setPixelColor(step_key[i], trellis.gamma32(seq_color_bg));
     }
   }
 
@@ -196,12 +200,12 @@ void loop() {
         Serial.println("pattern length");
 #endif
         if (is_numpad_key(key)) {
-          uint32_t index = indexOf(stepKey, 16, key);
+          uint32_t index = index_of(step_key, 16, key);
 #ifdef DEBUG
           Serial.print(" setting new length for pattern ");
           Serial.println(index);
 #endif
-          patterns[currentVoice][currentPatterns[currentVoice]].length =
+          patterns[current_voice][current_patterns[current_voice]].length =
               index + 1;
           Serial.println(" le\n");
         };
@@ -210,18 +214,18 @@ void loop() {
         Serial.println("pattern pos");
 #endif
         if (is_numpad_key(key)) {
-          uint32_t index = indexOf(stepKey, 16, key);
+          uint32_t index = index_of(step_key, 16, key);
 #ifdef DEBUG
           Serial.print(" setting new position for pattern ");
           Serial.println(index);
 #endif
           if ((index - 1) < 0) {
-            patterns[currentVoice][currentPatterns[currentVoice]].pos =
-                patterns[currentVoice][currentPatterns[currentVoice]].length;
+            patterns[current_voice][current_patterns[current_voice]].pos =
+                patterns[current_voice][current_patterns[current_voice]].length;
           } else {
             // TODO: need to decide when global time advances. Right now play
             // head is moved to the previous step as a work around.
-            patterns[currentVoice][currentPatterns[currentVoice]].pos =
+            patterns[current_voice][current_patterns[current_voice]].pos =
                 index - 1;
           }
         };
@@ -229,105 +233,107 @@ void loop() {
       } else {
 
         if (key == KEY_VOICE_SELECT_0) {
-          currentVoice = 0;
+          current_voice = 0;
           seq_color_set = COLOR_VOC0_SET;
           seq_color_bg = COLOR_VOC0_UNSET;
 
         } else if (key == KEY_VOICE_SELECT_1) {
-          currentVoice = 1;
+          current_voice = 1;
           seq_color_set = COLOR_VOC1_SET;
           seq_color_bg = COLOR_VOC1_UNSET;
 
         } else if (key == KEY_VOICE_SELECT_2) {
-          currentVoice = 2;
+          current_voice = 2;
           seq_color_set = COLOR_VOC2_SET;
           seq_color_bg = COLOR_VOC2_UNSET;
 
         } else if (key == KEY_VOICE_SELECT_3) {
-          currentVoice = 3;
+          current_voice = 3;
           seq_color_set = COLOR_VOC3_SET;
           seq_color_bg = COLOR_VOC3_UNSET;
 
         } else if (key == KEY_VOICE_SELECT_4) {
-          currentVoice = 4;
+          current_voice = 4;
           seq_color_set = COLOR_VOC4_SET;
           seq_color_bg = COLOR_VOC4_UNSET;
 
         } else if (key == KEY_VOICE_SELECT_5) {
-          currentVoice = 5;
+          current_voice = 5;
           seq_color_set = COLOR_VOC5_SET;
           seq_color_bg = COLOR_VOC5_UNSET;
 
         } else if (key == KEY_COPY) {
-          copyBuffer =
-              Pattern(patterns[currentVoice][currentPatterns[currentVoice]]);
+          copy_buffer =
+              Pattern(patterns[current_voice][current_patterns[current_voice]]);
 
         } else if (key == KEY_PASTE) {
-          copyBuffer.pos =
-              patterns[currentVoice][currentPatterns[currentVoice]].pos;
-          patterns[currentVoice][currentPatterns[currentVoice]] =
-              Pattern(copyBuffer);
+          copy_buffer.pos =
+              patterns[current_voice][current_patterns[current_voice]].pos;
+          patterns[current_voice][current_patterns[current_voice]] =
+              Pattern(copy_buffer);
 
         } else if (key == KEY_CLEAR) {
           for (int i = 0; i < 16; i++) {
-            patterns[currentVoice][currentPatterns[currentVoice]].steps[i] = 0;
+            patterns[current_voice][current_patterns[current_voice]].steps[i] =
+                0;
           }
 
         } else if (is_numpad_key(key)) {
 
-          uint32_t index = indexOf(stepKey, 16, key);
+          uint32_t index = index_of(step_key, 16, key);
 #ifdef DEBUG
           Serial.print("index: ");
           Serial.println(index);
           Serial.print("value: ");
-          Serial.println(patterns[currentVoice][currentPatterns[currentVoice]]
-                             .steps[index]);
+          Serial.println(
+              patterns[current_voice][current_patterns[current_voice]]
+                  .steps[index]);
 #endif
 
           if (trellis.isPressed(KEY_VOICE_SELECT_0)) {
-            patterns[0][index].pos = patterns[0][currentPatterns[0]].pos;
-            voiceSelectModifierHeld = true;
-            currentPatterns[0] = index;
+            patterns[0][index].pos = patterns[0][current_patterns[0]].pos;
+            voice_select_modifier_held = true;
+            current_patterns[0] = index;
           }
 
           if (trellis.isPressed(KEY_VOICE_SELECT_1)) {
-            patterns[1][index].pos = patterns[1][currentPatterns[1]].pos;
-            voiceSelectModifierHeld = true;
-            currentPatterns[1] = index;
+            patterns[1][index].pos = patterns[1][current_patterns[1]].pos;
+            voice_select_modifier_held = true;
+            current_patterns[1] = index;
           }
 
           if (trellis.isPressed(KEY_VOICE_SELECT_2)) {
-            patterns[2][index].pos = patterns[2][currentPatterns[2]].pos;
-            voiceSelectModifierHeld = true;
-            currentPatterns[2] = index;
+            patterns[2][index].pos = patterns[2][current_patterns[2]].pos;
+            voice_select_modifier_held = true;
+            current_patterns[2] = index;
           }
 
           if (trellis.isPressed(KEY_VOICE_SELECT_3)) {
-            patterns[3][index].pos = patterns[3][currentPatterns[3]].pos;
-            voiceSelectModifierHeld = true;
-            currentPatterns[3] = index;
+            patterns[3][index].pos = patterns[3][current_patterns[3]].pos;
+            voice_select_modifier_held = true;
+            current_patterns[3] = index;
           }
 
           if (trellis.isPressed(KEY_VOICE_SELECT_4)) {
-            patterns[4][index].pos = patterns[4][currentPatterns[4]].pos;
-            voiceSelectModifierHeld = true;
-            currentPatterns[4] = index;
+            patterns[4][index].pos = patterns[4][current_patterns[4]].pos;
+            voice_select_modifier_held = true;
+            current_patterns[4] = index;
           }
 
           if (trellis.isPressed(KEY_VOICE_SELECT_5)) {
-            patterns[5][index].pos = patterns[5][currentPatterns[5]].pos;
-            voiceSelectModifierHeld = true;
-            currentPatterns[5] = index;
+            patterns[5][index].pos = patterns[5][current_patterns[5]].pos;
+            voice_select_modifier_held = true;
+            current_patterns[5] = index;
           }
 
-          if (!voiceSelectModifierHeld) {
-            if (patterns[currentVoice][currentPatterns[currentVoice]]
+          if (!voice_select_modifier_held) {
+            if (patterns[current_voice][current_patterns[current_voice]]
                     .steps[index] == 0) {
-              patterns[currentVoice][currentPatterns[currentVoice]]
+              patterns[current_voice][current_patterns[current_voice]]
                   .steps[index] = 100;
 
             } else {
-              patterns[currentVoice][currentPatterns[currentVoice]]
+              patterns[current_voice][current_patterns[current_voice]]
                   .steps[index] = 0;
             }
           }
@@ -381,10 +387,10 @@ void loop() {
     }
     trellis.sendMIDI();
     for (int voice = 0; voice < VOICES; voice++) {
-      currentStepValue = patterns[voice][currentPatterns[voice]].advance();
+      current_step_value = patterns[voice][current_patterns[voice]].advance();
 
-      if (currentStepValue > 0) {
-        trellis.noteOn(FIRST_MIDI_NOTE + voice, currentStepValue);
+      if (current_step_value > 0) {
+        trellis.noteOn(FIRST_MIDI_NOTE + voice, current_step_value);
       }
     }
     trellis.sendMIDI();

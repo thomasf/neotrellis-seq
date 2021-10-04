@@ -52,7 +52,7 @@ var (
 		Voice3:       GruvboxGreen,
 		Voice4:       GruvboxPurple,
 		Voice5:       GruvboxRed,
-		Tool: GruvboxBrightPurple,
+		Tool:         GruvboxBrightPurple,
 		ActiveVoices: func(t Theme) Theme {
 			return t.ChangeLightness(0.2)
 		},
