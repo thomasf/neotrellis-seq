@@ -51,49 +51,69 @@ public:
 class Pattern {
 public:
   uint32_t length;            // pattern length, up to 16 steps
-  uint32_t pos;               // current position
   std::array<Step, 16> steps; // pattern data
-  Step advance();             // advace to next step
-  Step get();                 // get current step value
-  Step get(uint32_t idx);     // get current step value for pos
-  Pattern() {
-    pos = 0;
-    length = 16;
-  }
+  Pattern() { length = 16; }
   Pattern(const Pattern &p) {
-    pos = p.pos;
     length = p.length;
     steps = p.steps;
   }
 };
 
-Step Pattern::advance() {
-  pos = (pos + 1) % length;
-  return steps[pos];
-}
-
-Step Pattern::get() { return steps[pos]; }
-
-Step Pattern::get(uint32_t idx) { return steps[idx]; }
-
 // Voice is a collection of patterns
 class Voice {
 public:
-  Pattern patterns[16];
+  std::array<Pattern, 16> patterns;
+  bool is_playing;
+  uint32_t pattern_idx;
+  uint32_t pos;            // current position
+  Step advance();          // advace to next step
+  Step step();             // get current step value
+  Step step(uint32_t idx); // get current step value for pos
+  Pattern *pattern();
+  void replace_pattern(const Pattern p);
+  Voice() {
+    pos = 0;
+    pattern_idx = 0;
+    is_playing = false;
+  }
+};
+Step Voice::step(uint32_t idx) { return pattern()->steps[idx]; }
+Step Voice::step() { return pattern()->steps[pos]; }
+Step Voice::advance() {
+  pos = (pos + 1) % pattern()->length;
+  return pattern()->steps[pos];
+}
+
+void Voice::replace_pattern(const Pattern p) { patterns[pattern_idx] = p; }
+
+// Sequencer is the main data type
+class Sequencer {
+public:
+  std::array<Voice, VOICES> voices;
+  Voice *voice;
+  uint32_t voice_idx;
+  Sequencer() {
+    voice_idx = 0;
+    voice = &voices[0];
+  }
+  void set_voice(uint32_t idx);
 };
 
+void Sequencer::set_voice(uint32_t idx) {
+  voice_idx = idx;
+  voice = &voices[idx];
+};
+
+Sequencer seq = Sequencer();
+
+Pattern *Voice::pattern() { return &patterns[pattern_idx]; }
 
 std::array<std::array<Step, 16>, 16> undo_buffer;
-std::array<Voice, VOICES> voices;
-Pattern copy_buffer;
-Pattern patterns[VOICES][16]; // 16 patterns for each voice
-uint32_t current_patterns[VOICES];
+
+Pattern copy_buffer = Pattern();
 
 void setup() {
   Serial.begin(115200);
-  for (uint32_t i = 0; i < VOICES; i++) {
-    current_patterns[i] = 0;
-  }
 #ifdef DEBUG
   while (!Serial)
     ;
@@ -179,14 +199,12 @@ void loop() {
   trellis.tick();
 
   for (uint32_t i = 0; i < 16; i++) {
-    if (i == patterns[current_voice][current_patterns[current_voice]].pos) {
+
+    if (i == seq.voice->pos) {
       trellis.setPixelColor(step_key[i], trellis.gamma32(COLOR_PPOS));
-    } else if (patterns[current_voice][current_patterns[current_voice]]
-                   .length <= i) {
+    } else if (seq.voice->pattern()->length <= i) {
       trellis.setPixelColor(step_key[i], trellis.gamma32(COLOR_OFF));
-    } else if (patterns[current_voice][current_patterns[current_voice]]
-                   .get(i)
-                   .v > 0) {
+    } else if (seq.voice->step(i).v > 0) {
       trellis.setPixelColor(step_key[i], trellis.gamma32(seq_color_set));
     } else {
       trellis.setPixelColor(step_key[i], trellis.gamma32(seq_color_bg));
@@ -216,8 +234,8 @@ void loop() {
           Serial.print(" setting new length for pattern ");
           Serial.println(index);
 #endif
-          patterns[current_voice][current_patterns[current_voice]].length =
-              index + 1;
+
+          seq.voice->pattern()->length = index + 1;
           Serial.println(" le\n");
         };
       } else if (trellis.isPressed(KEY_PATTERN_POS)) {
@@ -231,62 +249,55 @@ void loop() {
           Serial.println(index);
 #endif
           if ((index - 1) < 0) {
-            patterns[current_voice][current_patterns[current_voice]].pos =
-                patterns[current_voice][current_patterns[current_voice]].length;
+            seq.voice->pos = seq.voice->pattern()->length;
           } else {
             // TODO: need to decide when global time advances. Right now play
             // head is moved to the previous step as a work around.
-            patterns[current_voice][current_patterns[current_voice]].pos =
-                index - 1;
+            seq.voice->pos = index - 1;
           }
         };
 
       } else {
 
         if (key == KEY_VOICE_SELECT_0) {
-          current_voice = 0;
+          seq.set_voice(0);
           seq_color_set = COLOR_VOC0_SET;
           seq_color_bg = COLOR_VOC0_UNSET;
 
         } else if (key == KEY_VOICE_SELECT_1) {
-          current_voice = 1;
+          seq.set_voice(1);
           seq_color_set = COLOR_VOC1_SET;
           seq_color_bg = COLOR_VOC1_UNSET;
 
         } else if (key == KEY_VOICE_SELECT_2) {
-          current_voice = 2;
+          seq.set_voice(2);
           seq_color_set = COLOR_VOC2_SET;
           seq_color_bg = COLOR_VOC2_UNSET;
 
         } else if (key == KEY_VOICE_SELECT_3) {
-          current_voice = 3;
+          seq.set_voice(3);
           seq_color_set = COLOR_VOC3_SET;
           seq_color_bg = COLOR_VOC3_UNSET;
 
         } else if (key == KEY_VOICE_SELECT_4) {
-          current_voice = 4;
+          seq.set_voice(4);
           seq_color_set = COLOR_VOC4_SET;
           seq_color_bg = COLOR_VOC4_UNSET;
 
         } else if (key == KEY_VOICE_SELECT_5) {
-          current_voice = 5;
+          seq.set_voice(5);
           seq_color_set = COLOR_VOC5_SET;
           seq_color_bg = COLOR_VOC5_UNSET;
 
         } else if (key == KEY_COPY) {
-          copy_buffer =
-              Pattern(patterns[current_voice][current_patterns[current_voice]]);
+          copy_buffer = Pattern(*seq.voice->pattern());
 
         } else if (key == KEY_PASTE) {
-          copy_buffer.pos =
-              patterns[current_voice][current_patterns[current_voice]].pos;
-          patterns[current_voice][current_patterns[current_voice]] =
-              Pattern(copy_buffer);
+          seq.voice->replace_pattern(Pattern(copy_buffer));
 
         } else if (key == KEY_CLEAR) {
           for (int i = 0; i < 16; i++) {
-            patterns[current_voice][current_patterns[current_voice]].steps[i] =
-                Step(0);
+            seq.voice->pattern()->steps[i] = Step(0);
           }
         } else if (is_numpad_key(key)) {
 
@@ -294,63 +305,45 @@ void loop() {
 #ifdef DEBUG
           Serial.print("index: ");
           Serial.println(index);
-          Serial.print("value: ");
-          Serial.println(
-              patterns[current_voice][current_patterns[current_voice]]
-                  .steps[index]);
 #endif
 
           if (trellis.isPressed(KEY_VOICE_SELECT_0)) {
-            patterns[0][index].pos = patterns[0][current_patterns[0]].pos;
             voice_select_modifier_held = true;
-            current_patterns[0] = index;
+            seq.voices[0].pattern_idx = index;
           }
 
           if (trellis.isPressed(KEY_VOICE_SELECT_1)) {
-            patterns[1][index].pos = patterns[1][current_patterns[1]].pos;
             voice_select_modifier_held = true;
-            current_patterns[1] = index;
+            seq.voices[1].pattern_idx = index;
           }
 
           if (trellis.isPressed(KEY_VOICE_SELECT_2)) {
-            patterns[2][index].pos = patterns[2][current_patterns[2]].pos;
             voice_select_modifier_held = true;
-            current_patterns[2] = index;
+            seq.voices[2].pattern_idx = index;
           }
 
           if (trellis.isPressed(KEY_VOICE_SELECT_3)) {
-            patterns[3][index].pos = patterns[3][current_patterns[3]].pos;
             voice_select_modifier_held = true;
-            current_patterns[3] = index;
+            seq.voices[3].pattern_idx = index;
           }
 
           if (trellis.isPressed(KEY_VOICE_SELECT_4)) {
-            patterns[4][index].pos = patterns[4][current_patterns[4]].pos;
             voice_select_modifier_held = true;
-            current_patterns[4] = index;
+            seq.voices[4].pattern_idx = index;
           }
 
           if (trellis.isPressed(KEY_VOICE_SELECT_5)) {
-            patterns[5][index].pos = patterns[5][current_patterns[5]].pos;
             voice_select_modifier_held = true;
-            current_patterns[5] = index;
+            seq.voices[5].pattern_idx = index;
           }
 
           if (trellis.isPressed(KEY_ROTATE)) {
-            rotate_array_elements(
-                patterns[current_voice][current_patterns[current_voice]].steps,
-                index);
+            rotate_array_elements(seq.voice->pattern()->steps, index);
           } else if (!voice_select_modifier_held) {
-            if (patterns[current_voice][current_patterns[current_voice]]
-                    .steps[index]
-                    .v == 0) {
-              patterns[current_voice][current_patterns[current_voice]]
-                  .steps[index]
-                  .v = 100;
-
+            if (seq.voice->pattern()->steps[index].v == 0) {
+              seq.voice->pattern()->steps[index].v = 100;
             } else {
-              patterns[current_voice][current_patterns[current_voice]]
-                  .steps[index] = 0;
+              seq.voice->pattern()->steps[index].v = 0;
             }
           }
 
@@ -391,17 +384,16 @@ void loop() {
   if (now - last_step_time > STEP_DURATION) {
     last_step_time = now;
     for (int voice = 0; voice < VOICES; voice++) {
-      // if (patterns[voice][currentPattern].steps[currentPos] %
-      // patterns[voice][currentPattern].length >
-      // 0) {
-      // TODO: turn off only playing notes
-      trellis.noteOff(FIRST_MIDI_NOTE + voice, MIDI_NOTE_OFF_VELOCITY);
-      // }
+      if (seq.voices[voice].is_playing) {
+        trellis.noteOff(FIRST_MIDI_NOTE + voice, MIDI_NOTE_OFF_VELOCITY);
+        seq.voices[voice].is_playing = false;
+      }
     }
     trellis.sendMIDI();
     for (int voice = 0; voice < VOICES; voice++) {
-      current_step = patterns[voice][current_patterns[voice]].advance();
+      current_step = seq.voices[voice].advance();
       if (current_step.v > 0) {
+        seq.voices[voice].is_playing = true;
         trellis.noteOn(FIRST_MIDI_NOTE + voice, current_step.v);
       }
     }
