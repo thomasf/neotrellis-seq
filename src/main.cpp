@@ -38,66 +38,53 @@ unsigned long last_step_time;
 
 Adafruit_NeoTrellisM4 trellis = Adafruit_NeoTrellisM4();
 
-// TODO: Step represents a single sequencer step
+// Step represents a single sequencer step
 class Step {
-  uint32_t value;
+public:
+  uint32_t v;
+  Step() { v = 0; }
+  Step(uint32_t value) { v = value; }
+  Step(const Step &s) { v = s.v; }
 };
 
 // Pattern is a sequence of steps.
 class Pattern {
-
-  // NOTE: pattern undo data here uses about 50% of total RAM, step values
-  // needs to beats 32 bit types because they will contain more than just note
-  // velocity later. If memory becomes an issue we don't have to store undo
-  // locally for each pattern.
-
 public:
-  uint32_t length;                // pattern length, up to 16 steps
-  uint32_t pos;                   // current position
-  std::array<uint32_t, 16> steps; // pattern data
-  std::array<std::array<uint32_t, 16>, 16> undo; // pattern undo data
-  uint32_t advance();                            // advace to next step
-  uint32_t get();                                // get current step value
-  uint32_t get(uint32_t idx); // get current step value for pos
+  uint32_t length;            // pattern length, up to 16 steps
+  uint32_t pos;               // current position
+  std::array<Step, 16> steps; // pattern data
+  Step advance();             // advace to next step
+  Step get();                 // get current step value
+  Step get(uint32_t idx);     // get current step value for pos
   Pattern() {
     pos = 0;
     length = 16;
-    for (int i = 0; i < 16; i++) {
-      steps[i] = 0;
-      for (int j = 0; j < 16; j++) {
-        undo[i][j] = 0;
-      }
-    }
   }
   Pattern(const Pattern &p) {
     pos = p.pos;
     length = p.length;
     steps = p.steps;
-    for (int i = 0; i < 16; i++) {
-      for (int j = 0; j < 16; j++) {
-        undo[i][j] = 0;
-      }
-    }
   }
 };
 
-uint32_t Pattern::advance() {
+Step Pattern::advance() {
   pos = (pos + 1) % length;
   return steps[pos];
 }
 
-uint32_t Pattern::get() { return steps[pos]; }
+Step Pattern::get() { return steps[pos]; }
 
-uint32_t Pattern::get(uint32_t idx) { return steps[idx]; }
+Step Pattern::get(uint32_t idx) { return steps[idx]; }
 
-// TODO: Voice is a collection of patterns
+// Voice is a collection of patterns
 class Voice {
 public:
   Pattern patterns[16];
 };
 
-// std::array<Voice, VOICES> voices;
 
+std::array<std::array<Step, 16>, 16> undo_buffer;
+std::array<Voice, VOICES> voices;
 Pattern copy_buffer;
 Pattern patterns[VOICES][16]; // 16 patterns for each voice
 uint32_t current_patterns[VOICES];
@@ -153,7 +140,7 @@ void setup() {
 uint32_t globalPos = 0;
 
 uint32_t current_voice = 0;
-uint32_t current_step_value = 0;
+Step current_step = 0;
 
 uint32_t seq_color_set = COLOR_VOC0_SET;
 uint32_t seq_color_bg = COLOR_VOC0_UNSET;
@@ -197,8 +184,9 @@ void loop() {
     } else if (patterns[current_voice][current_patterns[current_voice]]
                    .length <= i) {
       trellis.setPixelColor(step_key[i], trellis.gamma32(COLOR_OFF));
-    } else if (patterns[current_voice][current_patterns[current_voice]].get(i) >
-               0) {
+    } else if (patterns[current_voice][current_patterns[current_voice]]
+                   .get(i)
+                   .v > 0) {
       trellis.setPixelColor(step_key[i], trellis.gamma32(seq_color_set));
     } else {
       trellis.setPixelColor(step_key[i], trellis.gamma32(seq_color_bg));
@@ -298,7 +286,7 @@ void loop() {
         } else if (key == KEY_CLEAR) {
           for (int i = 0; i < 16; i++) {
             patterns[current_voice][current_patterns[current_voice]].steps[i] =
-                0;
+                Step(0);
           }
         } else if (is_numpad_key(key)) {
 
@@ -354,9 +342,11 @@ void loop() {
                 index);
           } else if (!voice_select_modifier_held) {
             if (patterns[current_voice][current_patterns[current_voice]]
-                    .steps[index] == 0) {
+                    .steps[index]
+                    .v == 0) {
               patterns[current_voice][current_patterns[current_voice]]
-                  .steps[index] = 100;
+                  .steps[index]
+                  .v = 100;
 
             } else {
               patterns[current_voice][current_patterns[current_voice]]
@@ -410,9 +400,9 @@ void loop() {
     }
     trellis.sendMIDI();
     for (int voice = 0; voice < VOICES; voice++) {
-      current_step_value = patterns[voice][current_patterns[voice]].advance();
-      if (current_step_value > 0) {
-        trellis.noteOn(FIRST_MIDI_NOTE + voice, current_step_value);
+      current_step = patterns[voice][current_patterns[voice]].advance();
+      if (current_step.v > 0) {
+        trellis.noteOn(FIRST_MIDI_NOTE + voice, current_step.v);
       }
     }
   }
