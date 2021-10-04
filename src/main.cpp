@@ -374,9 +374,7 @@ void loop() {
   int now = millis();
   if (now - last_step_time > STEP_DURATION) {
     last_step_time = now;
-
     for (int voice = 0; voice < VOICES; voice++) {
-
       // if (patterns[voice][currentPattern].steps[currentPos] %
       // patterns[voice][currentPattern].length >
       // 0) {
@@ -387,13 +385,12 @@ void loop() {
     trellis.sendMIDI();
     for (int voice = 0; voice < VOICES; voice++) {
       current_step_value = patterns[voice][current_patterns[voice]].advance();
-
       if (current_step_value > 0) {
         trellis.noteOn(FIRST_MIDI_NOTE + voice, current_step_value);
       }
     }
-    trellis.sendMIDI();
   }
+  trellis.sendMIDI();
   delayMicroseconds(10);
   globalPos++;
 }
