@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <vector>
 
+#include "Sequencer.h"
 #include "colors.h"
 #include "config.h"
 #include "delay.h"
@@ -37,72 +38,6 @@ unsigned long last_step_time;
 #define STEP_DURATION 120
 
 Adafruit_NeoTrellisM4 trellis = Adafruit_NeoTrellisM4();
-
-// Step represents a single sequencer step
-class Step {
-public:
-  uint32_t v;
-  Step() { v = 0; }
-  Step(uint32_t value) { v = value; }
-  Step(const Step &s) { v = s.v; }
-};
-
-// Pattern is a sequence of steps.
-class Pattern {
-public:
-  uint32_t length;            // pattern length, up to 16 steps
-  std::array<Step, 16> steps; // pattern data
-  Pattern() { length = 16; }
-  Pattern(const Pattern &p) {
-    length = p.length;
-    steps = p.steps;
-  }
-};
-
-// Voice is a collection of patterns
-class Voice {
-public:
-  std::array<Pattern, 16> patterns;
-  bool is_playing;
-  uint32_t pattern_idx;
-  uint32_t pos;            // current position
-  Step advance();          // advace to next step
-  Step step();             // get current step value
-  Step step(uint32_t idx); // get current step value for pos
-  Pattern *pattern();
-  void replace_pattern(const Pattern p);
-  Voice() {
-    pos = 0;
-    pattern_idx = 0;
-    is_playing = false;
-  }
-};
-Step Voice::step(uint32_t idx) { return pattern()->steps[idx]; }
-Step Voice::step() { return pattern()->steps[pos]; }
-Step Voice::advance() {
-  pos = (pos + 1) % pattern()->length;
-  return pattern()->steps[pos];
-}
-
-void Voice::replace_pattern(const Pattern p) { patterns[pattern_idx] = p; }
-
-// Sequencer is the main data type
-class Sequencer {
-public:
-  std::array<Voice, VOICES> voices;
-  Voice *voice;
-  uint32_t voice_idx;
-  Sequencer() {
-    voice_idx = 0;
-    voice = &voices[0];
-  }
-  void set_voice(uint32_t idx);
-};
-
-void Sequencer::set_voice(uint32_t idx) {
-  voice_idx = idx;
-  voice = &voices[idx];
-};
 
 Sequencer seq = Sequencer();
 
