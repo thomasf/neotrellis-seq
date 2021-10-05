@@ -59,6 +59,80 @@ void reset_undo() { undo_buffer.clear(); };
 
 Pattern copy_buffer = Pattern(); // for copy/paste
 
+constexpr uint32_t voice_key_to_color(uint32_t key) {
+  switch (key) {
+  case KEY_VOICE_SELECT_0:
+    return COLOR_VOC0;
+  case KEY_VOICE_SELECT_1:
+    return COLOR_VOC1;
+  case KEY_VOICE_SELECT_2:
+    return COLOR_VOC2;
+  case KEY_VOICE_SELECT_3:
+    return COLOR_VOC3;
+  case KEY_VOICE_SELECT_4:
+    return COLOR_VOC4;
+  case KEY_VOICE_SELECT_5:
+    return COLOR_VOC5;
+  default:
+    return 999;
+  };
+};
+
+constexpr uint32_t voice_index_to_key(uint32_t idx) {
+  switch (idx) {
+  case 0:
+    return KEY_VOICE_SELECT_0;
+  case 1:
+    return KEY_VOICE_SELECT_1;
+  case 2:
+    return KEY_VOICE_SELECT_2;
+  case 3:
+    return KEY_VOICE_SELECT_3;
+  case 4:
+    return KEY_VOICE_SELECT_4;
+  case 5:
+    return KEY_VOICE_SELECT_5;
+  default:
+    return 999;
+  };
+};
+
+constexpr uint32_t voice_index_to_color(uint32_t idx) {
+  switch (idx) {
+  case 0:
+    return COLOR_VOC0;
+  case 1:
+    return COLOR_VOC1;
+  case 2:
+    return COLOR_VOC2;
+  case 3:
+    return COLOR_VOC3;
+  case 4:
+    return COLOR_VOC4;
+  case 5:
+    return COLOR_VOC5;
+  default:
+    return 999;
+  };
+};
+const uint32_t step_key[16] = {
+    // row 0
+    KEY_SEQ_POS_0, KEY_SEQ_POS_1, KEY_SEQ_POS_2, KEY_SEQ_POS_3,
+    // row 1
+    KEY_SEQ_POS_4, KEY_SEQ_POS_5, KEY_SEQ_POS_6, KEY_SEQ_POS_7,
+    // row 2
+    KEY_SEQ_POS_8, KEY_SEQ_POS_9, KEY_SEQ_POS_10, KEY_SEQ_POS_11,
+    // row 3
+    KEY_SEQ_POS_12, KEY_SEQ_POS_13, KEY_SEQ_POS_14, KEY_SEQ_POS_15
+
+};
+
+#define is_numpad_key(key)                                                     \
+  (key >= KEY_SEQ_POS_0 && key <= KEY_SEQ_POS_3) ||                            \
+      (key >= KEY_SEQ_POS_4 && key <= KEY_SEQ_POS_7) ||                        \
+      (key >= KEY_SEQ_POS_8 && key <= KEY_SEQ_POS_11) ||                       \
+      (key >= KEY_SEQ_POS_12 && key <= KEY_SEQ_POS_15)
+
 void setup() {
   Serial.begin(115200);
 #ifdef DEBUG
@@ -78,12 +152,10 @@ void setup() {
   /*   while(1); */
   /* } */
 
-  trellis.setPixelColor(KEY_VOICE_SELECT_0, trellis.gamma32(COLOR_VOC0));
-  trellis.setPixelColor(KEY_VOICE_SELECT_1, trellis.gamma32(COLOR_VOC1));
-  trellis.setPixelColor(KEY_VOICE_SELECT_2, trellis.gamma32(COLOR_VOC2));
-  trellis.setPixelColor(KEY_VOICE_SELECT_3, trellis.gamma32(COLOR_VOC3));
-  trellis.setPixelColor(KEY_VOICE_SELECT_4, trellis.gamma32(COLOR_VOC4));
-  trellis.setPixelColor(KEY_VOICE_SELECT_5, trellis.gamma32(COLOR_VOC5));
+  for (int i = 0; i < VOICES; i++) {
+    trellis.setPixelColor(voice_index_to_key(i),
+                          trellis.gamma32(voice_index_to_color(i)));
+  }
 
   trellis.setPixelColor(KEY_PATTERN_LEN, trellis.gamma32(COLOR_PMOD));
   trellis.setPixelColor(KEY_PATTERN_POS, trellis.gamma32(COLOR_PMOD));
@@ -104,18 +176,6 @@ uint32_t global_pos = 0;
 uint32_t seq_color_set = COLOR_VOC0_SET;
 uint32_t seq_color_bg = COLOR_VOC0_UNSET;
 
-const uint32_t step_key[16] = {
-    // row 0
-    KEY_SEQ_POS_0, KEY_SEQ_POS_1, KEY_SEQ_POS_2, KEY_SEQ_POS_3,
-    // row 1
-    KEY_SEQ_POS_4, KEY_SEQ_POS_5, KEY_SEQ_POS_6, KEY_SEQ_POS_7,
-    // row 2
-    KEY_SEQ_POS_8, KEY_SEQ_POS_9, KEY_SEQ_POS_10, KEY_SEQ_POS_11,
-    // row 3
-    KEY_SEQ_POS_12, KEY_SEQ_POS_13, KEY_SEQ_POS_14, KEY_SEQ_POS_15
-
-};
-
 bool voice_select_modifier_held = false;
 
 // turn of any running notes
@@ -128,6 +188,7 @@ void notes_off() {
   }
 }
 
+bool is_voice_select_hl_period = false;
 // run_step sends midi for the next/prev step
 void run_step(bool next) {
   notes_off();
@@ -139,17 +200,14 @@ void run_step(bool next) {
       current_step = seq.voices[voice].step();
     }
     if (current_step.vel > 0) {
-      seq.voices[voice].is_playing = true;
       trellis.noteOn(FIRST_MIDI_NOTE + voice, current_step.vel);
+      trellis.setPixelColor(voice_index_to_key(voice),
+                            trellis.gamma32(COLOR_PPOS));
+      seq.voices[voice].is_playing = true;
+      is_voice_select_hl_period = true;
     }
   }
 }
-
-#define is_numpad_key(key)                                                     \
-  (key >= KEY_SEQ_POS_0 && key <= KEY_SEQ_POS_3) ||                            \
-      (key >= KEY_SEQ_POS_4 && key <= KEY_SEQ_POS_7) ||                        \
-      (key >= KEY_SEQ_POS_8 && key <= KEY_SEQ_POS_11) ||                       \
-      (key >= KEY_SEQ_POS_12 && key <= KEY_SEQ_POS_15)
 
 void loop() {
   voice_select_modifier_held = false;
@@ -349,6 +407,7 @@ void loop() {
 #ifdef DEBUG
       Serial.println(" released\n");
 #endif
+
       if (key == KEY_VOICE_SELECT_0) {
         trellis.setPixelColor(key, trellis.gamma32(COLOR_VOC0));
 
@@ -372,6 +431,7 @@ void loop() {
       }
     }
   }
+
   trellis.show();
 
   int now = millis();
@@ -382,6 +442,7 @@ void loop() {
 #define _MIDI_MSG_CLOCK 0xF8
 
 #ifdef INTERNAL_CLOCK
+  ppqn = ((4 * 24 * (now - last_step_time)) / beat_interval);
   if ((now - last_step_time) >= (beat_interval / 4)) {
     run_step(true);
     ppqn = 0;
@@ -416,6 +477,12 @@ void loop() {
       MidiUSB.flush();
     }
   } while (event.header != 0);
-
 #endif
+  if (is_voice_select_hl_period && ppqn >= 2) {
+    is_voice_select_hl_period = false;
+    for (int i = 0; i < VOICES; i++) {
+      trellis.setPixelColor(voice_index_to_key(i),
+                            trellis.gamma32(voice_index_to_color(i)));
+    }
+  }
 }
