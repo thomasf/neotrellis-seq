@@ -37,6 +37,10 @@ unsigned long start_time;
 unsigned long last_step_time;
 #define STEP_DURATION 120
 
+uint32_t beat_interval = 60000L / BPM;
+
+uint32_t ppqn = 0;
+
 Adafruit_NeoTrellisM4 trellis = Adafruit_NeoTrellisM4();
 
 Sequencer seq = Sequencer();
@@ -92,10 +96,9 @@ void setup() {
   last_step_time = start_time;
 }
 
-uint32_t globalPos = 0;
+uint32_t global_pos = 0;
 
 uint32_t current_voice = 0;
-Step current_step = 0;
 
 uint32_t seq_color_set = COLOR_VOC0_SET;
 uint32_t seq_color_bg = COLOR_VOC0_UNSET;
@@ -122,6 +125,33 @@ uint32_t index_of(const uint32_t a[], uint32_t size, uint32_t value) {
 }
 
 bool voice_select_modifier_held = false;
+
+// turn of any running notes
+void notes_off() {
+  for (int voice = 0; voice < VOICES; voice++) {
+    if (seq.voices[voice].is_playing) {
+      trellis.noteOff(FIRST_MIDI_NOTE + voice, MIDI_NOTE_OFF_VELOCITY);
+      seq.voices[voice].is_playing = false;
+    }
+  }
+}
+
+// run_step sends midi for the next/prev step
+void run_step(bool next) {
+  notes_off();
+  Step current_step = Step();
+  for (int voice = 0; voice < VOICES; voice++) {
+    if (next) {
+      current_step = seq.voices[voice].advance();
+    } else {
+      current_step = seq.voices[voice].step();
+    }
+    if (current_step.vel > 0) {
+      seq.voices[voice].is_playing = true;
+      trellis.noteOn(FIRST_MIDI_NOTE + voice, current_step.vel);
+    }
+  }
+}
 
 #define is_numpad_key(key)                                                     \
   (key >= KEY_SEQ_POS_0 && key <= KEY_SEQ_POS_3) ||                            \
@@ -184,7 +214,7 @@ void loop() {
           Serial.println(index);
 #endif
           if (index == 0) {
-            seq.voice->pos = seq.voice->pattern()->length;
+            seq.voice->pos = seq.voice->pattern()->length-1;
           } else {
             // TODO: need to decide when global time advances. Right now play
             // head is moved to the previous step as a work around.
@@ -277,7 +307,7 @@ void loop() {
               std::reverse(seq.voice->pattern()->steps.begin(),
                            seq.voice->pattern()->steps.end());
             } else {
-              rotate_array_elements(seq.voice->pattern()->steps, index);
+              rotate_array_elements(seq.voice->pattern()->steps, 16-index);
             }
           } else if (!voice_select_modifier_held) {
             if (seq.voice->pattern()->steps[index].vel == 0) {
@@ -321,24 +351,47 @@ void loop() {
   trellis.show();
 
   int now = millis();
-  if (now - last_step_time > STEP_DURATION) {
+
+#define _MIDI_MSG_START 0xFA
+#define _MIDI_MSG_STOP 0xFC
+#define _MIDI_MSG_CONT 0xFB
+#define _MIDI_MSG_CLOCK 0xF8
+
+#ifdef INTERNAL_CLOCK
+  if ((now - last_step_time) >= (beat_interval / 4)) {
+    run_step(true);
+    ppqn = 0;
     last_step_time = now;
-    for (int voice = 0; voice < VOICES; voice++) {
-      if (seq.voices[voice].is_playing) {
-        trellis.noteOff(FIRST_MIDI_NOTE + voice, MIDI_NOTE_OFF_VELOCITY);
-        seq.voices[voice].is_playing = false;
+    global_pos++;
+  };
+#else
+
+  midiEventPacket_t event;
+  do {
+    event = MidiUSB.read();
+    if (event.byte1 == _MIDI_MSG_CLOCK) {
+      ++ppqn;
+      if (ppqn == CLOCK_DIVISION) {
+        global_pos++;
+        run_step(true);
+        MidiUSB.flush();
+        ppqn = 0;
+      };
+    } else if (event.byte1 == _MIDI_MSG_CONT) {
+      ppqn = 0;
+    } else if (event.byte1 == _MIDI_MSG_START) {
+      global_pos = 0;
+      for (int voice = 0; voice < VOICES; voice++) {
+        seq.voices[voice].pos = 0;
       }
+      ppqn = 0;
+      run_step(false);
+      MidiUSB.flush();
+    } else if (event.byte1 == _MIDI_MSG_STOP) {
+      notes_off();
+      MidiUSB.flush();
     }
-    trellis.sendMIDI();
-    for (int voice = 0; voice < VOICES; voice++) {
-      current_step = seq.voices[voice].advance();
-      if (current_step.vel > 0) {
-        seq.voices[voice].is_playing = true;
-        trellis.noteOn(FIRST_MIDI_NOTE + voice, current_step.vel);
-      }
-    }
-  }
-  trellis.sendMIDI();
-  delayMicroseconds(10);
-  globalPos++;
+  } while (event.header != 0);
+
+#endif
 }
