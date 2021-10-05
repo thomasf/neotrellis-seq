@@ -3,7 +3,7 @@
 set -e
 
 echo "build..."
-go run gen/main.go
+go run contrib/palette.go
 platformio run -s -e dev -t upload
 
 echo "watch..."
