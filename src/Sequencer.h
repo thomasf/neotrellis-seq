@@ -14,6 +14,7 @@ public:
   Step();
   Step(uint32_t value);
   Step(const Step &s);
+  bool operator==(const Step &s) const;
 };
 
 // Pattern is a sequence of steps.
@@ -23,6 +24,7 @@ public:
   std::array<Step, 16> steps; // pattern data
   Pattern();
   Pattern(const Pattern &p);
+  bool operator==(const Pattern &p) const;
 };
 
 // Voice is a collection of patterns

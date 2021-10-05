@@ -6,6 +6,8 @@ Step::Step(uint32_t value) { vel = value; };
 
 Step::Step(const Step &s) { vel = s.vel; };
 
+bool Step::operator==(const Step &s) const { return vel == s.vel; }
+
 Pattern::Pattern() { length = 16; };
 
 Pattern::Pattern(const Pattern &p) {
@@ -13,11 +15,17 @@ Pattern::Pattern(const Pattern &p) {
   steps = p.steps;
 };
 
+bool Pattern::operator==(const Pattern &p) const {
+  return length == p.length && steps == p.steps;
+}
+
 Voice::Voice() {
   pos = 0;
   pattern_idx = 0;
   is_playing = false;
 }
+
+Pattern *Voice::pattern() { return &patterns[pattern_idx]; }
 
 Step Voice::step(uint32_t idx) { return pattern()->steps[idx]; }
 

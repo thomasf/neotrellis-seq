@@ -6,50 +6,58 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <delay.h>
+#include <deque>
 #include <vector>
 
 #include "Sequencer.h"
 #include "colors.h"
 #include "config.h"
-#include "delay.h"
-
-template <typename T> int rotate_array_elements(T &v, int dir) {
-  if (dir > 0) {
-    std::rotate(v.rbegin(), v.rbegin() + dir, v.rend());
-    return 0;
-  } else if (dir < 0) {
-    std::rotate(v.begin(), v.begin() + abs(dir), v.end());
-    return 0;
-  } else {
-    return 1;
-  }
-}
+#include "utils.h"
 
 Adafruit_ADXL343 accel = Adafruit_ADXL343(123, &Wire1);
 
-int xCC = 1; // choose a CC number to control with x axis tilting of the board.
-             // 1 is mod wheel, for example.
+// int xCC = 1; // choose a CC number to control with x axis tilting of the
+// board.
+//              // 1 is mod wheel, for example.
 
-int last_xbend = 0;
-int last_ybend = 0;
+// int last_xbend = 0;
+// int last_ybend = 0;
 
 unsigned long start_time;
 unsigned long last_step_time;
 #define STEP_DURATION 120
 
 uint32_t beat_interval = 60000L / BPM;
-
 uint32_t ppqn = 0;
 
 Adafruit_NeoTrellisM4 trellis = Adafruit_NeoTrellisM4();
 
 Sequencer seq = Sequencer();
+uint32_t current_voice = 0;
 
-Pattern *Voice::pattern() { return &patterns[pattern_idx]; }
+std::deque<Pattern> undo_buffer;
 
-std::array<std::array<Step, 16>, 16> undo_buffer;
+void create_undo_step() {
+  if (undo_buffer.size() > 0 && undo_buffer.back() == *seq.voice->pattern()) {
+    return;
+  }
+  undo_buffer.push_back(Pattern(*seq.voice->pattern()));
+  if (undo_buffer.size() > UNDO_LENGTH) {
+    undo_buffer.pop_front();
+  }
+};
 
-Pattern copy_buffer = Pattern();
+void undo() {
+  if (undo_buffer.size() > 0) {
+    seq.voice->replace_pattern(undo_buffer.back());
+    undo_buffer.pop_back();
+  }
+};
+
+void reset_undo() { undo_buffer.clear(); };
+
+Pattern copy_buffer = Pattern(); // for copy/paste
 
 void setup() {
   Serial.begin(115200);
@@ -62,11 +70,6 @@ void setup() {
   trellis.begin();
   trellis.setBrightness(200);
   trellis.fill(trellis.gamma32(COLOR_OFF));
-
-// USB MIDI messages sent over the micro B USB port
-#ifdef DEBUG
-  Serial.println("Enabling MIDI on USB");
-#endif
   trellis.enableUSBMIDI(true);
   trellis.setUSBMIDIchannel(MIDI_CHANNEL);
 
@@ -89,7 +92,7 @@ void setup() {
   trellis.setPixelColor(KEY_COPY, trellis.gamma32(COLOR_PACT));
   trellis.setPixelColor(KEY_PASTE, trellis.gamma32(COLOR_PACT));
   trellis.setPixelColor(KEY_CLEAR, trellis.gamma32(COLOR_PACT));
-  // trellis.setPixelColor(KEY_UNDO, trellis.gamma32(COLOR_PACT));
+  trellis.setPixelColor(KEY_UNDO, trellis.gamma32(COLOR_PACT));
 
   trellis.show();
   start_time = millis();
@@ -97,8 +100,6 @@ void setup() {
 }
 
 uint32_t global_pos = 0;
-
-uint32_t current_voice = 0;
 
 uint32_t seq_color_set = COLOR_VOC0_SET;
 uint32_t seq_color_bg = COLOR_VOC0_UNSET;
@@ -114,15 +115,6 @@ const uint32_t step_key[16] = {
     KEY_SEQ_POS_12, KEY_SEQ_POS_13, KEY_SEQ_POS_14, KEY_SEQ_POS_15
 
 };
-
-uint32_t index_of(const uint32_t a[], uint32_t size, uint32_t value) {
-  uint32_t index = 0;
-
-  while (index < size && a[index] != value)
-    ++index;
-
-  return (index == size ? -1 : index);
-}
 
 bool voice_select_modifier_held = false;
 
@@ -199,7 +191,7 @@ void loop() {
           Serial.print(" setting new length for pattern ");
           Serial.println(index);
 #endif
-
+          create_undo_step();
           seq.voice->pattern()->length = index + 1;
           Serial.println(" le\n");
         };
@@ -213,8 +205,9 @@ void loop() {
           Serial.print(" setting new position for pattern ");
           Serial.println(index);
 #endif
+          create_undo_step();
           if (index == 0) {
-            seq.voice->pos = seq.voice->pattern()->length-1;
+            seq.voice->pos = seq.voice->pattern()->length - 1;
           } else {
             // TODO: need to decide when global time advances. Right now play
             // head is moved to the previous step as a work around.
@@ -224,43 +217,54 @@ void loop() {
 
       } else {
 
-        if (key == KEY_VOICE_SELECT_0) {
+        if (key == KEY_VOICE_SELECT_0 && seq.voice_idx != 0) {
+          reset_undo();
           seq.set_voice(0);
           seq_color_set = COLOR_VOC0_SET;
           seq_color_bg = COLOR_VOC0_UNSET;
 
-        } else if (key == KEY_VOICE_SELECT_1) {
+        } else if (key == KEY_VOICE_SELECT_1 && seq.voice_idx != 1) {
+          reset_undo();
           seq.set_voice(1);
           seq_color_set = COLOR_VOC1_SET;
           seq_color_bg = COLOR_VOC1_UNSET;
 
-        } else if (key == KEY_VOICE_SELECT_2) {
+        } else if (key == KEY_VOICE_SELECT_2 && seq.voice_idx != 2) {
+          reset_undo();
           seq.set_voice(2);
           seq_color_set = COLOR_VOC2_SET;
           seq_color_bg = COLOR_VOC2_UNSET;
 
-        } else if (key == KEY_VOICE_SELECT_3) {
+        } else if (key == KEY_VOICE_SELECT_3 && seq.voice_idx != 3) {
+          reset_undo();
           seq.set_voice(3);
           seq_color_set = COLOR_VOC3_SET;
           seq_color_bg = COLOR_VOC3_UNSET;
 
-        } else if (key == KEY_VOICE_SELECT_4) {
+        } else if (key == KEY_VOICE_SELECT_4 && seq.voice_idx != 4) {
+          reset_undo();
           seq.set_voice(4);
           seq_color_set = COLOR_VOC4_SET;
           seq_color_bg = COLOR_VOC4_UNSET;
 
-        } else if (key == KEY_VOICE_SELECT_5) {
+        } else if (key == KEY_VOICE_SELECT_5 && seq.voice_idx != 5) {
+          reset_undo();
           seq.set_voice(5);
           seq_color_set = COLOR_VOC5_SET;
           seq_color_bg = COLOR_VOC5_UNSET;
+
+        } else if (key == KEY_UNDO) {
+          undo();
 
         } else if (key == KEY_COPY) {
           copy_buffer = Pattern(*seq.voice->pattern());
 
         } else if (key == KEY_PASTE) {
+          create_undo_step();
           seq.voice->replace_pattern(Pattern(copy_buffer));
 
         } else if (key == KEY_CLEAR) {
+          create_undo_step();
           for (int i = 0; i < 16; i++) {
             seq.voice->pattern()->steps[i] = Step(0);
           }
@@ -274,42 +278,62 @@ void loop() {
 
           if (trellis.isPressed(KEY_VOICE_SELECT_0)) {
             voice_select_modifier_held = true;
-            seq.voices[0].pattern_idx = index;
+            if (seq.voices[0].pattern_idx != index) {
+              seq.voices[0].pattern_idx = index;
+              reset_undo();
+            }
           }
 
           if (trellis.isPressed(KEY_VOICE_SELECT_1)) {
             voice_select_modifier_held = true;
-            seq.voices[1].pattern_idx = index;
+            if (seq.voices[1].pattern_idx != index) {
+              seq.voices[1].pattern_idx = index;
+              reset_undo();
+            }
           }
 
           if (trellis.isPressed(KEY_VOICE_SELECT_2)) {
             voice_select_modifier_held = true;
-            seq.voices[2].pattern_idx = index;
+            if (seq.voices[2].pattern_idx != index) {
+              seq.voices[2].pattern_idx = index;
+              reset_undo();
+            }
           }
 
           if (trellis.isPressed(KEY_VOICE_SELECT_3)) {
             voice_select_modifier_held = true;
-            seq.voices[3].pattern_idx = index;
+            if (seq.voices[3].pattern_idx != index) {
+              seq.voices[3].pattern_idx = index;
+              reset_undo();
+            }
           }
 
           if (trellis.isPressed(KEY_VOICE_SELECT_4)) {
             voice_select_modifier_held = true;
-            seq.voices[4].pattern_idx = index;
+            if (seq.voices[4].pattern_idx != index) {
+              seq.voices[4].pattern_idx = index;
+              reset_undo();
+            }
           }
 
           if (trellis.isPressed(KEY_VOICE_SELECT_5)) {
             voice_select_modifier_held = true;
-            seq.voices[5].pattern_idx = index;
+            if (seq.voices[5].pattern_idx != index) {
+              seq.voices[5].pattern_idx = index;
+              reset_undo();
+            }
           }
 
           if (trellis.isPressed(KEY_ROTATE)) {
+            create_undo_step();
             if (index == 0) {
               std::reverse(seq.voice->pattern()->steps.begin(),
                            seq.voice->pattern()->steps.end());
             } else {
-              rotate_array_elements(seq.voice->pattern()->steps, 16-index);
+              rotate_array_elements(seq.voice->pattern()->steps, 16 - index);
             }
           } else if (!voice_select_modifier_held) {
+            create_undo_step();
             if (seq.voice->pattern()->steps[index].vel == 0) {
               seq.voice->pattern()->steps[index].vel = 100;
             } else {
