@@ -139,7 +139,7 @@ void loop() {
       trellis.setPixelColor(step_key[i], trellis.gamma32(COLOR_PPOS));
     } else if (seq.voice->pattern()->length <= i) {
       trellis.setPixelColor(step_key[i], trellis.gamma32(COLOR_OFF));
-    } else if (seq.voice->step(i).v > 0) {
+    } else if (seq.voice->step(i).vel > 0) {
       trellis.setPixelColor(step_key[i], trellis.gamma32(seq_color_set));
     } else {
       trellis.setPixelColor(step_key[i], trellis.gamma32(seq_color_bg));
@@ -280,10 +280,10 @@ void loop() {
               rotate_array_elements(seq.voice->pattern()->steps, index);
             }
           } else if (!voice_select_modifier_held) {
-            if (seq.voice->pattern()->steps[index].v == 0) {
-              seq.voice->pattern()->steps[index].v = 100;
+            if (seq.voice->pattern()->steps[index].vel == 0) {
+              seq.voice->pattern()->steps[index].vel = 100;
             } else {
-              seq.voice->pattern()->steps[index].v = 0;
+              seq.voice->pattern()->steps[index].vel = 0;
             }
           }
 
@@ -332,9 +332,9 @@ void loop() {
     trellis.sendMIDI();
     for (int voice = 0; voice < VOICES; voice++) {
       current_step = seq.voices[voice].advance();
-      if (current_step.v > 0) {
+      if (current_step.vel > 0) {
         seq.voices[voice].is_playing = true;
-        trellis.noteOn(FIRST_MIDI_NOTE + voice, current_step.v);
+        trellis.noteOn(FIRST_MIDI_NOTE + voice, current_step.vel);
       }
     }
   }

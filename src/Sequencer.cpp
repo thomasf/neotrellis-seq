@@ -1,10 +1,10 @@
 #include "Sequencer.h"
 
-Step::Step() { v = 0; };
+Step::Step() { vel = 0; };
 
-Step::Step(uint32_t value) { v = value; };
+Step::Step(uint32_t value) { vel = value; };
 
-Step::Step(const Step &s) { v = s.v; };
+Step::Step(const Step &s) { vel = s.vel; };
 
 Pattern::Pattern() { length = 16; };
 
@@ -25,7 +25,7 @@ Step Voice::step() { return pattern()->steps[pos]; }
 
 Step Voice::advance() {
   pos = (pos + 1) % pattern()->length;
-  return pattern()->steps[pos];
+  return step();
 }
 
 void Voice::replace_pattern(const Pattern p) { patterns[pattern_idx] = p; }

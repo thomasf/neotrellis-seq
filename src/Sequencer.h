@@ -10,7 +10,7 @@
 // Step represents a single sequencer step
 class Step {
 public:
-  uint32_t v;
+  uint8_t vel; // midi velocity
   Step();
   Step(uint32_t value);
   Step(const Step &s);
@@ -29,25 +29,25 @@ public:
 class Voice {
 public:
   std::array<Pattern, 16> patterns;
-  bool is_playing;
-  uint32_t pattern_idx;
-  uint32_t pos;            // current position
-  Step advance();          // advace to next step
-  Step step();             // get current step value
-  Step step(uint32_t idx); // get current step value for pos
-  Pattern *pattern();
-  void replace_pattern(const Pattern p);
+  bool is_playing;                       // a note is currently being played
+  uint32_t pattern_idx;                  // current pattern index
+  Pattern *pattern();                    // current pattern
+  void replace_pattern(const Pattern p); // replace current pattern
+  uint32_t pos;                          // current position
+  Step advance();                        // advace to next step
+  Step step();                           // get current step value
+  Step step(uint32_t idx);               // get current step value for pos
   Voice();
 };
 
 // Sequencer is the main data type
 class Sequencer {
 public:
-  std::array<Voice, VOICES> voices;
-  Voice *voice;
-  uint32_t voice_idx;
+  std::array<Voice, VOICES> voices; // all voices
+  Voice *voice;                     // current voice
+  uint32_t voice_idx;               // current voice index
+  void set_voice(uint32_t idx);     // set the currenlty active voice by index
   Sequencer();
-  void set_voice(uint32_t idx);
 };
 
 #endif
