@@ -33,7 +33,7 @@ var (
 		Voice2:          "#20bcaf",
 		Voice3:          "#489120",
 		Voice4:          "#b030b0",
-		Voice5:          "#d0d040",
+		Voice5:          "#808000",
 		Tool:            "#902020",
 		PatternAction:   "#8080b0",
 		PatternModifier: "#808b80",
