@@ -133,14 +133,15 @@ func (p Theme) NamedColors() NamedColors {
 
 func colorDef(c HexColor, name string, variant string) string {
 	var sb strings.Builder
-	sb.WriteString("#define COLOR_")
+	sb.WriteString("uint32_t static const COLOR_")
 	sb.WriteString(strings.ToUpper(name))
 	if variant != "" {
 		sb.WriteString("_")
 		sb.WriteString(strings.ToUpper(variant))
 	}
-	sb.WriteString(" 0x")
+	sb.WriteString(" = 0x")
 	sb.WriteString(strings.ToUpper(strings.TrimPrefix(c.Color().Clamped().Hex(), "#")))
+	sb.WriteString(";")
 	return sb.String()
 }
 

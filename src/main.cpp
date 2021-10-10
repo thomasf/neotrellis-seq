@@ -133,6 +133,11 @@ const uint32_t step_key[16] = {
       (key >= KEY_SEQ_POS_8 && key <= KEY_SEQ_POS_11) ||                       \
       (key >= KEY_SEQ_POS_12 && key <= KEY_SEQ_POS_15)
 
+uint8_t static const _MIDI_MSG_START = 0xFA;
+uint8_t static const _MIDI_MSG_STOP = 0xFC;
+uint8_t static const _MIDI_MSG_CONT = 0xFB;
+uint8_t static const _MIDI_MSG_CLOCK = 0xF8;
+
 void setup() {
   Serial.begin(115200);
 #ifdef DEBUG
@@ -435,11 +440,6 @@ void loop() {
   trellis.show();
 
   int now = millis();
-
-#define _MIDI_MSG_START 0xFA
-#define _MIDI_MSG_STOP 0xFC
-#define _MIDI_MSG_CONT 0xFB
-#define _MIDI_MSG_CLOCK 0xF8
 
 #ifdef INTERNAL_CLOCK
   ppqn = ((4 * 24 * (now - last_step_time)) / beat_interval);
