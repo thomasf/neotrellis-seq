@@ -170,11 +170,19 @@ void loop() {
           seq.voice->pattern()->length = index + 1;
           Serial.println(" le\n");
         };
-      } else if (trellis.isPressed(KEY_PATTERN_POS)) {
-        if (is_numpad_key(key)) {
-          uint32_t index = index_of(step_key, 16, key);
-
-          create_undo_step();
+      } else if (trellis.isPressed(KEY_PATTERN_POS) && is_numpad_key(key)) {
+        uint32_t index = index_of(step_key, 16, key);
+        if (trellis.isPressed(KEY_VOICE_SELECT_ALL)) {
+          for (int voice = 0; voice < VOICES; voice++) {
+            if (index == 0) {
+              seq.voices[voice].pos = seq.voices[voice].pattern()->length - 1;
+            } else {
+              // TODO: need to decide when global time advances. Right now play
+              // head is moved to the previous step as a work around.
+              seq.voices[voice].pos = index - 1;
+            }
+          }
+        } else {
           if (index == 0) {
             seq.voice->pos = seq.voice->pattern()->length - 1;
           } else {
