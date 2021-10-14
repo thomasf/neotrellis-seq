@@ -157,15 +157,10 @@ void loop() {
   while (trellis.available()) {
     keypadEvent e = trellis.read();
     int key = e.bit.KEY;
-#ifdef DEBUG
-    Serial.print("Keypad key: ");
-    Serial.println(key);
-#endif
+    debug_print("key", key);
 
     if (e.bit.EVENT == KEY_JUST_PRESSED) {
-#ifdef DEBUG
-      Serial.println(" pressed\n");
-#endif
+      debug_print("key_pressed", key);
 
       if (trellis.isPressed(KEY_PATTERN_LEN)) {
         if (is_numpad_key(key)) {
@@ -245,17 +240,14 @@ void loop() {
         } else if (is_numpad_key(key)) {
 
           uint32_t index = index_of(step_key, 16, key);
-#ifdef DEBUG
-          Serial.print("index: ");
-          Serial.println(index);
-#endif
+          debug_print("index", index);
 
           if (trellis.isPressed(KEY_VOICE_SELECT_ALL)) {
-               voice_select_modifier_held = true;
-               for (int voice = 0; voice < VOICES; voice++) {
-                seq.voices[voice].pattern_idx = index;
-               }
-               reset_undo();
+            voice_select_modifier_held = true;
+            for (int voice = 0; voice < VOICES; voice++) {
+              seq.voices[voice].pattern_idx = index;
+            }
+            reset_undo();
           } else {
 
             if (trellis.isPressed(KEY_VOICE_SELECT_0)) {
@@ -329,9 +321,7 @@ void loop() {
         }
       }
     } else if (e.bit.EVENT == KEY_JUST_RELEASED) {
-#ifdef DEBUG
-      Serial.println(" released\n");
-#endif
+      debug_print("key_released", key);
 
       if (key == KEY_VOICE_SELECT_0) {
         trellis.setPixelColor(key, trellis.gamma32(COLOR_VOC0));

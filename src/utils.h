@@ -20,4 +20,13 @@ template <typename T> int rotate_array_elements(T &v, int dir) {
   }
 }
 
+#ifdef DEBUG
+#define debug_print(msg, var)                                                  \
+  Serial.print(msg);                                                           \
+  Serial.print(": ");                                                          \
+  Serial.println(var);
+#else
+#define debug_print(msg, var) ;
+#endif
+
 #endif
