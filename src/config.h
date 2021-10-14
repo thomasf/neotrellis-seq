@@ -14,6 +14,7 @@ int static const FIRST_MIDI_NOTE = 36;
 
 /* #define INTERNAL_CLOCK 1 */
 int static const BPM = 120; // tempo for internal clock mode
+int static const STEP_DURATION = 120;
 
 // 24 = quarter note, 12 = eighth notes, 6 = sixteenth notes, 8 = eight note
 // triplets
