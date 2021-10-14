@@ -72,11 +72,12 @@ const uint32_t step_key[16] = {
 
 };
 
-#define is_numpad_key(key)                                                     \
-  (key >= KEY_SEQ_POS_0 && key <= KEY_SEQ_POS_3) ||                            \
-      (key >= KEY_SEQ_POS_4 && key <= KEY_SEQ_POS_7) ||                        \
-      (key >= KEY_SEQ_POS_8 && key <= KEY_SEQ_POS_11) ||                       \
-      (key >= KEY_SEQ_POS_12 && key <= KEY_SEQ_POS_15)
+constexpr bool is_numpad_key(int key) {
+  return (key >= KEY_SEQ_POS_0 && key <= KEY_SEQ_POS_3) ||
+         (key >= KEY_SEQ_POS_4 && key <= KEY_SEQ_POS_7) ||
+         (key >= KEY_SEQ_POS_8 && key <= KEY_SEQ_POS_11) ||
+         (key >= KEY_SEQ_POS_12 && key <= KEY_SEQ_POS_15);
+}
 
 uint8_t static const _MIDI_MSG_START = 0xFA;
 uint8_t static const _MIDI_MSG_STOP = 0xFC;
