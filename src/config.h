@@ -26,6 +26,7 @@ int static const KEY_VOICE_SELECT_2 = 22;
 int static const KEY_VOICE_SELECT_3 = 23;
 int static const KEY_VOICE_SELECT_4 = 30;
 int static const KEY_VOICE_SELECT_5 = 31;
+int static const KEY_VOICE_SELECT_ALL = 7;
 
 int static const KEY_PATTERN_LEN = 29;
 int static const KEY_PATTERN_POS = 21;

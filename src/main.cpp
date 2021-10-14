@@ -92,6 +92,8 @@ void setup() {
   trellis.setPixelColor(KEY_CLEAR, trellis.gamma32(COLOR_PACT));
   trellis.setPixelColor(KEY_UNDO, trellis.gamma32(COLOR_PACT));
 
+  trellis.setPixelColor(KEY_VOICE_SELECT_ALL, trellis.gamma32(COLOR_PPOS));
+
   trellis.show();
   start_time = millis();
   last_step_time = start_time;
@@ -166,29 +168,17 @@ void loop() {
 #endif
 
       if (trellis.isPressed(KEY_PATTERN_LEN)) {
-#ifdef DEBUG
-        Serial.println("pattern length");
-#endif
         if (is_numpad_key(key)) {
           uint32_t index = index_of(step_key, 16, key);
-#ifdef DEBUG
-          Serial.print(" setting new length for pattern ");
-          Serial.println(index);
-#endif
+
           create_undo_step();
           seq.voice->pattern()->length = index + 1;
           Serial.println(" le\n");
         };
       } else if (trellis.isPressed(KEY_PATTERN_POS)) {
-#ifdef DEBUG
-        Serial.println("pattern pos");
-#endif
         if (is_numpad_key(key)) {
           uint32_t index = index_of(step_key, 16, key);
-#ifdef DEBUG
-          Serial.print(" setting new position for pattern ");
-          Serial.println(index);
-#endif
+
           create_undo_step();
           if (index == 0) {
             seq.voice->pos = seq.voice->pattern()->length - 1;
@@ -260,51 +250,60 @@ void loop() {
           Serial.println(index);
 #endif
 
-          if (trellis.isPressed(KEY_VOICE_SELECT_0)) {
-            voice_select_modifier_held = true;
-            if (seq.voices[0].pattern_idx != index) {
-              seq.voices[0].pattern_idx = index;
-              reset_undo();
-            }
-          }
+          if (trellis.isPressed(KEY_VOICE_SELECT_ALL)) {
+               voice_select_modifier_held = true;
+               for (int voice = 0; voice < VOICES; voice++) {
+                seq.voices[voice].pattern_idx = index;
+               }
+               reset_undo();
+          } else {
 
-          if (trellis.isPressed(KEY_VOICE_SELECT_1)) {
-            voice_select_modifier_held = true;
-            if (seq.voices[1].pattern_idx != index) {
-              seq.voices[1].pattern_idx = index;
-              reset_undo();
+            if (trellis.isPressed(KEY_VOICE_SELECT_0)) {
+              voice_select_modifier_held = true;
+              if (seq.voices[0].pattern_idx != index) {
+                seq.voices[0].pattern_idx = index;
+                reset_undo();
+              }
             }
-          }
 
-          if (trellis.isPressed(KEY_VOICE_SELECT_2)) {
-            voice_select_modifier_held = true;
-            if (seq.voices[2].pattern_idx != index) {
-              seq.voices[2].pattern_idx = index;
-              reset_undo();
+            if (trellis.isPressed(KEY_VOICE_SELECT_1)) {
+              voice_select_modifier_held = true;
+              if (seq.voices[1].pattern_idx != index) {
+                seq.voices[1].pattern_idx = index;
+                reset_undo();
+              }
             }
-          }
 
-          if (trellis.isPressed(KEY_VOICE_SELECT_3)) {
-            voice_select_modifier_held = true;
-            if (seq.voices[3].pattern_idx != index) {
-              seq.voices[3].pattern_idx = index;
-              reset_undo();
+            if (trellis.isPressed(KEY_VOICE_SELECT_2)) {
+              voice_select_modifier_held = true;
+              if (seq.voices[2].pattern_idx != index) {
+                seq.voices[2].pattern_idx = index;
+                reset_undo();
+              }
             }
-          }
 
-          if (trellis.isPressed(KEY_VOICE_SELECT_4)) {
-            voice_select_modifier_held = true;
-            if (seq.voices[4].pattern_idx != index) {
-              seq.voices[4].pattern_idx = index;
-              reset_undo();
+            if (trellis.isPressed(KEY_VOICE_SELECT_3)) {
+              voice_select_modifier_held = true;
+              if (seq.voices[3].pattern_idx != index) {
+                seq.voices[3].pattern_idx = index;
+                reset_undo();
+              }
             }
-          }
 
-          if (trellis.isPressed(KEY_VOICE_SELECT_5)) {
-            voice_select_modifier_held = true;
-            if (seq.voices[5].pattern_idx != index) {
-              seq.voices[5].pattern_idx = index;
-              reset_undo();
+            if (trellis.isPressed(KEY_VOICE_SELECT_4)) {
+              voice_select_modifier_held = true;
+              if (seq.voices[4].pattern_idx != index) {
+                seq.voices[4].pattern_idx = index;
+                reset_undo();
+              }
+            }
+
+            if (trellis.isPressed(KEY_VOICE_SELECT_5)) {
+              voice_select_modifier_held = true;
+              if (seq.voices[5].pattern_idx != index) {
+                seq.voices[5].pattern_idx = index;
+                reset_undo();
+              }
             }
           }
 
