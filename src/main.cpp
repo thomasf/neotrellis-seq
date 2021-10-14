@@ -36,6 +36,36 @@ Adafruit_NeoTrellisM4 trellis = Adafruit_NeoTrellisM4();
 Sequencer seq = Sequencer();
 uint32_t current_voice = 0;
 
+void setup_default_patterns() {
+
+  auto static const N = Step(100);
+  auto static const n = Step(60);
+  auto static const _ = Step(0);
+
+  auto const p1 = 15;
+
+  seq.voices[0].patterns[p1].steps = std::array<Step, 16>{
+      N, _, _, _, N, _, _, _, N, _, _, _, N, _, _, _,
+  };
+  seq.voices[1].patterns[p1].steps = std::array<Step, 16>{
+      _, _, _, _, N, _, _, _, _, _, _, _, N, _, _, _,
+  };
+
+  seq.voices[2].patterns[p1].steps = std::array<Step, 16>{
+      n, N, _, _, n, N, _, _, n, N, _, _, n, N, _, n,
+  };
+  seq.voices[3].patterns[p1].steps = std::array<Step, 16>{
+      _, _, n, _, _, _, N, _, _, _, n, _, _, _, N, n,
+  };
+
+  seq.voices[4].patterns[p1].steps = std::array<Step, 16>{
+      _, _, _, _, _, _, _, _, _, N, _, _, _, n, n, _,
+  };
+  seq.voices[5].patterns[p1].steps = std::array<Step, 16>{
+      _, _, n, _, _, N, _, _, n, _, n, n, _, _, _, _,
+  };
+};
+
 std::deque<Pattern> undo_buffer;
 
 void create_undo_step() {
@@ -93,6 +123,8 @@ void setup() {
   trellis.setPixelColor(KEY_UNDO, trellis.gamma32(COLOR_PACT));
 
   trellis.setPixelColor(KEY_VOICE_SELECT_ALL, trellis.gamma32(COLOR_PPOS));
+
+  setup_default_patterns();
 
   trellis.show();
   start_time = millis();
