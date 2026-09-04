@@ -47,11 +47,11 @@ public:
 class UndoBuffer {
 public:
   static constexpr uint32_t capacity = UNDO_LENGTH;
-  bool empty() const;           // true when there is nothing to undo
-  void clear();                 // drop every entry
-  const Pattern &back() const;  // most recent entry, only valid when !empty()
-  void push(const Pattern &p);  // add an entry, dropping the oldest when full
-  void pop();                   // remove the most recent entry
+  bool empty() const;          // true when there is nothing to undo
+  void clear();                // drop every entry
+  const Pattern &back() const; // most recent entry, only valid when !empty()
+  void push(const Pattern &p); // add an entry, dropping the oldest when full
+  void pop();                  // remove the most recent entry
   UndoBuffer();
 
 private:

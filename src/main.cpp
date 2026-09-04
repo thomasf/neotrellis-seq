@@ -31,6 +31,46 @@ uint32_t ppqn = 0;
 
 Adafruit_NeoTrellisM4 trellis = Adafruit_NeoTrellisM4();
 
+// The pixel buffer gets rewritten from scratch every UI frame, but the frame is
+// almost always identical to the one before it: the grid only changes when the
+// play head moves (125ms apart at 120 BPM) or a key edits the pattern, which is
+// rare next to the 8ms frame timer. show() is the expensive half of the frame -
+// it expands all 32 pixels into a 3KB DMA buffer and, if called again before
+// the previous frame has finished, blocks on that transmit plus its 300us latch
+// - so every pixel write goes through set_pixel(), which gamma corrects, then
+// compares against a shadow of what the strip is already showing and only marks
+// the frame dirty on a real change. show_pixels() skips clean frames entirely.
+uint32_t static const NEO_PIXELS = 32;
+uint32_t pixel_shadow[NEO_PIXELS];
+bool pixels_dirty = false;
+
+void set_pixel(uint32_t key, uint32_t color) {
+  if (key >= NEO_PIXELS) {
+    return;
+  }
+  uint32_t const corrected = trellis.gamma32(color);
+  if (pixel_shadow[key] == corrected) {
+    return;
+  }
+  pixel_shadow[key] = corrected;
+  pixels_dirty = true;
+  trellis.setPixelColor(key, corrected);
+}
+
+void fill_pixels(uint32_t color) {
+  for (uint32_t i = 0; i < NEO_PIXELS; i++) {
+    set_pixel(i, color);
+  }
+}
+
+void show_pixels() {
+  if (!pixels_dirty) {
+    return;
+  }
+  pixels_dirty = false;
+  trellis.show();
+}
+
 Sequencer seq = Sequencer();
 uint32_t current_voice = 0;
 
@@ -94,7 +134,7 @@ void setup() {
   trellis.autoUpdateNeoPixels(false);
   trellis.begin();
   trellis.setBrightness(200);
-  trellis.fill(trellis.gamma32(COLOR_OFF));
+  fill_pixels(COLOR_OFF);
   trellis.enableUSBMIDI(true);
   trellis.setUSBMIDIchannel(MIDI_CHANNEL);
 
@@ -104,24 +144,23 @@ void setup() {
   /* } */
 
   for (int i = 0; i < VOICES; i++) {
-    trellis.setPixelColor(voice_index_to_key(i),
-                          trellis.gamma32(voice_index_to_color(i)));
+    set_pixel(voice_index_to_key(i), voice_index_to_color(i));
   }
 
-  trellis.setPixelColor(KEY_PATTERN_LEN, trellis.gamma32(COLOR_PMOD));
-  trellis.setPixelColor(KEY_PATTERN_POS, trellis.gamma32(COLOR_PMOD));
-  trellis.setPixelColor(KEY_ROTATE, trellis.gamma32(COLOR_PMOD));
+  set_pixel(KEY_PATTERN_LEN, COLOR_PMOD);
+  set_pixel(KEY_PATTERN_POS, COLOR_PMOD);
+  set_pixel(KEY_ROTATE, COLOR_PMOD);
 
-  trellis.setPixelColor(KEY_COPY, trellis.gamma32(COLOR_PACT));
-  trellis.setPixelColor(KEY_PASTE, trellis.gamma32(COLOR_PACT));
-  trellis.setPixelColor(KEY_CLEAR, trellis.gamma32(COLOR_PACT));
-  trellis.setPixelColor(KEY_UNDO, trellis.gamma32(COLOR_PACT));
+  set_pixel(KEY_COPY, COLOR_PACT);
+  set_pixel(KEY_PASTE, COLOR_PACT);
+  set_pixel(KEY_CLEAR, COLOR_PACT);
+  set_pixel(KEY_UNDO, COLOR_PACT);
 
-  trellis.setPixelColor(KEY_VOICE_SELECT_ALL, trellis.gamma32(COLOR_PPOS));
+  set_pixel(KEY_VOICE_SELECT_ALL, COLOR_PPOS);
 
   setup_default_patterns();
 
-  trellis.show();
+  show_pixels();
   start_time = millis();
   last_step_time = start_time;
 }
@@ -156,30 +195,40 @@ void run_step(bool next) {
     }
     if (current_step.vel > 0) {
       trellis.noteOn(FIRST_MIDI_NOTE + voice, current_step.vel);
-      trellis.setPixelColor(voice_index_to_key(voice),
-                            trellis.gamma32(COLOR_PPOS));
+      set_pixel(voice_index_to_key(voice), COLOR_PPOS);
       seq.voices[voice].is_playing = true;
       is_voice_select_hl_period = true;
     }
   }
 }
 
-void loop() {
-  voice_select_modifier_held = false;
-  trellis.tick();
+// render_pixels repaints the step grid and clears an expired note highlight.
+// Nothing in here talks to MIDI, so it only needs to run at the UI frame rate.
+void render_pixels() {
+  if (is_voice_select_hl_period && ppqn >= 2) {
+    is_voice_select_hl_period = false;
+    for (int i = 0; i < VOICES; i++) {
+      set_pixel(voice_index_to_key(i), voice_index_to_color(i));
+    }
+  }
 
   for (uint32_t i = 0; i < 16; i++) {
 
     if (i == seq.voice->pos) {
-      trellis.setPixelColor(step_key[i], trellis.gamma32(COLOR_PPOS));
+      set_pixel(step_key[i], COLOR_PPOS);
     } else if (seq.voice->pattern()->length <= i) {
-      trellis.setPixelColor(step_key[i], trellis.gamma32(COLOR_OFF));
+      set_pixel(step_key[i], COLOR_OFF);
     } else if (seq.voice->step(i).vel > 0) {
-      trellis.setPixelColor(step_key[i], trellis.gamma32(seq_color_set));
+      set_pixel(step_key[i], seq_color_set);
     } else {
-      trellis.setPixelColor(step_key[i], trellis.gamma32(seq_color_bg));
+      set_pixel(step_key[i], seq_color_bg);
     }
   }
+}
+
+// handle_keys drains the keypad event queue and applies the edits.
+void handle_keys() {
+  voice_select_modifier_held = false;
 
   while (trellis.available()) {
     keypadEvent e = trellis.read();
@@ -195,7 +244,6 @@ void loop() {
 
           create_undo_step();
           seq.voice->pattern()->length = index + 1;
-          Serial.println(" le\n");
         };
       } else if (trellis.isPressed(KEY_PATTERN_POS) && is_numpad_key(key)) {
         uint32_t index = index_of(step_key, 16, key);
@@ -352,41 +400,43 @@ void loop() {
           }
 
         } else {
-          // trellis.setPixelColor(key, trellis.gamma32(COLOR_PPOS));
+          // set_pixel(key, COLOR_PPOS);
         }
       }
     } else if (e.bit.EVENT == KEY_JUST_RELEASED) {
       debug_print("key_released", key);
 
       if (key == KEY_VOICE_SELECT_0) {
-        trellis.setPixelColor(key, trellis.gamma32(COLOR_VOC0));
+        set_pixel(key, COLOR_VOC0);
 
       } else if (key == KEY_VOICE_SELECT_1) {
-        trellis.setPixelColor(key, trellis.gamma32(COLOR_VOC1));
+        set_pixel(key, COLOR_VOC1);
 
       } else if (key == KEY_VOICE_SELECT_2) {
-        trellis.setPixelColor(key, trellis.gamma32(COLOR_VOC2));
+        set_pixel(key, COLOR_VOC2);
 
       } else if (key == KEY_VOICE_SELECT_3) {
-        trellis.setPixelColor(key, trellis.gamma32(COLOR_VOC3));
+        set_pixel(key, COLOR_VOC3);
 
       } else if (key == KEY_VOICE_SELECT_4) {
-        trellis.setPixelColor(key, trellis.gamma32(COLOR_VOC4));
+        set_pixel(key, COLOR_VOC4);
 
       } else if (key == KEY_VOICE_SELECT_5) {
-        trellis.setPixelColor(key, trellis.gamma32(COLOR_VOC5));
+        set_pixel(key, COLOR_VOC5);
 
       } else {
-        // trellis.setPixelColor(key, trellis.gamma32(COLOR_OFF));
+        // set_pixel(key, COLOR_OFF);
       }
     }
   }
+}
 
-  trellis.show();
-
-  int now = millis();
-
+// service_clock consumes the pending clock messages and runs the steps they
+// call for. This is the timing critical path and wants to be called as often
+// as possible: clock ticks are only 2.1ms apart at 120 BPM.
+void service_clock() {
 #ifdef INTERNAL_CLOCK
+  uint32_t now = millis();
   ppqn = ((4 * 24 * (now - last_step_time)) / beat_interval);
   if ((now - last_step_time) >= (beat_interval / 4)) {
     run_step(true);
@@ -423,11 +473,36 @@ void loop() {
     }
   } while (event.header != 0);
 #endif
-  if (is_voice_select_hl_period && ppqn >= 2) {
-    is_voice_select_hl_period = false;
-    for (int i = 0; i < VOICES; i++) {
-      trellis.setPixelColor(voice_index_to_key(i),
-                            trellis.gamma32(voice_index_to_color(i)));
-    }
+}
+
+// The UI is far more expensive than the clock path. show() has to expand all 32
+// pixels into a 3KB DMA buffer, and if the previous NeoPixel frame is still
+// going out (~1ms for 32 pixels on this board, which DMAs to a non-SERCOM pin)
+// it blocks on that plus the 300us latch, while the keypad scan spends ~200us
+// in per-column settling delays. Running either one per iteration made the loop
+// period as long as a clock tick, so steps landed on loop boundaries instead of
+// on their tick. Both now run on a frame timer while service_clock() gets
+// called every iteration, and show_pixels() drops the frames that would repaint
+// an unchanged grid, which is most of them between two steps.
+uint32_t static const UI_FRAME_INTERVAL = 8; // ms, ~125Hz
+uint32_t last_ui_frame = 0;
+
+void loop() {
+  service_clock();
+
+  uint32_t now = millis();
+  if (now - last_ui_frame < UI_FRAME_INTERVAL) {
+    return;
   }
+  last_ui_frame = now;
+
+  trellis.tick();
+  handle_keys();
+
+  // Key handling can be slow (it writes to Serial), so pick up anything that
+  // arrived during it before blocking on show().
+  service_clock();
+
+  render_pixels();
+  show_pixels();
 }
