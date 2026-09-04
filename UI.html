@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trellis M4 Pad Map</title>
+<style>
+  body { background: #f6f6f4; color: #1b1b1a; font: 15px/1.55 system-ui, sans-serif;
+         margin: 0 auto; max-width: 60rem; padding: 2rem 1.5rem 4rem; }
+  h1 { font-size: 1.5rem; margin: 0 0 .3rem; }
+  h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em;
+       color: #6b6b66; margin: 2.5rem 0 .8rem; }
+  .note { color: #6b6b66; }
+  code, .k { font: 13px/1.4 ui-monospace, monospace; }
+
+  /* The pad grid: 8 columns x 4 rows, in hardware order. */
+  .grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: .4rem;
+          background: #16161a; border-radius: 12px; padding: .8rem; min-width: 44rem; }
+  .grid div { border-radius: 7px; padding: .4rem .45rem .5rem; color: #fff;
+              min-height: 3.4rem; font-size: .8rem; font-weight: 600; }
+  .grid i { display: block; font: 11px/1.6 ui-monospace, monospace;
+            font-style: normal; font-weight: 400; opacity: .65; }
+  .scroll { overflow-x: auto; }
+
+  /* Pad colours, from src/colors.h. */
+  .step  { background: #000a7f; }             /* COLOR_VOC0_UNSET, hue follows voice */
+  .voc0  { background: #2050e0; }
+  .voc1  { background: #ad8920; }
+  .voc2  { background: #20bcaf; }
+  .voc3  { background: #489120; }
+  .voc4  { background: #b030b0; }
+  .voc5  { background: #808000; }
+  .act   { background: #8080b0; color: #111; } /* COLOR_PACT */
+  .mod   { background: #808b80; color: #111; } /* COLOR_PMOD */
+  .ppos  { background: #d0d0d0; color: #111; } /* COLOR_PPOS */
+  .off   { background: #000; color: #777; }    /* COLOR_OFF */
+
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+  th, td { text-align: left; padding: .4rem .7rem .4rem 0; border-bottom: 1px solid #dcdcd6; }
+  th { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #6b6b66; }
+  .sw { display: inline-block; width: .8rem; height: .8rem; border-radius: 3px;
+        vertical-align: -1px; margin-right: .35rem; outline: 1px solid #0002; }
+</style>
+</head>
+<body>
+
+<h1>Trellis M4 pad map</h1>
+<p class="note">
+  The 8&times;4 keypad as wired in <code>src/config.h</code>. Each cell shows its
+  hardware key number. Work in progress: <em>todo</em> pads are planned only.
+</p>
+
+<div class="scroll">
+<div class="grid">
+  <div class="step">STEP 1 <i>0</i></div>
+  <div class="step">STEP 2 <i>1</i></div>
+  <div class="step">STEP 3 <i>2</i></div>
+  <div class="step">STEP 4 <i>3</i></div>
+  <div class="act">COPY <i>4</i></div>
+  <div class="act">PASTE <i>5</i></div>
+  <div class="off">MENU <i>6 todo</i></div>
+  <div class="ppos">ALL <i>7</i></div>
+
+  <div class="step">STEP 5 <i>8</i></div>
+  <div class="step">STEP 6 <i>9</i></div>
+  <div class="step">STEP 7 <i>10</i></div>
+  <div class="step">STEP 8 <i>11</i></div>
+  <div class="act">CLEAR <i>12</i></div>
+  <div class="act">UNDO <i>13</i></div>
+  <div class="voc0">VOICE 0 <i>14</i></div>
+  <div class="voc1">VOICE 1 <i>15</i></div>
+
+  <div class="step">STEP 9 <i>16</i></div>
+  <div class="step">STEP 10 <i>17</i></div>
+  <div class="step">STEP 11 <i>18</i></div>
+  <div class="step">STEP 12 <i>19</i></div>
+  <div class="off">&mdash; <i>20</i></div>
+  <div class="mod">POS <i>21</i></div>
+  <div class="voc2">VOICE 2 <i>22</i></div>
+  <div class="voc3">VOICE 3 <i>23</i></div>
+
+  <div class="step">STEP 13 <i>24</i></div>
+  <div class="step">STEP 14 <i>25</i></div>
+  <div class="step">STEP 15 <i>26</i></div>
+  <div class="step">STEP 16 <i>27</i></div>
+  <div class="mod">ROTATE <i>28</i></div>
+  <div class="mod">LEN <i>29</i></div>
+  <div class="voc4">VOICE 4 <i>30</i></div>
+  <div class="voc5">VOICE 5 <i>31</i></div>
+</div>
+</div>
+
+<h2>Presses</h2>
+<table>
+  <tr><th>Pad</th><th>Action</th></tr>
+  <tr><td class="k">STEP <i>n</i></td><td>Toggles the note on step <i>n</i> of the selected pattern.</td></tr>
+  <tr><td class="k">VOICE <i>v</i></td><td>Selects voice <i>v</i> for editing, and lights up while it fires. Clears the undo buffer.</td></tr>
+  <tr><td class="k">COPY</td><td>Copies the selected pattern to the paste buffer.</td></tr>
+  <tr><td class="k">PASTE</td><td>Overwrites the selected pattern with the paste buffer.</td></tr>
+  <tr><td class="k">CLEAR</td><td>Zeroes every step of the selected pattern.</td></tr>
+  <tr><td class="k">UNDO</td><td>Steps back through pattern edits (16 levels).</td></tr>
+</table>
+
+<h2>Held modifiers</h2>
+<table>
+  <tr><th>Combination</th><th>Effect</th></tr>
+  <tr><td class="k">LEN + STEP <i>n</i></td><td>Sets the selected pattern&rsquo;s length to <i>n</i> steps.</td></tr>
+  <tr><td class="k">POS + STEP <i>n</i></td><td>Moves the selected voice&rsquo;s play head to step <i>n</i>.</td></tr>
+  <tr><td class="k">POS + ALL + STEP <i>n</i></td><td>Moves every voice&rsquo;s play head to step <i>n</i>.</td></tr>
+  <tr><td class="k">VOICE <i>v</i> + STEP <i>n</i></td><td>Selects pattern <i>n</i> for voice <i>v</i> without toggling the step. Several voice pads can be held at once.</td></tr>
+  <tr><td class="k">ALL + STEP <i>n</i></td><td>Selects pattern <i>n</i> for all six voices.</td></tr>
+  <tr><td class="k">ROTATE + STEP <i>n</i></td><td>Rotates the selected pattern right by <i>n</i> steps.</td></tr>
+  <tr><td class="k">ROTATE + STEP 1</td><td>Reverses the selected pattern.</td></tr>
+</table>
+
+<h2>Colours</h2>
+<table>
+  <tr><th>Constant</th><th>Used for</th></tr>
+  <tr><td class="k"><span class="sw" style="background:#000"></span>COLOR_OFF</td><td>Unassigned pads, and steps past the pattern length</td></tr>
+  <tr><td class="k"><span class="sw" style="background:#2050e0"></span>COLOR_VOC<i>n</i></td><td>Voice select pads, one hue per voice</td></tr>
+  <tr><td class="k"><span class="sw" style="background:#6174ff"></span>COLOR_VOC<i>n</i>_SET</td><td>Steps with a note, in the selected voice&rsquo;s hue</td></tr>
+  <tr><td class="k"><span class="sw" style="background:#000a7f"></span>COLOR_VOC<i>n</i>_UNSET</td><td>Empty steps, in the selected voice&rsquo;s hue</td></tr>
+  <tr><td class="k"><span class="sw" style="background:#8080b0"></span>COLOR_PACT</td><td>Copy, paste, clear, undo</td></tr>
+  <tr><td class="k"><span class="sw" style="background:#808b80"></span>COLOR_PMOD</td><td>Length, position, rotate</td></tr>
+  <tr><td class="k"><span class="sw" style="background:#d0d0d0"></span>COLOR_PPOS</td><td>Play head, voices firing this step, and the ALL pad</td></tr>
+</table>
+<p class="note">
+  Values live in <code>src/colors.h</code>, generated from <code>contrib/palette.go</code>.
+  The step grid above is drawn in voice 0&rsquo;s hue; on the device it follows the selected voice.
+</p>
+
+</body>
+</html>
