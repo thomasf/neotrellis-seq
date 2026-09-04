@@ -79,9 +79,23 @@ constexpr bool is_numpad_key(int key) {
          (key >= KEY_SEQ_POS_12 && key <= KEY_SEQ_POS_15);
 }
 
-uint8_t static const _MIDI_MSG_START = 0xFA;
-uint8_t static const _MIDI_MSG_STOP = 0xFC;
-uint8_t static const _MIDI_MSG_CONT = 0xFB;
+// System common / real time status bytes
+uint8_t static const _MIDI_MSG_SPP = 0xF2; // song position pointer
 uint8_t static const _MIDI_MSG_CLOCK = 0xF8;
+uint8_t static const _MIDI_MSG_START = 0xFA;
+uint8_t static const _MIDI_MSG_CONT = 0xFB;
+uint8_t static const _MIDI_MSG_STOP = 0xFC;
+uint8_t static const _MIDI_MSG_RESET = 0xFF;
+
+// USB-MIDI code index numbers (low nibble of the packet header). They say how
+// many bytes of the packet are used and what kind of message it is.
+uint8_t static const _USB_MIDI_CIN_SYSCOM_3 = 0x03; // 3 byte system common
+uint8_t static const _USB_MIDI_CIN_SINGLE_5 = 0x05; // 1 byte syscom/sysex end
+uint8_t static const _USB_MIDI_CIN_NOTE_OFF = 0x08;
+uint8_t static const _USB_MIDI_CIN_NOTE_ON = 0x09;
+uint8_t static const _USB_MIDI_CIN_SINGLE = 0x0F; // 1 byte, system real time
+
+// A MIDI beat, the unit of Song Position Pointer, is a sixteenth note.
+int static const MIDI_CLOCKS_PER_BEAT = 6;
 
 #endif

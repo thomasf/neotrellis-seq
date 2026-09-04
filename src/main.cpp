@@ -2,6 +2,7 @@
 #include <Adafruit_NeoTrellisM4.h>
 #include <Adafruit_Sensor.h>
 #include <Arduino.h>
+#include <MIDIUSB.h>
 #include <SPI.h>
 #include <algorithm>
 #include <array>
@@ -135,8 +136,6 @@ void setup() {
   trellis.begin();
   trellis.setBrightness(200);
   fill_pixels(COLOR_OFF);
-  trellis.enableUSBMIDI(true);
-  trellis.setUSBMIDIchannel(MIDI_CHANNEL);
 
   /* if(!accel.begin()) { */
   /*   Serial.println("No accelerometer found"); */
@@ -172,34 +171,73 @@ uint32_t seq_color_bg = COLOR_VOC0_UNSET;
 
 bool voice_select_modifier_held = false;
 
-// turn of any running notes
+// USB-MIDI wraps every message in a 4 byte packet and lets one bulk transfer
+// carry up to 16 of them. MIDIUSB's sendMIDI() makes a transfer per packet, and
+// USBDevice.send() on this core blocks until the host has collected the
+// previous one (giving up after 70ms when nothing is listening), so the twelve
+// note offs and note ons a step can produce meant up to eleven round trips to
+// the host inside the clock path. The messages of a step are collected here
+// and go out as a single transfer. MidiUSB.flush() plays no part in that: on
+// SAMD it is a no-op, the transfer is armed by the send itself.
+uint32_t static const MIDI_OUT_CAPACITY = 16; // packets per bulk transfer
+midiEventPacket_t midi_out_buf[MIDI_OUT_CAPACITY];
+uint32_t midi_out_len = 0;
+
+void midi_flush() {
+  if (midi_out_len == 0) {
+    return;
+  }
+  MidiUSB.write(reinterpret_cast<uint8_t *>(midi_out_buf),
+                midi_out_len * sizeof(midiEventPacket_t));
+  midi_out_len = 0;
+}
+
+void midi_queue(uint8_t cin, uint8_t status, uint8_t data1, uint8_t data2) {
+  if (midi_out_len == MIDI_OUT_CAPACITY) {
+    midi_flush();
+  }
+  midi_out_buf[midi_out_len++] = {cin, status, data1, data2};
+}
+
+void midi_note_on(uint8_t note, uint8_t velocity) {
+  midi_queue(_USB_MIDI_CIN_NOTE_ON, 0x90 | MIDI_CHANNEL,
+             std::min(note, uint8_t(0x7F)), std::min(velocity, uint8_t(0x7F)));
+}
+
+void midi_note_off(uint8_t note, uint8_t velocity) {
+  midi_queue(_USB_MIDI_CIN_NOTE_OFF, 0x80 | MIDI_CHANNEL,
+             std::min(note, uint8_t(0x7F)), std::min(velocity, uint8_t(0x7F)));
+}
+
+// notes_off queues a note off for every sounding voice. Callers flush. It is
+// normally called one clock ahead of the step (see on_midi_clock) so the offs
+// travel on their own and the transfer at the step carries only the note ons;
+// run_step() calls it too, as a fallback for anything still sounding when a
+// step arrives without that lead-in tick, such as right after Start.
 void notes_off() {
   for (int voice = 0; voice < VOICES; voice++) {
     if (seq.voices[voice].is_playing) {
-      trellis.noteOff(FIRST_MIDI_NOTE + voice, MIDI_NOTE_OFF_VELOCITY);
+      midi_note_off(FIRST_MIDI_NOTE + voice, MIDI_NOTE_OFF_VELOCITY);
       seq.voices[voice].is_playing = false;
     }
   }
 }
 
 bool is_voice_select_hl_period = false;
-// run_step sends midi for the next/prev step
-void run_step(bool next) {
+// run_step moves every voice to its next step (or the step it was seeked to)
+// and sends its note ons in one USB transfer.
+void run_step() {
   notes_off();
-  Step current_step = Step();
   for (int voice = 0; voice < VOICES; voice++) {
-    if (next) {
-      current_step = seq.voices[voice].advance();
-    } else {
-      current_step = seq.voices[voice].step();
-    }
+    Step const current_step = seq.voices[voice].advance();
     if (current_step.vel > 0) {
-      trellis.noteOn(FIRST_MIDI_NOTE + voice, current_step.vel);
+      midi_note_on(FIRST_MIDI_NOTE + voice, current_step.vel);
       set_pixel(voice_index_to_key(voice), COLOR_PPOS);
       seq.voices[voice].is_playing = true;
       is_voice_select_hl_period = true;
     }
   }
+  midi_flush();
 }
 
 // render_pixels repaints the step grid and clears an expired note highlight.
@@ -249,22 +287,10 @@ void handle_keys() {
         uint32_t index = index_of(step_key, 16, key);
         if (trellis.isPressed(KEY_VOICE_SELECT_ALL)) {
           for (int voice = 0; voice < VOICES; voice++) {
-            if (index == 0) {
-              seq.voices[voice].pos = seq.voices[voice].pattern()->length - 1;
-            } else {
-              // TODO: need to decide when global time advances. Right now play
-              // head is moved to the previous step as a work around.
-              seq.voices[voice].pos = index - 1;
-            }
+            seq.voices[voice].seek(index);
           }
         } else {
-          if (index == 0) {
-            seq.voice->pos = seq.voice->pattern()->length - 1;
-          } else {
-            // TODO: need to decide when global time advances. Right now play
-            // head is moved to the previous step as a work around.
-            seq.voice->pos = index - 1;
-          }
+          seq.voice->seek(index);
         };
 
       } else {
@@ -431,47 +457,133 @@ void handle_keys() {
   }
 }
 
+// A master may keep sending clock while its transport is stopped (the spec
+// allows it so arpeggiators and the like stay in sync), so steps only advance
+// between Start/Continue and Stop. The device boots running so a master that
+// sends nothing but clock still drives it.
+bool clock_running = true;
+
+// locate lands every voice on the step that `clocks` (a clock count from the
+// start of the song) falls in and sets ppqn so the following ticks fire the
+// right steps. The first clock after Start/Continue is clock `clocks` itself:
+// when that is the first clock of a step the step is armed to fire on it, else
+// the step after it fires when the count reaches the next boundary.
+void locate(uint32_t clocks) {
+  uint32_t const step = clocks / CLOCK_DIVISION;
+  uint32_t const into_step = clocks % CLOCK_DIVISION;
+  uint32_t const next_step = into_step == 0 ? step : step + 1;
+  global_pos = next_step;
+  for (int voice = 0; voice < VOICES; voice++) {
+    seq.voices[voice].seek(next_step);
+  }
+  ppqn = (into_step + CLOCK_DIVISION - 1) % CLOCK_DIVISION;
+}
+
+// The note offs go out on the clock before the step, so a step's worth of
+// offs and ons is spread over two transfers a clock apart (about 20ms at 120
+// BPM) instead of landing on the receiver all at once. A voice's gate is thus
+// CLOCK_DIVISION - 1 clocks long.
+void on_midi_clock() {
+  if (!clock_running) {
+    return;
+  }
+  ++ppqn;
+  if (ppqn == (uint32_t)CLOCK_DIVISION - 1) {
+    notes_off();
+    midi_flush();
+  } else if (ppqn >= (uint32_t)CLOCK_DIVISION) {
+    ppqn = 0;
+    global_pos++;
+    run_step();
+  }
+}
+
+// Start plays from the beginning, and per the spec the receiver waits for the
+// first clock after it before playing: that clock is the downbeat.
+void on_midi_start() {
+  locate(0);
+  clock_running = true;
+}
+
+// Continue picks up where Stop left off (or where a Song Position Pointer put
+// us), so the tick count within the step is kept.
+void on_midi_continue() { clock_running = true; }
+
+void on_midi_stop() {
+  clock_running = false;
+  notes_off();
+  midi_flush();
+}
+
+// Song Position Pointer arrives while stopped, ahead of a Continue, and counts
+// MIDI beats (sixteenths) from the start of the song.
+void on_midi_song_position(uint32_t beats) {
+  locate(beats * MIDI_CLOCKS_PER_BEAT);
+}
+
+// System Reset: stop, silence and rewind.
+void on_midi_reset() {
+  on_midi_stop();
+  locate(0);
+}
+
+void handle_midi_in(midiEventPacket_t const &event) {
+  // The high nibble of the header is the cable number; the low nibble says
+  // which message type the packet carries. System real time messages come as
+  // single byte packets, and only those are consulted for byte1, so a data
+  // byte of some other message can never pass for a clock.
+  uint8_t const cin = event.header & 0x0F;
+  if (cin == _USB_MIDI_CIN_SINGLE || cin == _USB_MIDI_CIN_SINGLE_5) {
+    switch (event.byte1) {
+    case _MIDI_MSG_CLOCK:
+      on_midi_clock();
+      break;
+    case _MIDI_MSG_START:
+      on_midi_start();
+      break;
+    case _MIDI_MSG_CONT:
+      on_midi_continue();
+      break;
+    case _MIDI_MSG_STOP:
+      on_midi_stop();
+      break;
+    case _MIDI_MSG_RESET:
+      on_midi_reset();
+      break;
+    }
+  } else if (cin == _USB_MIDI_CIN_SYSCOM_3 && event.byte1 == _MIDI_MSG_SPP) {
+    // 14 bit value, LSB first
+    on_midi_song_position(event.byte2 | (uint32_t(event.byte3) << 7));
+  }
+}
+
 // service_clock consumes the pending clock messages and runs the steps they
 // call for. This is the timing critical path and wants to be called as often
 // as possible: clock ticks are only 2.1ms apart at 120 BPM.
 void service_clock() {
 #ifdef INTERNAL_CLOCK
-  uint32_t now = millis();
-  ppqn = ((4 * 24 * (now - last_step_time)) / beat_interval);
-  if ((now - last_step_time) >= (beat_interval / 4)) {
-    run_step(true);
+  uint32_t const now = millis();
+  uint32_t const elapsed = now - last_step_time;
+  uint32_t const step_interval = beat_interval / 4;
+  ppqn = ((4 * 24 * elapsed) / beat_interval);
+  if (elapsed >= step_interval) {
+    run_step();
     ppqn = 0;
     last_step_time = now;
     global_pos++;
+  } else if (elapsed >= step_interval - step_interval / CLOCK_DIVISION) {
+    // one clock's worth ahead of the step, as in on_midi_clock()
+    notes_off();
+    midi_flush();
   };
 #else
-
-  midiEventPacket_t event;
-  do {
+  // read() returns a zeroed packet once the queue is empty; 0 is not a valid
+  // code index number so it cannot be mistaken for a message.
+  midiEventPacket_t event = MidiUSB.read();
+  while (event.header != 0) {
+    handle_midi_in(event);
     event = MidiUSB.read();
-    if (event.byte1 == _MIDI_MSG_CLOCK) {
-      ++ppqn;
-      if (ppqn == CLOCK_DIVISION) {
-        global_pos++;
-        run_step(true);
-        MidiUSB.flush();
-        ppqn = 0;
-      };
-    } else if (event.byte1 == _MIDI_MSG_CONT) {
-      ppqn = 0;
-    } else if (event.byte1 == _MIDI_MSG_START) {
-      global_pos = 0;
-      for (int voice = 0; voice < VOICES; voice++) {
-        seq.voices[voice].pos = 0;
-      }
-      ppqn = 0;
-      run_step(false);
-      MidiUSB.flush();
-    } else if (event.byte1 == _MIDI_MSG_STOP) {
-      notes_off();
-      MidiUSB.flush();
-    }
-  } while (event.header != 0);
+  }
 #endif
 }
 

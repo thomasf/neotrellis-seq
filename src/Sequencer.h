@@ -35,10 +35,18 @@ public:
   Pattern *pattern();                    // current pattern
   void replace_pattern(const Pattern p); // replace current pattern
   uint32_t pos;                          // current position
-  Step advance();                        // advace to next step
+  Step advance();                        // advance to next step (see seek)
   Step step();                           // get current step value
   Step step(uint32_t idx);               // get current step value for pos
+  // seek moves the play head to step (wrapped to the pattern length) and
+  // arms it: the next advance() plays that step instead of the one after it.
+  // This is how Start, Song Position Pointer and the POS key land on a step
+  // exactly, given that steps are played by advancing onto them.
+  void seek(uint32_t step);
   Voice();
+
+private:
+  bool seek_pending; // advance() plays pos as is, set by seek()
 };
 
 // UndoBuffer holds the most recent patterns for undo. It is a fixed size ring

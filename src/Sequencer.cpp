@@ -23,6 +23,7 @@ Voice::Voice() {
   pos = 0;
   pattern_idx = 0;
   is_playing = false;
+  seek_pending = false;
 }
 
 Pattern *Voice::pattern() { return &patterns[pattern_idx]; }
@@ -32,8 +33,17 @@ Step Voice::step(uint32_t idx) { return pattern()->steps[idx]; }
 Step Voice::step() { return pattern()->steps[pos]; }
 
 Step Voice::advance() {
-  pos = (pos + 1) % pattern()->length;
+  if (seek_pending) {
+    seek_pending = false;
+  } else {
+    pos = (pos + 1) % pattern()->length;
+  }
   return step();
+}
+
+void Voice::seek(uint32_t step) {
+  pos = step % pattern()->length;
+  seek_pending = true;
 }
 
 void Voice::replace_pattern(const Pattern p) { patterns[pattern_idx] = p; }

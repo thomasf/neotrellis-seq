@@ -15,6 +15,27 @@ All toolchain and library versions are pinned exactly in `platformio.ini`;
 PlatformIO downloads them on the first build.
 
 
+## MIDI
+
+The sequencer is a USB-MIDI device that follows the host's transport. It sends
+one note per voice on `MIDI_CHANNEL`, starting at `FIRST_MIDI_NOTE` (both in
+`src/config.h`). The note offs go out one clock before the next step and the
+note ons of that step follow in a single USB transfer, so the two never
+arrive together.
+
+| Message | Effect |
+| --- | --- |
+| Clock | Advances a step every `CLOCK_DIVISION` clocks (6, a sixteenth note). Ignored while stopped. |
+| Start | Rewinds every voice to step 0. The first clock after Start plays it, as the spec requires. |
+| Stop | Silences the voices and stops advancing. Position and phase are kept. |
+| Continue | Resumes from where Stop left off. |
+| Song Position Pointer | Moves every voice to the given sixteenth (modulo its pattern length), to take effect on the next Continue. |
+| System Reset | Stop plus rewind to step 0. |
+
+The device boots in the running state so a master that only sends clock, with
+no Start, still drives it.
+
+
 ## Development on the device
 
 Connect the Trellis M4 over USB and run:
