@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"maps"
 	"os"
 	"sort"
 	"strings"
@@ -271,9 +272,7 @@ func (n NamedColors) WithPrefix(prefix ...string) NamedColors {
 func Merge(nc ...NamedColors) NamedColors {
 	res := make(NamedColors)
 	for _, nc := range nc {
-		for k, v := range nc {
-			res[k] = v
-		}
+		maps.Copy(res, nc)
 	}
 	return res
 }

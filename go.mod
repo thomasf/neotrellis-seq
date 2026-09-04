@@ -1,5 +1,5 @@
 module local/neotrellis-seq
 
-go 1.17
+go 1.27
 
-require github.com/lucasb-eyer/go-colorful v1.2.0
+require github.com/lucasb-eyer/go-colorful v1.4.1
