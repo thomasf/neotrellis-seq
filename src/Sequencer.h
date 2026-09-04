@@ -21,6 +21,13 @@ class Pattern {
 public:
   uint32_t length;            // pattern length, up to 16 steps
   std::array<Step, 16> steps; // pattern data
+  // shift moves every step n places to the right (later in time) for n > 0, or
+  // left for n < 0, wrapping within the pattern length. Steps past the length
+  // are left alone.
+  void shift(int n);
+  // shuffle puts the steps within the pattern length in a random order.
+  // random_below(n) must return a uniform value in [0, n).
+  void shuffle(uint32_t (*random_below)(uint32_t n));
   Pattern();
   Pattern(const Pattern &p);
   bool operator==(const Pattern &p) const;

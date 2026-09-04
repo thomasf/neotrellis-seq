@@ -83,7 +83,7 @@
   <div class="step">STEP 14 <i>25</i></div>
   <div class="step">STEP 15 <i>26</i></div>
   <div class="step">STEP 16 <i>27</i></div>
-  <div class="mod">ROTATE <i>28</i></div>
+  <div class="mod">TRANSFORM <i>28</i></div>
   <div class="mod">LEN <i>29</i></div>
   <div class="voc4">VOICE 4 <i>30</i></div>
   <div class="voc5">VOICE 5 <i>31</i></div>
@@ -109,8 +109,10 @@
   <tr><td class="k">POS + ALL + STEP <i>n</i></td><td>Moves every voice&rsquo;s play head to step <i>n</i>.</td></tr>
   <tr><td class="k">VOICE <i>v</i> + STEP <i>n</i></td><td>Selects pattern <i>n</i> for voice <i>v</i> without toggling the step. Several voice pads can be held at once.</td></tr>
   <tr><td class="k">ALL + STEP <i>n</i></td><td>Selects pattern <i>n</i> for all six voices.</td></tr>
-  <tr><td class="k">ROTATE + STEP <i>n</i></td><td>Rotates the selected pattern right by <i>n</i> steps.</td></tr>
-  <tr><td class="k">ROTATE + STEP 1</td><td>Reverses the selected pattern.</td></tr>
+  <tr><td class="k">TRANSFORM + STEP 1&ndash;4</td><td>Shifts the selected pattern right by 1&ndash;4 steps, wrapping within its length.</td></tr>
+  <tr><td class="k">TRANSFORM + STEP 5&ndash;8</td><td>Shifts the selected pattern left by 1&ndash;4 steps, wrapping within its length.</td></tr>
+  <tr><td class="k">TRANSFORM + STEP 9</td><td>Shuffles the steps of the selected pattern into a random order.</td></tr>
+  <tr><td class="k">TRANSFORM + STEP 10&ndash;16</td><td>Unassigned.</td></tr>
 </table>
 
 <h2>Colours</h2>
@@ -121,7 +123,7 @@
   <tr><td class="k"><span class="sw" style="background:#6174ff"></span>COLOR_VOC<i>n</i>_SET</td><td>Steps with a note, in the selected voice&rsquo;s hue</td></tr>
   <tr><td class="k"><span class="sw" style="background:#000a7f"></span>COLOR_VOC<i>n</i>_UNSET</td><td>Empty steps, in the selected voice&rsquo;s hue</td></tr>
   <tr><td class="k"><span class="sw" style="background:#8080b0"></span>COLOR_PACT</td><td>Copy, paste, clear, undo</td></tr>
-  <tr><td class="k"><span class="sw" style="background:#808b80"></span>COLOR_PMOD</td><td>Length, position, rotate</td></tr>
+  <tr><td class="k"><span class="sw" style="background:#808b80"></span>COLOR_PMOD</td><td>Length, position, transform</td></tr>
   <tr><td class="k"><span class="sw" style="background:#d0d0d0"></span>COLOR_PPOS</td><td>Play head, voices firing this step, and the ALL pad</td></tr>
 </table>
 <p class="note">

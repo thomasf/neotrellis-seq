@@ -125,6 +125,32 @@ void reset_undo() { undo_buffer.clear(); };
 
 Pattern copy_buffer = Pattern(); // for copy/paste
 
+uint32_t random_below(uint32_t n) { return random(n); }
+
+// transform_pattern applies the TRANSFORM + STEP action for the step key at
+// `index` (0-15, row major) to the selected pattern:
+//
+//   row 0: shift right by 1, 2, 3 or 4 steps
+//   row 1: shift left by 1, 2, 3 or 4 steps
+//   row 2: first key shuffles the steps, the rest are unassigned
+//   row 3: unassigned
+void transform_pattern(uint32_t index) {
+  Pattern *const p = seq.voice->pattern();
+  if (index < 4) {
+    create_undo_step();
+    p->shift(index + 1);
+  } else if (index < 8) {
+    create_undo_step();
+    p->shift(-(int)(index - 3));
+  } else if (index == 8) {
+    create_undo_step();
+    // The stock generator is deterministic from boot, so seed it from the
+    // time of the key press, which is as random as the player.
+    randomSeed(micros());
+    p->shuffle(random_below);
+  }
+}
+
 void setup() {
   Serial.begin(115200);
 #ifdef DEBUG
@@ -148,7 +174,7 @@ void setup() {
 
   set_pixel(KEY_PATTERN_LEN, COLOR_PMOD);
   set_pixel(KEY_PATTERN_POS, COLOR_PMOD);
-  set_pixel(KEY_ROTATE, COLOR_PMOD);
+  set_pixel(KEY_TRANSFORM, COLOR_PMOD);
 
   set_pixel(KEY_COPY, COLOR_PACT);
   set_pixel(KEY_PASTE, COLOR_PACT);
@@ -408,14 +434,8 @@ void handle_keys() {
             }
           }
 
-          if (trellis.isPressed(KEY_ROTATE)) {
-            create_undo_step();
-            if (index == 0) {
-              std::reverse(seq.voice->pattern()->steps.begin(),
-                           seq.voice->pattern()->steps.end());
-            } else {
-              rotate_array_elements(seq.voice->pattern()->steps, 16 - index);
-            }
+          if (trellis.isPressed(KEY_TRANSFORM)) {
+            transform_pattern(index);
           } else if (!voice_select_modifier_held) {
             create_undo_step();
             if (seq.voice->pattern()->steps[index].vel == 0) {

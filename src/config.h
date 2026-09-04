@@ -34,7 +34,7 @@ int static const KEY_COPY = 4;
 int static const KEY_PASTE = 5;
 int static const KEY_CLEAR = 12;
 int static const KEY_UNDO = 13;
-int static const KEY_ROTATE = 28;
+int static const KEY_TRANSFORM = 28;
 
 int static const KEY_SEQ_POS_0 = 0;
 int static const KEY_SEQ_POS_1 = 1;

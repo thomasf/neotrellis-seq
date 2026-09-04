@@ -19,6 +19,29 @@ bool Pattern::operator==(const Pattern &p) const {
   return length == p.length && steps == p.steps;
 }
 
+void Pattern::shift(int n) {
+  int const len = std::min<uint32_t>(length, steps.size());
+  if (len < 2) {
+    return;
+  }
+  // Normalise to a left rotation by k in [0, len), which is what std::rotate
+  // does: a right shift by n is a left shift by len - n.
+  int k = ((-n % len) + len) % len;
+  if (k == 0) {
+    return;
+  }
+  std::rotate(steps.begin(), steps.begin() + k, steps.begin() + len);
+}
+
+void Pattern::shuffle(uint32_t (*random_below)(uint32_t n)) {
+  // Fisher-Yates over the steps within the pattern length.
+  uint32_t const len = std::min<uint32_t>(length, steps.size());
+  for (uint32_t i = len; i > 1; i--) {
+    uint32_t const j = random_below(i);
+    std::swap(steps[i - 1], steps[j]);
+  }
+}
+
 Voice::Voice() {
   pos = 0;
   pattern_idx = 0;
