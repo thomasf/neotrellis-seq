@@ -38,6 +38,39 @@ Step Voice::advance() {
 
 void Voice::replace_pattern(const Pattern p) { patterns[pattern_idx] = p; }
 
+UndoBuffer::UndoBuffer() {
+  start = 0;
+  count = 0;
+}
+
+bool UndoBuffer::empty() const { return count == 0; }
+
+void UndoBuffer::clear() {
+  start = 0;
+  count = 0;
+}
+
+const Pattern &UndoBuffer::back() const {
+  return entries[(start + count - 1) % capacity];
+}
+
+void UndoBuffer::push(const Pattern &p) {
+  if (count == capacity) {
+    // full, so the oldest entry becomes the newest one
+    entries[start] = p;
+    start = (start + 1) % capacity;
+    return;
+  }
+  entries[(start + count) % capacity] = p;
+  count++;
+}
+
+void UndoBuffer::pop() {
+  if (count > 0) {
+    count--;
+  }
+}
+
 Sequencer::Sequencer() {
   voice_idx = 0;
   voice = &voices[0];

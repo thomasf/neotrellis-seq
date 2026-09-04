@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
-#include <vector>
 
 // Step represents a single sequencer step
 class Step {
@@ -40,6 +39,25 @@ public:
   Step step();                           // get current step value
   Step step(uint32_t idx);               // get current step value for pos
   Voice();
+};
+
+// UndoBuffer holds the most recent patterns for undo. It is a fixed size ring
+// buffer over an inline array, so it performs no heap allocation at all: once
+// full, pushing overwrites the oldest entry.
+class UndoBuffer {
+public:
+  static constexpr uint32_t capacity = UNDO_LENGTH;
+  bool empty() const;           // true when there is nothing to undo
+  void clear();                 // drop every entry
+  const Pattern &back() const;  // most recent entry, only valid when !empty()
+  void push(const Pattern &p);  // add an entry, dropping the oldest when full
+  void pop();                   // remove the most recent entry
+  UndoBuffer();
+
+private:
+  std::array<Pattern, capacity> entries;
+  uint32_t start; // index of the oldest entry
+  uint32_t count; // number of entries currently in use
 };
 
 // Sequencer is the main data type

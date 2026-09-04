@@ -7,8 +7,6 @@
 #include <array>
 #include <cstdint>
 #include <delay.h>
-#include <deque>
-#include <vector>
 
 #include "Sequencer.h"
 #include "colors.h"
@@ -66,22 +64,19 @@ void setup_default_patterns() {
   };
 };
 
-std::deque<Pattern> undo_buffer;
+UndoBuffer undo_buffer;
 
 void create_undo_step() {
-  if (undo_buffer.size() > 0 && undo_buffer.back() == *seq.voice->pattern()) {
+  if (!undo_buffer.empty() && undo_buffer.back() == *seq.voice->pattern()) {
     return;
   }
-  undo_buffer.push_back(Pattern(*seq.voice->pattern()));
-  if (undo_buffer.size() > UNDO_LENGTH) {
-    undo_buffer.pop_front();
-  }
+  undo_buffer.push(*seq.voice->pattern());
 };
 
 void undo() {
-  if (undo_buffer.size() > 0) {
+  if (!undo_buffer.empty()) {
     seq.voice->replace_pattern(undo_buffer.back());
-    undo_buffer.pop_back();
+    undo_buffer.pop();
   }
 };
 
