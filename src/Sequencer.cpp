@@ -42,6 +42,13 @@ void Pattern::shuffle(uint32_t (*random_below)(uint32_t n)) {
   }
 }
 
+void Pattern::invert() {
+  uint32_t const len = std::min<uint32_t>(length, steps.size());
+  for (uint32_t i = 0; i < len; i++) {
+    steps[i].vel = steps[i].vel == 0 ? DEFAULT_VELOCITY : 0;
+  }
+}
+
 Voice::Voice() {
   pos = 0;
   pattern_idx = 0;

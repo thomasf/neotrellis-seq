@@ -132,7 +132,8 @@ uint32_t random_below(uint32_t n) { return random(n); }
 //
 //   row 0: shift right by 1, 2, 3 or 4 steps
 //   row 1: shift left by 1, 2, 3 or 4 steps
-//   row 2: first key shuffles the steps, the rest are unassigned
+//   row 2: first key shuffles the steps, second inverts them, the rest are
+//          unassigned
 //   row 3: unassigned
 void transform_pattern(uint32_t index) {
   Pattern *const p = seq.voice->pattern();
@@ -148,6 +149,9 @@ void transform_pattern(uint32_t index) {
     // time of the key press, which is as random as the player.
     randomSeed(micros());
     p->shuffle(random_below);
+  } else if (index == 9) {
+    create_undo_step();
+    p->invert();
   }
 }
 
@@ -439,7 +443,7 @@ void handle_keys() {
           } else if (!voice_select_modifier_held) {
             create_undo_step();
             if (seq.voice->pattern()->steps[index].vel == 0) {
-              seq.voice->pattern()->steps[index].vel = 100;
+              seq.voice->pattern()->steps[index].vel = DEFAULT_VELOCITY;
             } else {
               seq.voice->pattern()->steps[index].vel = 0;
             }

@@ -28,6 +28,9 @@ public:
   // shuffle puts the steps within the pattern length in a random order.
   // random_below(n) must return a uniform value in [0, n).
   void shuffle(uint32_t (*random_below)(uint32_t n));
+  // invert silences every sounding step within the pattern length and turns
+  // every silent one into a step at the default velocity.
+  void invert();
   Pattern();
   Pattern(const Pattern &p);
   bool operator==(const Pattern &p) const;

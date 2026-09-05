@@ -5,6 +5,8 @@
 
 int static const MIDI_CHANNEL = 0;
 int static const MIDI_NOTE_OFF_VELOCITY = 64;
+// Velocity given to a step when it is switched on from the pad or by invert.
+int static const DEFAULT_VELOCITY = 100;
 
 int static const UNDO_LENGTH = 16;
 
