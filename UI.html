@@ -95,11 +95,11 @@
 <table>
   <tr><th>Pad</th><th>Action</th></tr>
   <tr><td class="k">STEP <i>n</i></td><td>Toggles the note on step <i>n</i> of the selected pattern.</td></tr>
-  <tr><td class="k">VOICE <i>v</i></td><td>Selects voice <i>v</i> for editing, and lights up while it fires. Clears the undo buffer.</td></tr>
+  <tr><td class="k">VOICE <i>v</i></td><td>Selects voice <i>v</i> for editing, and lights up while it fires.</td></tr>
   <tr><td class="k">COPY</td><td>Copies the selected pattern to the paste buffer.</td></tr>
   <tr><td class="k">PASTE</td><td>Overwrites the selected pattern with the paste buffer.</td></tr>
   <tr><td class="k">CLEAR</td><td>Zeroes every step of the selected pattern.</td></tr>
-  <tr><td class="k">UNDO</td><td>Steps back through pattern edits (16 levels).</td></tr>
+  <tr><td class="k">UNDO</td><td>Steps back through pattern edits, 256 patterns deep. Each edit is restored to the voice and pattern slot it came from, whether or not that is what the grid is showing. A swap or an all-voice transform undoes in one press. TRANSFORM + UNDO redoes.</td></tr>
 </table>
 
 <h2>Held modifiers</h2>
@@ -116,8 +116,8 @@
 <h2>Transforms</h2>
 <p class="note">
   The pad map while TRANSFORM is held. Step pads apply an edit to the selected
-  pattern, voice pads swap patterns between voices. Every edit acts within the
-  pattern length and leaves steps past it alone.
+  pattern, voice pads swap patterns between voices, and UNDO turns into redo.
+  Every edit acts within the pattern length and leaves steps past it alone.
 </p>
 
 <div class="scroll">
@@ -136,7 +136,7 @@
   <div class="step">SHIFT &larr;3 <i>STEP 7</i></div>
   <div class="step">SHIFT &larr;4 <i>STEP 8</i></div>
   <div class="off">&mdash; <i>CLEAR</i></div>
-  <div class="off">&mdash; <i>UNDO</i></div>
+  <div class="act">REDO <i>UNDO</i></div>
   <div class="voc0">SWAP 0 <i>VOICE 0</i></div>
   <div class="voc1">SWAP 1 <i>VOICE 1</i></div>
 
@@ -168,13 +168,14 @@
   <tr><td class="k">STEP 10</td><td>Inverts the pattern: sounding steps go silent and silent steps start sounding.</td></tr>
   <tr><td class="k">STEP 11</td><td>Spreads the sounding steps evenly across the length (a Euclidean rhythm), keeping their velocities in order.</td></tr>
   <tr><td class="k">STEP 13</td><td>Shuffles the steps into a random order.</td></tr>
-  <tr><td class="k">ALL + STEP <i>n</i></td><td>Applies transform <i>n</i> to every voice&rsquo;s current pattern instead of just the selected one. Clears the undo buffer.</td></tr>
-  <tr><td class="k">VOICE <i>v</i></td><td>Swaps the selected pattern with voice <i>v</i>&rsquo;s current pattern. Clears the undo buffer; the same chord swaps back.</td></tr>
+  <tr><td class="k">ALL + STEP <i>n</i></td><td>Applies transform <i>n</i> to every voice&rsquo;s current pattern instead of just the selected one.</td></tr>
+  <tr><td class="k">VOICE <i>v</i></td><td>Swaps the selected pattern with voice <i>v</i>&rsquo;s current pattern.</td></tr>
+  <tr><td class="k">UNDO</td><td>Redoes the last undone edit. Any new edit after an undo discards what could have been redone.</td></tr>
 </table>
 <p class="note">
   Rows one and two shift, row three holds the deterministic reshapes and row
-  four the random ones. Step transforms are undoable; swaps and all-voice
-  transforms are not, since undo only tracks the selected pattern.
+  four the random ones. Every transform is a single undo step, including swaps
+  and all-voice transforms.
 </p>
 
 <h2>Colours</h2>

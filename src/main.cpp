@@ -106,22 +106,65 @@ void setup_default_patterns() {
 };
 
 UndoBuffer undo_buffer;
+UndoBuffer redo_buffer; // what undo overwrote, most recent group last
 
-void create_undo_step() {
-  if (!undo_buffer.empty() && undo_buffer.back() == *seq.voice->pattern()) {
-    return;
-  }
-  undo_buffer.push(*seq.voice->pattern());
-};
+// begin_edit opens a new undo group for an edit made from the pads. Editing
+// after an undo forks the history, so whatever could have been redone is gone.
+void begin_edit() {
+  undo_buffer.begin_group();
+  redo_buffer.clear();
+}
 
-void undo() {
+// record_before saves `before`, the state of pattern `pattern_idx` of `voice`
+// prior to an edit, into the open undo group. It is skipped when the most
+// recent entry already records that pattern in that state, which is what
+// happens when the previous edit turned out to change nothing.
+void record_before(uint32_t voice, uint32_t pattern_idx,
+                   const Pattern &before) {
   if (!undo_buffer.empty()) {
-    seq.voice->replace_pattern(undo_buffer.back());
-    undo_buffer.pop();
+    UndoEntry const &last = undo_buffer.back();
+    if (last.voice == voice && last.pattern_idx == pattern_idx &&
+        last.before == before) {
+      return;
+    }
+  }
+  undo_buffer.push(voice, pattern_idx, before);
+}
+
+// record_undo saves voice `voice`'s current pattern into the open undo group.
+void record_undo(uint32_t voice) {
+  Voice &v = seq.voices[voice];
+  record_before(voice, v.pattern_idx, *v.pattern());
+}
+
+// create_undo_step opens a new undo group holding just the selected pattern,
+// for edits that touch nothing else.
+void create_undo_step() {
+  begin_edit();
+  record_undo(seq.voice_idx);
+};
+
+// move_group restores the most recent group in `from`, each pattern to the
+// voice and slot it came from whether or not the grid is showing it, and saves
+// what it overwrites into `to` as one group. Undo and redo are this same walk
+// in opposite directions.
+void move_group(UndoBuffer &from, UndoBuffer &to) {
+  to.begin_group();
+  while (!from.empty()) {
+    UndoEntry const &e = from.back();
+    Pattern &target = seq.voices[e.voice].patterns[e.pattern_idx];
+    to.push(e.voice, e.pattern_idx, target);
+    target = e.before;
+    bool const group_done = e.group_start;
+    from.pop();
+    if (group_done) {
+      return;
+    }
   }
 };
 
-void reset_undo() { undo_buffer.clear(); };
+void undo() { move_group(undo_buffer, redo_buffer); }
+void redo() { move_group(redo_buffer, undo_buffer); }
 
 Pattern copy_buffer = Pattern(); // for copy/paste
 
@@ -158,40 +201,42 @@ bool apply_transform(Pattern *const p, uint32_t index) {
 // from the time of the key press, which is as random as the player.
 void seed_random() { randomSeed(micros()); }
 
-// transform_pattern applies transform `index` to the selected pattern, with
-// an undo step. An unassigned key leaves at most a redundant undo entry,
-// which create_undo_step already collapses when nothing has changed.
+// transform_pattern applies transform `index` to the selected pattern as one
+// undo step. An unassigned key records nothing.
 void transform_pattern(uint32_t index) {
-  create_undo_step();
+  Pattern *const p = seq.voice->pattern();
+  Pattern const before = *p;
   seed_random();
-  apply_transform(seq.voice->pattern(), index);
+  if (apply_transform(p, index)) {
+    begin_edit();
+    record_before(seq.voice_idx, seq.voice->pattern_idx, before);
+  }
 }
 
 // transform_all_patterns applies transform `index` to every voice's current
-// pattern (TRANSFORM + ALL + STEP). The undo buffer only knows the selected
-// voice's pattern, and restoring just that one would leave the kit half
-// transformed, so it is cleared instead.
+// pattern (TRANSFORM + ALL + STEP) as one undo group.
 void transform_all_patterns(uint32_t index) {
   seed_random();
-  bool changed = false;
+  begin_edit();
   for (uint32_t voice = 0; voice < VOICES; voice++) {
-    changed |= apply_transform(seq.voices[voice].pattern(), index);
-  }
-  if (changed) {
-    reset_undo();
+    Voice &v = seq.voices[voice];
+    Pattern const before = *v.pattern();
+    if (apply_transform(v.pattern(), index)) {
+      record_before(voice, v.pattern_idx, before);
+    }
   }
 }
 
 // swap_pattern exchanges the selected voice's current pattern with voice
-// `other`'s current pattern (TRANSFORM + VOICE). The undo buffer only knows
-// the selected voice's pattern, so it is cleared just as when a different
-// pattern is selected; pressing the same chord again swaps back.
+// `other`'s current pattern (TRANSFORM + VOICE) as one undo group.
 void swap_pattern(uint32_t other) {
   if (other >= VOICES || other == seq.voice_idx) {
     return;
   }
+  begin_edit();
+  record_undo(seq.voice_idx);
+  record_undo(other);
   std::swap(*seq.voice->pattern(), *seq.voices[other].pattern());
-  reset_undo();
 }
 
 void setup() {
@@ -364,44 +409,42 @@ void handle_keys() {
 
       } else {
 
-        if (key == KEY_VOICE_SELECT_0 && seq.voice_idx != 0) {
-          reset_undo();
+        if (key == KEY_VOICE_SELECT_0) {
           seq.set_voice(0);
           seq_color_set = COLOR_VOC0_SET;
           seq_color_bg = COLOR_VOC0_UNSET;
 
-        } else if (key == KEY_VOICE_SELECT_1 && seq.voice_idx != 1) {
-          reset_undo();
+        } else if (key == KEY_VOICE_SELECT_1) {
           seq.set_voice(1);
           seq_color_set = COLOR_VOC1_SET;
           seq_color_bg = COLOR_VOC1_UNSET;
 
-        } else if (key == KEY_VOICE_SELECT_2 && seq.voice_idx != 2) {
-          reset_undo();
+        } else if (key == KEY_VOICE_SELECT_2) {
           seq.set_voice(2);
           seq_color_set = COLOR_VOC2_SET;
           seq_color_bg = COLOR_VOC2_UNSET;
 
-        } else if (key == KEY_VOICE_SELECT_3 && seq.voice_idx != 3) {
-          reset_undo();
+        } else if (key == KEY_VOICE_SELECT_3) {
           seq.set_voice(3);
           seq_color_set = COLOR_VOC3_SET;
           seq_color_bg = COLOR_VOC3_UNSET;
 
-        } else if (key == KEY_VOICE_SELECT_4 && seq.voice_idx != 4) {
-          reset_undo();
+        } else if (key == KEY_VOICE_SELECT_4) {
           seq.set_voice(4);
           seq_color_set = COLOR_VOC4_SET;
           seq_color_bg = COLOR_VOC4_UNSET;
 
-        } else if (key == KEY_VOICE_SELECT_5 && seq.voice_idx != 5) {
-          reset_undo();
+        } else if (key == KEY_VOICE_SELECT_5) {
           seq.set_voice(5);
           seq_color_set = COLOR_VOC5_SET;
           seq_color_bg = COLOR_VOC5_UNSET;
 
         } else if (key == KEY_UNDO) {
-          undo();
+          if (trellis.isPressed(KEY_TRANSFORM)) {
+            redo();
+          } else {
+            undo();
+          }
 
         } else if (key == KEY_COPY) {
           copy_buffer = Pattern(*seq.voice->pattern());
@@ -431,7 +474,6 @@ void handle_keys() {
             for (int voice = 0; voice < VOICES; voice++) {
               seq.voices[voice].pattern_idx = index;
             }
-            reset_undo();
 
           } else {
             bool voice_select_modifier_held = false;
@@ -440,10 +482,7 @@ void handle_keys() {
                 continue;
               }
               voice_select_modifier_held = true;
-              if (seq.voices[voice].pattern_idx != index) {
-                seq.voices[voice].pattern_idx = index;
-                reset_undo();
-              }
+              seq.voices[voice].pattern_idx = index;
             }
 
             if (!voice_select_modifier_held) {

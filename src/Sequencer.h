@@ -66,23 +66,43 @@ private:
   bool seek_pending; // advance() plays pos as is, set by seek()
 };
 
-// UndoBuffer holds the most recent patterns for undo. It is a fixed size ring
-// buffer over an inline array, so it performs no heap allocation at all: once
-// full, pushing overwrites the oldest entry.
+// UndoEntry records one pattern as it was before an edit, and where it lives.
+struct UndoEntry {
+  uint8_t voice;
+  uint8_t pattern_idx;
+  bool group_start; // first entry of the group this edit belongs to
+  Pattern before;
+};
+
+// UndoBuffer is an edit history: a fixed size ring buffer of UndoEntry over an
+// inline array, so it performs no heap allocation at all. Entries are grouped,
+// and undo restores a whole group at once, so an edit that touches several
+// patterns (a swap, an all-voice transform) is undone in one step. The same
+// type holds the redo history, where each group is what an undo overwrote.
+// The oldest entry is always a group start: when the ring is full, pushing
+// drops the oldest group whole rather than leaving a headless tail that would
+// otherwise be undone together with whatever came before it.
 class UndoBuffer {
 public:
   static constexpr uint32_t capacity = UNDO_LENGTH;
-  bool empty() const;          // true when there is nothing to undo
-  void clear();                // drop every entry
-  const Pattern &back() const; // most recent entry, only valid when !empty()
-  void push(const Pattern &p); // add an entry, dropping the oldest when full
-  void pop();                  // remove the most recent entry
+  bool empty() const; // true when there is nothing to undo
+  void clear();       // drop every entry
+  // begin_group makes the next push start a new group. Every push until the
+  // following begin_group belongs to that group.
+  void begin_group();
+  // push records `before` as the state of pattern `pattern_idx` of `voice`
+  // prior to an edit, in the current group.
+  void push(uint32_t voice, uint32_t pattern_idx, const Pattern &before);
+  const UndoEntry &back() const; // most recent entry, only valid when !empty()
+  void pop();                    // remove the most recent entry
   UndoBuffer();
 
 private:
-  std::array<Pattern, capacity> entries;
-  uint32_t start; // index of the oldest entry
-  uint32_t count; // number of entries currently in use
+  std::array<UndoEntry, capacity> entries;
+  uint32_t start;     // index of the oldest entry
+  uint32_t count;     // number of entries currently in use
+  bool group_pending; // the next push starts a new group
+  void drop_oldest_group();
 };
 
 // Sequencer is the main data type

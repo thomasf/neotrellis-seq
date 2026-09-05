@@ -8,7 +8,9 @@ int static const MIDI_NOTE_OFF_VELOCITY = 64;
 // Velocity given to a step when it is switched on from the pad or by invert.
 int static const DEFAULT_VELOCITY = 100;
 
-int static const UNDO_LENGTH = 16;
+// Undo history depth in patterns. An all-voice transform records one entry per
+// voice, so this holds a mix of a few of those and many single edits.
+int static const UNDO_LENGTH = 256;
 
 // Set the value of first note, C is a good choice. Lowest C is 0.
 // 36 is a good default. 48 is a high range. Set to 24 for a bass machine.

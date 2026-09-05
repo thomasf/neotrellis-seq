@@ -110,6 +110,7 @@ void Voice::replace_pattern(const Pattern p) { patterns[pattern_idx] = p; }
 UndoBuffer::UndoBuffer() {
   start = 0;
   count = 0;
+  group_pending = true;
 }
 
 bool UndoBuffer::empty() const { return count == 0; }
@@ -117,27 +118,41 @@ bool UndoBuffer::empty() const { return count == 0; }
 void UndoBuffer::clear() {
   start = 0;
   count = 0;
+  group_pending = true;
 }
 
-const Pattern &UndoBuffer::back() const {
+void UndoBuffer::begin_group() { group_pending = true; }
+
+const UndoEntry &UndoBuffer::back() const {
   return entries[(start + count - 1) % capacity];
 }
 
-void UndoBuffer::push(const Pattern &p) {
+void UndoBuffer::push(uint32_t voice, uint32_t pattern_idx,
+                      const Pattern &before) {
   if (count == capacity) {
-    // full, so the oldest entry becomes the newest one
-    entries[start] = p;
-    start = (start + 1) % capacity;
-    return;
+    drop_oldest_group();
   }
-  entries[(start + count) % capacity] = p;
+  UndoEntry &e = entries[(start + count) % capacity];
+  e.voice = voice;
+  e.pattern_idx = pattern_idx;
+  e.group_start = group_pending;
+  e.before = before;
   count++;
+  group_pending = false;
 }
 
 void UndoBuffer::pop() {
   if (count > 0) {
     count--;
   }
+}
+
+void UndoBuffer::drop_oldest_group() {
+  // The oldest entry is a group start; drop it and everything up to the next.
+  do {
+    start = (start + 1) % capacity;
+    count--;
+  } while (count > 0 && !entries[start].group_start);
 }
 
 Sequencer::Sequencer() {
