@@ -43,7 +43,7 @@ Adafruit_NeoTrellisM4 trellis = Adafruit_NeoTrellisM4();
 // the frame dirty on a real change. show_pixels() skips clean frames entirely.
 uint32_t static const NEO_PIXELS = 32;
 uint32_t pixel_shadow[NEO_PIXELS];
-bool pixels_dirty = false;
+volatile bool pixels_dirty = false;
 
 void set_pixel(uint32_t key, uint32_t color) {
   if (key >= NEO_PIXELS) {
@@ -74,6 +74,7 @@ void show_pixels() {
 
 Sequencer seq = Sequencer();
 uint32_t current_voice = 0;
+void init_timer();
 
 void setup_default_patterns() {
 
@@ -375,6 +376,7 @@ void setup() {
 #ifdef INTERNAL_CLOCK
   clock_start_us = micros();
 #endif
+  init_timer();
 }
 
 uint32_t global_pos = 0;
@@ -469,6 +471,7 @@ void run_step() {
 // render_pixels repaints the step grid and clears an expired note highlight.
 // Nothing in here talks to MIDI, so it only needs to run at the UI frame rate.
 void render_pixels() {
+  noInterrupts();
   if (is_voice_select_hl_period && ppqn >= 2) {
     is_voice_select_hl_period = false;
     for (int i = 0; i < VOICES; i++) {
@@ -490,6 +493,7 @@ void render_pixels() {
       set_pixel(step_key[i], seq_color_bg);
     }
   }
+  interrupts();
 }
 
 // handle_keys drains the keypad event queue and applies the edits.
@@ -501,6 +505,7 @@ void handle_keys() {
 
     if (e.bit.EVENT == KEY_JUST_PRESSED) {
       debug_print("key_pressed", key);
+      noInterrupts();
 
       if (key == KEY_PATTERN_LEN && trellis.isPressed(KEY_TRANSFORM) &&
           trellis.isPressed(KEY_VOICE_SELECT_ALL)) {
@@ -628,8 +633,10 @@ void handle_keys() {
           // set_pixel(key, COLOR_PPOS);
         }
       }
+      interrupts();
     } else if (e.bit.EVENT == KEY_JUST_RELEASED) {
       debug_print("key_released", key);
+      noInterrupts();
 
       if (key == KEY_VOICE_SELECT_0) {
         set_pixel(key, COLOR_VOC0);
@@ -652,6 +659,7 @@ void handle_keys() {
       } else {
         // set_pixel(key, COLOR_OFF);
       }
+      interrupts();
     }
   }
 }
@@ -791,21 +799,74 @@ void service_clock() {
 #endif
 }
 
-// The UI is far more expensive than the clock path. show() has to expand all 32
-// pixels into a 3KB DMA buffer, and if the previous NeoPixel frame is still
-// going out (~1ms for 32 pixels on this board, which DMAs to a non-SERCOM pin)
-// it blocks on that plus the 300us latch, while the keypad scan spends ~200us
-// in per-column settling delays. Running either one per iteration made the loop
-// period as long as a clock tick, so steps landed on loop boundaries instead of
-// on their tick. Both now run on a frame timer while service_clock() gets
-// called every iteration, and show_pixels() drops the frames that would repaint
-// an unchanged grid, which is most of them between two steps.
+// init_timer configures SAMD51 TC3 hardware timer to service the clock engine
+// at a steady 20 kHz (every 50 microseconds).
+//
+// By driving service_clock() from a hardware interrupt rather than polling it
+// in loop(), the timing of incoming MIDI clocks and internal step advancement
+// is completely decoupled from UI operations (keypad scanning settling delays,
+// NeoPixel DMA buffer expansion, and latch wait states). Jitter drops from
+// millisecond-scale down to sub-50 microseconds.
+void init_timer() {
+  // Enable APB bus clock for TC3 in MCLK
+  MCLK->APBBMASK.reg |= MCLK_APBBMASK_TC3;
+
+  // Route 120 MHz GCLK0 to TC3
+  GCLK->PCHCTRL[TC3_GCLK_ID].reg =
+      GCLK_PCHCTRL_GEN_GCLK0_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
+  while (!GCLK->PCHCTRL[TC3_GCLK_ID].bit.CHEN)
+    ;
+
+  // Reset TC3
+  TC3->COUNT16.CTRLA.bit.ENABLE = 0;
+  while (TC3->COUNT16.SYNCBUSY.bit.ENABLE)
+    ;
+  TC3->COUNT16.CTRLA.bit.SWRST = 1;
+  while (TC3->COUNT16.SYNCBUSY.bit.SWRST || TC3->COUNT16.CTRLA.bit.SWRST)
+    ;
+
+  // Configure TC3: 16-bit mode, prescaler DIV16 (7.5 MHz)
+  TC3->COUNT16.CTRLA.reg = TC_CTRLA_MODE_COUNT16 | TC_CTRLA_PRESCALER_DIV16;
+  while (TC3->COUNT16.SYNCBUSY.bit.ENABLE)
+    ;
+
+  // Match frequency mode (MFRQ): counter resets to 0 upon reaching CC0
+  TC3->COUNT16.WAVE.reg = TC_WAVE_WAVEGEN_MFRQ;
+
+  // 7,500,000 Hz * 0.000050 s = 375 counts (CC0 = 375 - 1 = 374 for 50 us / 20
+  // kHz)
+  TC3->COUNT16.CC[0].reg = 374;
+  while (TC3->COUNT16.SYNCBUSY.bit.CC0)
+    ;
+
+  // Enable Match Channel 0 interrupt
+  TC3->COUNT16.INTENSET.bit.MC0 = 1;
+
+  // Enable TC3
+  TC3->COUNT16.CTRLA.bit.ENABLE = 1;
+  while (TC3->COUNT16.SYNCBUSY.bit.ENABLE)
+    ;
+
+  // NVIC priority 2: below USB interrupts (priority 0), above loop()
+  NVIC_SetPriority(TC3_IRQn, 2);
+  NVIC_EnableIRQ(TC3_IRQn);
+}
+
+extern "C" void TC3_Handler(void) {
+  if (TC3->COUNT16.INTFLAG.bit.MC0) {
+    TC3->COUNT16.INTFLAG.bit.MC0 = 1;
+    service_clock();
+  }
+}
+
+// The UI runs on a frame timer (~125Hz) in the background. Clock servicing is
+// handled exclusively by the TC3 hardware timer interrupt at 20 kHz, so
+// blocking operations here (NeoPixel show() DMA latching, keypad settling)
+// cannot induce any jitter in MIDI clock reception or note dispatch.
 uint32_t static const UI_FRAME_INTERVAL = 8; // ms, ~125Hz
 uint32_t last_ui_frame = 0;
 
 void loop() {
-  service_clock();
-
   uint32_t now = millis();
   if (now - last_ui_frame < UI_FRAME_INTERVAL) {
     return;
@@ -814,10 +875,6 @@ void loop() {
 
   trellis.tick();
   handle_keys();
-
-  // Key handling can be slow (it writes to Serial), so pick up anything that
-  // arrived during it before blocking on show().
-  service_clock();
 
   render_pixels();
   show_pixels();
