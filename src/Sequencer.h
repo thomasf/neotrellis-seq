@@ -38,6 +38,13 @@ public:
   // them as evenly as possible across it, starting on the first step. The
   // velocities keep their order, so accents travel with the notes.
   void euclid();
+  // accent_every accents (ACCENT_VELOCITY) every n-th sounding step within
+  // the pattern length, counting from the first step, and drops every other
+  // sounding step to DEFAULT_VELOCITY. Silent steps stay silent. n == 0
+  // accents nothing.
+  void accent_every(uint32_t n);
+  // clear_accents drops every accented step to DEFAULT_VELOCITY.
+  void clear_accents();
   Pattern();
   Pattern(const Pattern &p);
   bool operator==(const Pattern &p) const;

@@ -197,31 +197,42 @@ bool apply_transform(Pattern *const p, uint32_t index) {
   return true;
 }
 
+// apply_accent_transform applies the TRANSFORM + ACCENT + STEP action for
+// the step key at `index` to `p`: accent every (index + 1)-th step.
+bool apply_accent_transform(Pattern *const p, uint32_t index) {
+  p->accent_every(index + 1);
+  return true;
+}
+
+// Transform is one of the apply_* functions above: it applies the action for
+// step key `index` to a pattern and reports whether that key is assigned.
+typedef bool (*Transform)(Pattern *const p, uint32_t index);
+
 // seed_random reseeds the stock generator, which is deterministic from boot,
 // from the time of the key press, which is as random as the player.
 void seed_random() { randomSeed(micros()); }
 
-// transform_pattern applies transform `index` to the selected pattern as one
-// undo step. An unassigned key records nothing.
-void transform_pattern(uint32_t index) {
+// transform_pattern applies `transform` for step key `index` to the selected
+// pattern as one undo step. An unassigned key records nothing.
+void transform_pattern(Transform transform, uint32_t index) {
   Pattern *const p = seq.voice->pattern();
   Pattern const before = *p;
   seed_random();
-  if (apply_transform(p, index)) {
+  if (transform(p, index)) {
     begin_edit();
     record_before(seq.voice_idx, seq.voice->pattern_idx, before);
   }
 }
 
-// transform_all_patterns applies transform `index` to every voice's current
-// pattern (TRANSFORM + ALL + STEP) as one undo group.
-void transform_all_patterns(uint32_t index) {
+// transform_all_patterns applies `transform` for step key `index` to every
+// voice's current pattern (TRANSFORM + ALL + STEP) as one undo group.
+void transform_all_patterns(Transform transform, uint32_t index) {
   seed_random();
   begin_edit();
   for (uint32_t voice = 0; voice < VOICES; voice++) {
     Voice &v = seq.voices[voice];
     Pattern const before = *v.pattern();
-    if (apply_transform(v.pattern(), index)) {
+    if (transform(v.pattern(), index)) {
       record_before(voice, v.pattern_idx, before);
     }
   }
@@ -441,8 +452,12 @@ void handle_keys() {
 
         } else if (key == KEY_CLEAR) {
           create_undo_step();
-          for (int i = 0; i < 16; i++) {
-            seq.voice->pattern()->steps[i] = Step(0);
+          if (trellis.isPressed(KEY_ACCENT)) {
+            seq.voice->pattern()->clear_accents();
+          } else {
+            for (int i = 0; i < 16; i++) {
+              seq.voice->pattern()->steps[i] = Step(0);
+            }
           }
         } else if (is_numpad_key(key)) {
 
@@ -450,10 +465,13 @@ void handle_keys() {
           debug_print("index", index);
 
           if (trellis.isPressed(KEY_TRANSFORM)) {
+            Transform const transform = trellis.isPressed(KEY_ACCENT)
+                                            ? apply_accent_transform
+                                            : apply_transform;
             if (trellis.isPressed(KEY_VOICE_SELECT_ALL)) {
-              transform_all_patterns(index);
+              transform_all_patterns(transform, index);
             } else {
-              transform_pattern(index);
+              transform_pattern(transform, index);
             }
 
           } else if (trellis.isPressed(KEY_ACCENT)) {

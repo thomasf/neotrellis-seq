@@ -106,6 +106,7 @@
 <table>
   <tr><th>Combination</th><th>Effect</th></tr>
   <tr><td class="k">ACCENT + STEP <i>n</i></td><td>Accents step <i>n</i> (velocity 127). An accented step goes back to normal velocity, a silent step switches on accented. Never switches a step off.</td></tr>
+  <tr><td class="k">ACCENT + CLEAR</td><td>Removes every accent from the selected pattern, leaving the notes in place.</td></tr>
   <tr><td class="k">LEN + STEP <i>n</i></td><td>Sets the selected pattern&rsquo;s length to <i>n</i> steps.</td></tr>
   <tr><td class="k">POS + STEP <i>n</i></td><td>Moves the selected voice&rsquo;s play head to step <i>n</i>.</td></tr>
   <tr><td class="k">POS + ALL + STEP <i>n</i></td><td>Moves every voice&rsquo;s play head to step <i>n</i>.</td></tr>
@@ -118,6 +119,7 @@
 <p class="note">
   The pad map while TRANSFORM is held. Step pads apply an edit to the selected
   pattern, voice pads swap patterns between voices, and UNDO turns into redo.
+  ALL and ACCENT are prefixes: held as well, they change what the step pads do.
   Every edit acts within the pattern length and leaves steps past it alone.
 </p>
 
@@ -145,7 +147,7 @@
   <div class="step">INVERT <i>STEP 10</i></div>
   <div class="step">EUCLID <i>STEP 11</i></div>
   <div class="off">&mdash; <i>STEP 12</i></div>
-  <div class="off">&mdash; <i>ACCENT</i></div>
+  <div class="mod">ACCENT &hellip; <i>ACCENT</i></div>
   <div class="off">&mdash; <i>POS</i></div>
   <div class="voc2">SWAP 2 <i>VOICE 2</i></div>
   <div class="voc3">SWAP 3 <i>VOICE 3</i></div>
@@ -170,6 +172,8 @@
   <tr><td class="k">STEP 11</td><td>Spreads the sounding steps evenly across the length (a Euclidean rhythm), keeping their velocities in order.</td></tr>
   <tr><td class="k">STEP 13</td><td>Shuffles the steps into a random order.</td></tr>
   <tr><td class="k">ALL + STEP <i>n</i></td><td>Applies transform <i>n</i> to every voice&rsquo;s current pattern instead of just the selected one.</td></tr>
+  <tr><td class="k">ACCENT + STEP <i>n</i></td><td>Accents every <i>n</i>-th sounding step counting from step 1 and drops every other accent. STEP 4 accents the downbeats, STEP 2 the on-beats, STEP 1 every note. Silent steps are left alone.</td></tr>
+  <tr><td class="k">ACCENT + ALL + STEP <i>n</i></td><td>The same, for every voice&rsquo;s current pattern.</td></tr>
   <tr><td class="k">VOICE <i>v</i></td><td>Swaps the selected pattern with voice <i>v</i>&rsquo;s current pattern.</td></tr>
   <tr><td class="k">UNDO</td><td>Redoes the last undone edit. Any new edit after an undo discards what could have been redone.</td></tr>
 </table>

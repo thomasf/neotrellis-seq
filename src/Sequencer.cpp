@@ -78,6 +78,26 @@ void Pattern::euclid() {
   }
 }
 
+void Pattern::accent_every(uint32_t n) {
+  uint32_t const len = std::min<uint32_t>(length, steps.size());
+  for (uint32_t i = 0; i < len; i++) {
+    if (steps[i].vel == 0) {
+      continue;
+    }
+    bool const on_grid = n > 0 && i % n == 0;
+    steps[i].vel = on_grid ? ACCENT_VELOCITY : DEFAULT_VELOCITY;
+  }
+}
+
+void Pattern::clear_accents() {
+  uint32_t const len = std::min<uint32_t>(length, steps.size());
+  for (uint32_t i = 0; i < len; i++) {
+    if (steps[i].vel >= ACCENT_VELOCITY) {
+      steps[i].vel = DEFAULT_VELOCITY;
+    }
+  }
+}
+
 Voice::Voice() {
   pos = 0;
   pattern_idx = 0;
