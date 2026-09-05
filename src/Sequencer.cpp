@@ -98,6 +98,21 @@ void Pattern::clear_accents() {
   }
 }
 
+void Pattern::echo() {
+  uint32_t const len = std::min<uint32_t>(length, steps.size());
+  if (len == 0) {
+    return;
+  }
+  std::array<Step, 16> const before = steps;
+  for (uint32_t i = 0; i < len; i++) {
+    uint8_t const vel = before[i].vel / 2;
+    Step &target = steps[(i + ECHO_STEPS) % len];
+    if (vel > target.vel) {
+      target.vel = vel;
+    }
+  }
+}
+
 void Pattern::rule30() {
   uint32_t const len = std::min<uint32_t>(length, steps.size());
   if (len == 0) {

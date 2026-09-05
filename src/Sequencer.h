@@ -45,6 +45,12 @@ public:
   void accent_every(uint32_t n);
   // clear_accents drops every accented step to DEFAULT_VELOCITY.
   void clear_accents();
+  // echo gives every sounding step within the pattern length a copy
+  // ECHO_STEPS later, wrapping, at half its velocity. A copy never lowers a
+  // step that already sounds louder, so accents and the original notes are
+  // safe. Pressing again echoes the echoes, so each press adds one more
+  // repeat, each half as loud, until they halve away to nothing.
+  void echo();
   // rule30 advances the steps within the pattern length one generation of
   // the Rule 30 cellular automaton, read as a ring so the last step is the
   // left neighbour of the first. A step's next state is decided by itself and

@@ -178,8 +178,8 @@ uint32_t random_below(uint32_t n) { return random(n); }
 //   row 1: shift left by 1, 2, 3 or 4 steps
 //   row 2: deterministic reshapes: reverse, invert, euclid, fill empty (which
 //          is random only when no step is free)
-//   row 3: random reshapes: shuffle, two unassigned keys, then rule 30 with
-//          the note count locked. With ALL that key is life instead, see
+//   row 3: shuffle, echo, one unassigned key, then rule 30 with the note
+//          count locked. With ALL that last key is life instead, see
 //          life_all_patterns, since every row must be computed from the same
 //          board.
 bool apply_transform(uint32_t voice, uint32_t index) {
@@ -198,6 +198,8 @@ bool apply_transform(uint32_t voice, uint32_t index) {
     seq.fill_empty(voice, random_below);
   } else if (index == 12) {
     p->shuffle(random_below);
+  } else if (index == 13) {
+    p->echo();
   } else if (index == 15) {
     seq.rule30(voice, random_below);
   } else {
