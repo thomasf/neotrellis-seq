@@ -51,6 +51,12 @@ public:
   // safe. Pressing again echoes the echoes, so each press adds one more
   // repeat, each half as loud, until they halve away to nothing.
   void echo();
+  // snap moves every sounding step within the pattern length one step toward
+  // its nearest downbeat (steps 0, 4, 8 and 12), measured round the ring of
+  // the length; a step halfway between two moves to the earlier one, and a
+  // step on a downbeat stays. When two notes meet, the louder one survives.
+  // Repeated presses quantise a smeared pattern onto the beats.
+  void snap();
   // rule30 advances the steps within the pattern length one generation of
   // the Rule 30 cellular automaton, read as a ring so the last step is the
   // left neighbour of the first. A step's next state is decided by itself and
@@ -174,6 +180,9 @@ public:
   // breaks down in stages, always passing through a single voice before it
   // falls silent. random_below(n) must return a uniform value in [0, n).
   void dropout(uint32_t (*random_below)(uint32_t n));
+  // sync_lengths sets every voice's current pattern length to the selected
+  // voice's. The steps are untouched. The way back from polymeter.
+  void sync_lengths();
   // polymeter gives every voice's current pattern a different odd length, the
   // six values 5, 7, 9, 11, 13 and 15 dealt out in random order, so the voices
   // drift against each other and only line up again after many bars. The

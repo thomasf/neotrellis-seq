@@ -170,12 +170,14 @@ Pattern copy_buffer = Pattern(); // for copy/paste
 
 uint32_t random_below(uint32_t n) { return random(n); }
 
-// Step key indices (row major) of the two keys whose ALL version is a board
+// Step key indices (row major) of the keys whose ALL version is a board
 // transform rather than the single-voice transform applied to each voice:
 // STEP 11 is mutate alone and declutter with ALL, STEP 12 rule 30 alone and
-// life with ALL. See transform_board.
+// life with ALL, STEP 13 snap alone and sync lengths with ALL. See
+// transform_board.
 uint32_t static const KEY_MUTATE_INDEX = 10;
 uint32_t static const KEY_LIFE_INDEX = 11;
+uint32_t static const KEY_SNAP_INDEX = 12;
 
 // apply_transform applies the TRANSFORM + STEP action for the step key at
 // `index` (0-15, row major) to voice `voice`'s current pattern and reports
@@ -187,7 +189,8 @@ uint32_t static const KEY_LIFE_INDEX = 11;
 //   row 2: shuffle, echo, mutate, rule 30 with the note count locked. With
 //          ALL the last two are declutter and life instead, see
 //          transform_board.
-//   row 3: unassigned
+//   row 3: snap (sync lengths with ALL, see transform_board), the rest
+//          unassigned
 bool apply_transform(uint32_t voice, uint32_t index) {
   Pattern *const p = seq.voices[voice].pattern();
   if (index == 0) {
@@ -214,6 +217,8 @@ bool apply_transform(uint32_t voice, uint32_t index) {
     seq.mutate(voice, random_below);
   } else if (index == KEY_LIFE_INDEX) {
     seq.rule30(voice, random_below);
+  } else if (index == KEY_SNAP_INDEX) {
+    p->snap();
   } else {
     return false;
   }
@@ -263,13 +268,15 @@ void transform_all_patterns(Transform transform, uint32_t index) {
 }
 
 // transform_board applies the TRANSFORM + ALL + STEP action for the keys
-// whose all-voice version acts on the board as a whole, declutter and life,
-// as one undo group, and reports whether `index` is one of them. They do not
-// go through transform_all_patterns because they must see every voice's
-// pattern as it was before any of them changed: life computes every row from
-// the same board, and declutter picks among the voices sounding on a step.
+// whose all-voice version acts on the board as a whole, declutter, life and
+// sync lengths, as one undo group, and reports whether `index` is one of
+// them. They do not go through transform_all_patterns because they are not a
+// single-voice transform repeated: life computes every row from the same
+// board, declutter picks among the voices sounding on a step, and sync
+// lengths copies the selected voice's length to the rest.
 bool transform_board(uint32_t index) {
-  if (index != KEY_MUTATE_INDEX && index != KEY_LIFE_INDEX) {
+  if (index != KEY_MUTATE_INDEX && index != KEY_LIFE_INDEX &&
+      index != KEY_SNAP_INDEX) {
     return false;
   }
   seed_random();
@@ -279,8 +286,10 @@ bool transform_board(uint32_t index) {
   }
   if (index == KEY_MUTATE_INDEX) {
     seq.declutter(random_below);
-  } else {
+  } else if (index == KEY_LIFE_INDEX) {
     seq.life();
+  } else {
+    seq.sync_lengths();
   }
   return true;
 }

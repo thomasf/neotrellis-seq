@@ -113,6 +113,38 @@ void Pattern::echo() {
   }
 }
 
+void Pattern::snap() {
+  uint32_t const len = std::min<uint32_t>(length, steps.size());
+  if (len == 0) {
+    return;
+  }
+  std::array<Step, 16> const before = steps;
+  for (uint32_t i = 0; i < len; i++) {
+    steps[i].vel = 0;
+  }
+  for (uint32_t i = 0; i < len; i++) {
+    if (before[i].vel == 0) {
+      continue;
+    }
+    // Ring distances to the nearest downbeat, back (earlier) and forward.
+    uint32_t back = len;
+    uint32_t forward = len;
+    for (uint32_t d = 0; d < len; d += 4) {
+      back = std::min(back, (i + len - d) % len);
+      forward = std::min(forward, (d + len - i) % len);
+    }
+    uint32_t to = i;
+    if (back == 0) {
+      to = i;
+    } else if (back <= forward) {
+      to = (i + len - 1) % len;
+    } else {
+      to = (i + 1) % len;
+    }
+    steps[to].vel = std::max(steps[to].vel, before[i].vel);
+  }
+}
+
 void Pattern::rule30() {
   uint32_t const len = std::min<uint32_t>(length, steps.size());
   if (len == 0) {
@@ -491,6 +523,13 @@ void Sequencer::dropout(uint32_t (*random_below)(uint32_t n)) {
     for (uint32_t i = 0; i < len; i++) {
       p.steps[i].vel = 0;
     }
+  }
+}
+
+void Sequencer::sync_lengths() {
+  uint32_t const len = voice->pattern()->length;
+  for (uint32_t v = 0; v < VOICES; v++) {
+    voices[v].pattern()->length = len;
   }
 }
 
