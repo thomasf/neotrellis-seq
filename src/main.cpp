@@ -178,7 +178,10 @@ uint32_t random_below(uint32_t n) { return random(n); }
 //   row 1: shift left by 1, 2, 3 or 4 steps
 //   row 2: deterministic reshapes: reverse, invert, euclid, fill empty (which
 //          is random only when no step is free)
-//   row 3: random reshapes: shuffle, the rest unassigned
+//   row 3: random reshapes: shuffle, two unassigned keys, then rule 30 with
+//          the note count locked. With ALL that key is life instead, see
+//          life_all_patterns, since every row must be computed from the same
+//          board.
 bool apply_transform(uint32_t voice, uint32_t index) {
   Pattern *const p = seq.voices[voice].pattern();
   if (index < 4) {
@@ -195,6 +198,8 @@ bool apply_transform(uint32_t voice, uint32_t index) {
     seq.fill_empty(voice, random_below);
   } else if (index == 12) {
     p->shuffle(random_below);
+  } else if (index == 15) {
+    seq.rule30(voice, random_below);
   } else {
     return false;
   }
@@ -241,6 +246,19 @@ void transform_all_patterns(Transform transform, uint32_t index) {
       record_before(voice, v.pattern_idx, before);
     }
   }
+}
+
+// life_all_patterns advances every voice's current pattern one generation of
+// the Game of Life (TRANSFORM + ALL + STEP 16) as one undo group. It does not
+// go through transform_all_patterns because every row must be computed from
+// the board as it was before any row moved, and because a single row against
+// a frozen board is not interesting: that key alone runs rule 30 instead.
+void life_all_patterns() {
+  begin_edit();
+  for (uint32_t voice = 0; voice < VOICES; voice++) {
+    record_undo(voice);
+  }
+  seq.life();
 }
 
 // swap_pattern exchanges the selected voice's current pattern with voice
@@ -503,7 +521,11 @@ void handle_keys() {
                                             ? apply_accent_transform
                                             : apply_transform;
             if (trellis.isPressed(KEY_VOICE_SELECT_ALL)) {
-              transform_all_patterns(transform, index);
+              if (index == 15 && !trellis.isPressed(KEY_ACCENT)) {
+                life_all_patterns();
+              } else {
+                transform_all_patterns(transform, index);
+              }
             } else {
               transform_pattern(transform, index);
             }

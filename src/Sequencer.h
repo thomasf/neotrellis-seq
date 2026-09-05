@@ -45,6 +45,15 @@ public:
   void accent_every(uint32_t n);
   // clear_accents drops every accented step to DEFAULT_VELOCITY.
   void clear_accents();
+  // rule30 advances the steps within the pattern length one generation of
+  // the Rule 30 cellular automaton, read as a ring so the last step is the
+  // left neighbour of the first. A step's next state is decided by itself and
+  // its two neighbours: it sounds if its left neighbour sounds and it and its
+  // right neighbour are silent, or if its left neighbour is silent and it or
+  // its right neighbour sounds. A step that keeps sounding keeps its velocity,
+  // a newborn one gets DEFAULT_VELOCITY. Rule 30 is chaotic and never empties
+  // a pattern that has a note, but it settles around half the steps sounding.
+  void rule30();
   Pattern();
   Pattern(const Pattern &p);
   bool operator==(const Pattern &p) const;
@@ -133,6 +142,26 @@ public:
   // exact copy of another voice's steps. random_below(n) must return a
   // uniform value in [0, n).
   void fill_empty(uint32_t voice, uint32_t (*random_below)(uint32_t n));
+  // rule30 advances voice `voice`'s current pattern one generation of Rule 30
+  // (Pattern::rule30) and then trims the result back to the number of notes
+  // the pattern had, so the voice keeps its density and role. The notes it
+  // keeps are those on the steps where the fewest other voices sound, read
+  // wrapped as in fill_empty; ties are broken at random. random_below(n) must
+  // return a uniform value in [0, n).
+  void rule30(uint32_t voice, uint32_t (*random_below)(uint32_t n));
+  // life advances every voice's current pattern one generation of Conway's
+  // Game of Life, with the voices as rows and the steps as columns. A cell is
+  // alive when its step sounds. Each row is read as a ring of its own length,
+  // the way it plays: the neighbour to the left of step 0 is the row's last
+  // step, and a row of another length is read wrapped at the columns of the
+  // row being computed, as in fill_empty. The rows wrap too, so the first and
+  // last voice are neighbours. A cell survives with two or three live
+  // neighbours and keeps its velocity, so accents travel; a dead cell with
+  // exactly three is born at DEFAULT_VELOCITY; any other cell dies. Steps past
+  // a pattern's length are left alone. Every row is computed from the board
+  // as it was before the call. Only the whole board evolves: a single row
+  // against a frozen board dies or freezes within a press or two.
+  void life();
   Sequencer();
 };
 
