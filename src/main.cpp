@@ -176,7 +176,8 @@ uint32_t random_below(uint32_t n) { return random(n); }
 //
 //   row 0: shift right by 1, 2, 3 or 4 steps
 //   row 1: shift left by 1, 2, 3 or 4 steps
-//   row 2: deterministic reshapes: reverse, invert, euclid, fill empty
+//   row 2: deterministic reshapes: reverse, invert, euclid, fill empty (which
+//          is random only when no step is free)
 //   row 3: random reshapes: shuffle, the rest unassigned
 bool apply_transform(uint32_t voice, uint32_t index) {
   Pattern *const p = seq.voices[voice].pattern();
@@ -191,7 +192,7 @@ bool apply_transform(uint32_t voice, uint32_t index) {
   } else if (index == 10) {
     p->euclid();
   } else if (index == 11) {
-    seq.fill_empty(voice);
+    seq.fill_empty(voice, random_below);
   } else if (index == 12) {
     p->shuffle(random_below);
   } else {
@@ -469,8 +470,19 @@ void handle_keys() {
           copy_buffer = Pattern(*seq.voice->pattern());
 
         } else if (key == KEY_PASTE) {
-          create_undo_step();
-          seq.voice->replace_pattern(Pattern(copy_buffer));
+          if (trellis.isPressed(KEY_TRANSFORM)) {
+            // Paste into all 16 pattern slots of the selected voice as one
+            // undo group.
+            begin_edit();
+            Voice &v = *seq.voice;
+            for (uint32_t slot = 0; slot < v.patterns.size(); slot++) {
+              record_before(seq.voice_idx, slot, v.patterns[slot]);
+              v.patterns[slot] = Pattern(copy_buffer);
+            }
+          } else {
+            create_undo_step();
+            seq.voice->replace_pattern(Pattern(copy_buffer));
+          }
 
         } else if (key == KEY_CLEAR) {
           create_undo_step();

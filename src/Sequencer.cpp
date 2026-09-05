@@ -192,7 +192,8 @@ static bool sounds_like(const Pattern &a, const Pattern &b, uint32_t len) {
   return true;
 }
 
-void Sequencer::fill_empty(uint32_t voice) {
+void Sequencer::fill_empty(uint32_t voice,
+                           uint32_t (*random_below)(uint32_t n)) {
   Pattern &target = *voices[voice].pattern();
   uint32_t const len = std::min<uint32_t>(target.length, target.steps.size());
 
@@ -252,46 +253,48 @@ void Sequencer::fill_empty(uint32_t voice) {
     return;
   }
 
-  // Fallback: no free step. Place `count` notes, each at the unused step with
-  // the least activity nearest to an evenly spaced ideal position, so the fill
-  // lands in the quietest spots but stays spread out. sparsest is finite here
-  // because at least one other voice sounds on every step.
+  // Fallback: no free step. Place `count` notes, each on a step drawn at
+  // random from the unused steps with the least activity. sparsest is finite
+  // here because at least one other voice sounds on every step. A draw that
+  // comes out identical to another voice would double it rather than
+  // complement it; that is only likely when everything ties, so draw again a
+  // few times and, failing that, drop a note to break the tie.
   uint32_t const count = std::min(sparsest, len);
-  for (uint32_t j = 0; j < count; j++) {
-    uint32_t const ideal = (j * len) / count;
-    uint32_t best = UINT32_MAX;
-    uint32_t best_activity = UINT32_MAX;
-    uint32_t best_distance = UINT32_MAX;
+  for (uint32_t attempt = 0; attempt < 8; attempt++) {
     for (uint32_t i = 0; i < len; i++) {
-      if (target.steps[i].vel > 0) {
-        continue;
-      }
-      uint32_t const forward = (i + len - ideal) % len;
-      uint32_t const distance = std::min(forward, len - forward);
-      if (activity[i] < best_activity ||
-          (activity[i] == best_activity && distance < best_distance)) {
-        best = i;
-        best_activity = activity[i];
-        best_distance = distance;
-      }
+      target.steps[i].vel = 0;
     }
-    target.steps[best].vel = DEFAULT_VELOCITY;
-  }
-
-  // A fill that has come out identical to another voice would double it
-  // rather than complement it, which can only happen when every candidate
-  // tied. Dropping the last note placed breaks the tie the cheapest way.
-  for (uint32_t other = 0; other < VOICES; other++) {
-    if (other == voice) {
-      continue;
-    }
-    if (sounds_like(target, *voices[other].pattern(), len)) {
-      for (uint32_t i = len; i > 0; i--) {
-        if (target.steps[i - 1].vel > 0) {
-          target.steps[i - 1].vel = 0;
+    for (uint32_t j = 0; j < count; j++) {
+      uint32_t lowest = UINT32_MAX;
+      for (uint32_t i = 0; i < len; i++) {
+        if (target.steps[i].vel == 0) {
+          lowest = std::min(lowest, activity[i]);
+        }
+      }
+      uint32_t candidates = 0;
+      for (uint32_t i = 0; i < len; i++) {
+        candidates += target.steps[i].vel == 0 && activity[i] == lowest;
+      }
+      uint32_t pick = random_below(candidates);
+      for (uint32_t i = 0; i < len; i++) {
+        if (target.steps[i].vel == 0 && activity[i] == lowest && pick-- == 0) {
+          target.steps[i].vel = DEFAULT_VELOCITY;
           break;
         }
       }
+    }
+    bool copy = false;
+    for (uint32_t other = 0; other < VOICES && !copy; other++) {
+      copy =
+          other != voice && sounds_like(target, *voices[other].pattern(), len);
+    }
+    if (!copy) {
+      return;
+    }
+  }
+  for (uint32_t i = len; i > 0; i--) {
+    if (target.steps[i - 1].vel > 0) {
+      target.steps[i - 1].vel = 0;
       return;
     }
   }
