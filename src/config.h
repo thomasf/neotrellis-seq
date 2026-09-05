@@ -17,6 +17,9 @@ int static const UNDO_LENGTH = 256;
 // Set the value of first note, C is a good choice. Lowest C is 0.
 // 36 is a good default. 48 is a high range. Set to 24 for a bass machine.
 int static const FIRST_MIDI_NOTE = 36;
+// TRANSFORM + the selected voice's pad moves that voice's note up by this many
+// semitones, or back. 6 reaches the second bank of a 12 pad drum map.
+int static const ALT_NOTE_OFFSET = 6;
 
 /* #define INTERNAL_CLOCK 1 */
 int static const BPM = 120; // tempo for internal clock mode

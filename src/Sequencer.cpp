@@ -102,6 +102,8 @@ Voice::Voice() {
   pos = 0;
   pattern_idx = 0;
   is_playing = false;
+  playing_note = 0;
+  note_offset = 0;
   seek_pending = false;
 }
 

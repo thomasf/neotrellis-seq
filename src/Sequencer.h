@@ -55,6 +55,8 @@ class Voice {
 public:
   std::array<Pattern, 16> patterns;
   bool is_playing;                       // a note is currently being played
+  uint8_t playing_note;                  // the note is_playing refers to
+  uint8_t note_offset;                   // semitones added to the base note
   uint32_t pattern_idx;                  // current pattern index
   Pattern *pattern();                    // current pattern
   void replace_pattern(const Pattern p); // replace current pattern

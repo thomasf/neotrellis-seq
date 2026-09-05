@@ -118,7 +118,8 @@
 <h2>Transforms</h2>
 <p class="note">
   The pad map while TRANSFORM is held. Step pads apply an edit to the selected
-  pattern, voice pads swap patterns between voices, and UNDO turns into redo.
+  pattern, voice pads swap patterns between voices (the selected voice&rsquo;s
+  own pad shifts its note instead), and UNDO turns into redo.
   ALL and ACCENT are prefixes: held as well, they change what the step pads do.
   Every edit acts within the pattern length and leaves steps past it alone.
 </p>
@@ -175,6 +176,7 @@
   <tr><td class="k">ACCENT + STEP <i>n</i></td><td>Accents every <i>n</i>-th sounding step counting from step 1 and drops every other accent. STEP 4 accents the downbeats, STEP 2 the on-beats, STEP 1 every note. Silent steps are left alone.</td></tr>
   <tr><td class="k">ACCENT + ALL + STEP <i>n</i></td><td>The same, for every voice&rsquo;s current pattern.</td></tr>
   <tr><td class="k">VOICE <i>v</i></td><td>Swaps the selected pattern with voice <i>v</i>&rsquo;s current pattern.</td></tr>
+  <tr><td class="k">VOICE <i>v</i>, selected</td><td>Moves voice <i>v</i>&rsquo;s MIDI note up 6 semitones, or back. Not a pattern edit, so undo leaves it alone.</td></tr>
   <tr><td class="k">UNDO</td><td>Redoes the last undone edit. Any new edit after an undo discards what could have been redone.</td></tr>
 </table>
 <p class="note">

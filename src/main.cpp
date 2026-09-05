@@ -250,6 +250,14 @@ void swap_pattern(uint32_t other) {
   std::swap(*seq.voice->pattern(), *seq.voices[other].pattern());
 }
 
+// toggle_note_offset moves voice `voice` between its base note and the base
+// note plus ALT_NOTE_OFFSET (TRANSFORM + the selected voice's pad). It is not
+// a pattern edit, so undo does not see it; the same chord moves back.
+void toggle_note_offset(uint32_t voice) {
+  Voice &v = seq.voices[voice];
+  v.note_offset = v.note_offset == 0 ? ALT_NOTE_OFFSET : 0;
+}
+
 void setup() {
   Serial.begin(115200);
 #ifdef DEBUG
@@ -350,9 +358,12 @@ void midi_note_off(uint8_t note, uint8_t velocity) {
 // step arrives without that lead-in tick, such as right after Start.
 void notes_off() {
   for (int voice = 0; voice < VOICES; voice++) {
-    if (seq.voices[voice].is_playing) {
-      midi_note_off(FIRST_MIDI_NOTE + voice, MIDI_NOTE_OFF_VELOCITY);
-      seq.voices[voice].is_playing = false;
+    Voice &v = seq.voices[voice];
+    if (v.is_playing) {
+      // The note that was sent, not the one the voice would send now: the
+      // offset may have been toggled while it sounded.
+      midi_note_off(v.playing_note, MIDI_NOTE_OFF_VELOCITY);
+      v.is_playing = false;
     }
   }
 }
@@ -363,11 +374,13 @@ bool is_voice_select_hl_period = false;
 void run_step() {
   notes_off();
   for (int voice = 0; voice < VOICES; voice++) {
-    Step const current_step = seq.voices[voice].advance();
+    Voice &v = seq.voices[voice];
+    Step const current_step = v.advance();
     if (current_step.vel > 0) {
-      midi_note_on(FIRST_MIDI_NOTE + voice, current_step.vel);
+      v.playing_note = FIRST_MIDI_NOTE + voice + v.note_offset;
+      midi_note_on(v.playing_note, current_step.vel);
       set_pixel(voice_index_to_key(voice), COLOR_PPOS);
-      seq.voices[voice].is_playing = true;
+      v.is_playing = true;
       is_voice_select_hl_period = true;
     }
   }
@@ -429,7 +442,12 @@ void handle_keys() {
 
       } else if (trellis.isPressed(KEY_TRANSFORM) &&
                  voice_key_to_index(key) < VOICES) {
-        swap_pattern(voice_key_to_index(key));
+        uint32_t const voice = voice_key_to_index(key);
+        if (voice == seq.voice_idx) {
+          toggle_note_offset(voice);
+        } else {
+          swap_pattern(voice);
+        }
 
       } else {
 
