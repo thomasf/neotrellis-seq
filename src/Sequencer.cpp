@@ -393,6 +393,16 @@ void Sequencer::rule30(uint32_t voice, uint32_t (*random_below)(uint32_t n)) {
   }
 }
 
+void Sequencer::polymeter(uint32_t (*random_below)(uint32_t n)) {
+  std::array<uint32_t, 6> lengths = {5, 7, 9, 11, 13, 15};
+  for (uint32_t i = lengths.size(); i > 1; i--) {
+    std::swap(lengths[i - 1], lengths[random_below(i)]);
+  }
+  for (uint32_t v = 0; v < VOICES; v++) {
+    voices[v].pattern()->length = lengths[v % lengths.size()];
+  }
+}
+
 // Board is every voice's current pattern as it was before a Life step.
 typedef std::array<Pattern, VOICES> Board;
 

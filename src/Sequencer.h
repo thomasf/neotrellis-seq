@@ -155,6 +155,12 @@ public:
   // wrapped as in fill_empty; ties are broken at random. random_below(n) must
   // return a uniform value in [0, n).
   void rule30(uint32_t voice, uint32_t (*random_below)(uint32_t n));
+  // polymeter gives every voice's current pattern a different odd length, the
+  // six values 5, 7, 9, 11, 13 and 15 dealt out in random order, so the voices
+  // drift against each other and only line up again after many bars. The
+  // steps themselves are untouched, so undo or LEN + STEP 16 brings a pattern
+  // back whole. random_below(n) must return a uniform value in [0, n).
+  void polymeter(uint32_t (*random_below)(uint32_t n));
   // life advances every voice's current pattern one generation of Conway's
   // Game of Life, with the voices as rows and the steps as columns. A cell is
   // alive when its step sounds. Each row is read as a ring of its own length,

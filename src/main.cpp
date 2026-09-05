@@ -271,6 +271,17 @@ void life_all_patterns() {
   seq.life();
 }
 
+// polymeter_patterns deals a different odd length to every voice's current
+// pattern (TRANSFORM + ALL + LEN) as one undo group.
+void polymeter_patterns() {
+  seed_random();
+  begin_edit();
+  for (uint32_t voice = 0; voice < VOICES; voice++) {
+    record_undo(voice);
+  }
+  seq.polymeter(random_below);
+}
+
 // swap_pattern exchanges the selected voice's current pattern with voice
 // `other`'s current pattern (TRANSFORM + VOICE) as one undo group.
 void swap_pattern(uint32_t other) {
@@ -456,7 +467,10 @@ void handle_keys() {
     if (e.bit.EVENT == KEY_JUST_PRESSED) {
       debug_print("key_pressed", key);
 
-      if (trellis.isPressed(KEY_PATTERN_LEN)) {
+      if (key == KEY_PATTERN_LEN && trellis.isPressed(KEY_TRANSFORM) &&
+          trellis.isPressed(KEY_VOICE_SELECT_ALL)) {
+        polymeter_patterns();
+      } else if (trellis.isPressed(KEY_PATTERN_LEN)) {
         if (is_numpad_key(key)) {
           uint32_t index = index_of(step_key, 16, key);
 
