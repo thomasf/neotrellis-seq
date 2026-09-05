@@ -170,37 +170,45 @@ Pattern copy_buffer = Pattern(); // for copy/paste
 
 uint32_t random_below(uint32_t n) { return random(n); }
 
+// KEY_LIFE_INDEX is the step key index (row 2, last key) that runs rule 30 on
+// one voice and life on all of them.
+uint32_t static const KEY_LIFE_INDEX = 11;
+
 // apply_transform applies the TRANSFORM + STEP action for the step key at
 // `index` (0-15, row major) to voice `voice`'s current pattern and reports
 // whether the key is assigned:
 //
-//   row 0: shift right by 1, 2, 3 or 4 steps
-//   row 1: shift left by 1, 2, 3 or 4 steps
-//   row 2: deterministic reshapes: reverse, invert, euclid, fill empty (which
+//   row 0: shift left by 1, right by 1, left by 4, right by 4
+//   row 1: deterministic reshapes: reverse, invert, euclid, fill empty (which
 //          is random only when no step is free)
-//   row 3: shuffle, echo, one unassigned key, then rule 30 with the note
+//   row 2: shuffle, echo, one unassigned key, then rule 30 with the note
 //          count locked. With ALL that last key is life instead, see
 //          life_all_patterns, since every row must be computed from the same
 //          board.
+//   row 3: unassigned
 bool apply_transform(uint32_t voice, uint32_t index) {
   Pattern *const p = seq.voices[voice].pattern();
-  if (index < 4) {
-    p->shift(index + 1);
-  } else if (index < 8) {
-    p->shift(-(int)(index - 3));
-  } else if (index == 8) {
+  if (index == 0) {
+    p->shift(-1);
+  } else if (index == 1) {
+    p->shift(1);
+  } else if (index == 2) {
+    p->shift(-4);
+  } else if (index == 3) {
+    p->shift(4);
+  } else if (index == 4) {
     p->reverse();
-  } else if (index == 9) {
+  } else if (index == 5) {
     p->invert();
-  } else if (index == 10) {
+  } else if (index == 6) {
     p->euclid();
-  } else if (index == 11) {
+  } else if (index == 7) {
     seq.fill_empty(voice, random_below);
-  } else if (index == 12) {
+  } else if (index == 8) {
     p->shuffle(random_below);
-  } else if (index == 13) {
+  } else if (index == 9) {
     p->echo();
-  } else if (index == 15) {
+  } else if (index == KEY_LIFE_INDEX) {
     seq.rule30(voice, random_below);
   } else {
     return false;
@@ -251,7 +259,7 @@ void transform_all_patterns(Transform transform, uint32_t index) {
 }
 
 // life_all_patterns advances every voice's current pattern one generation of
-// the Game of Life (TRANSFORM + ALL + STEP 16) as one undo group. It does not
+// the Game of Life (TRANSFORM + ALL + STEP 12) as one undo group. It does not
 // go through transform_all_patterns because every row must be computed from
 // the board as it was before any row moved, and because a single row against
 // a frozen board is not interesting: that key alone runs rule 30 instead.
@@ -523,7 +531,7 @@ void handle_keys() {
                                             ? apply_accent_transform
                                             : apply_transform;
             if (trellis.isPressed(KEY_VOICE_SELECT_ALL)) {
-              if (index == 15 && !trellis.isPressed(KEY_ACCENT)) {
+              if (index == KEY_LIFE_INDEX && !trellis.isPressed(KEY_ACCENT)) {
                 life_all_patterns();
               } else {
                 transform_all_patterns(transform, index);

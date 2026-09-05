@@ -9,7 +9,7 @@ int static const MIDI_NOTE_OFF_VELOCITY = 64;
 int static const DEFAULT_VELOCITY = 99;
 // Velocity of an accented step (ACCENT + STEP).
 int static const ACCENT_VELOCITY = 127;
-// TRANSFORM + STEP 14 (echo) copies every note this many steps later at half
+// TRANSFORM + STEP 10 (echo) copies every note this many steps later at half
 // its velocity. 2 is an eighth note at sixteenth-note steps.
 int static const ECHO_STEPS = 2;
 
