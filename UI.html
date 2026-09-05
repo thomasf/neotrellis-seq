@@ -147,7 +147,7 @@
   <div class="step">REVERSE <i>STEP 9</i></div>
   <div class="step">INVERT <i>STEP 10</i></div>
   <div class="step">EUCLID <i>STEP 11</i></div>
-  <div class="off">&mdash; <i>STEP 12</i></div>
+  <div class="step">FILL EMPTY <i>STEP 12</i></div>
   <div class="mod">ACCENT &hellip; <i>ACCENT</i></div>
   <div class="off">&mdash; <i>POS</i></div>
   <div class="voc2">SWAP 2 <i>VOICE 2</i></div>
@@ -171,6 +171,7 @@
   <tr><td class="k">STEP 9</td><td>Reverses the pattern.</td></tr>
   <tr><td class="k">STEP 10</td><td>Inverts the pattern: sounding steps go silent and silent steps start sounding.</td></tr>
   <tr><td class="k">STEP 11</td><td>Spreads the sounding steps evenly across the length (a Euclidean rhythm), keeping their velocities in order.</td></tr>
+  <tr><td class="k">STEP 12</td><td>Fill empty: replaces the pattern with notes on every step where no other voice sounds. Busy voices count for less, so a hi-hat on every step does not block anything. If there is no free step, it places as many notes as the sparsest other voice has, spread evenly over the least crowded steps. It never copies another voice outright.</td></tr>
   <tr><td class="k">STEP 13</td><td>Shuffles the steps into a random order.</td></tr>
   <tr><td class="k">ALL + STEP <i>n</i></td><td>Applies transform <i>n</i> to every voice&rsquo;s current pattern instead of just the selected one.</td></tr>
   <tr><td class="k">ACCENT + STEP <i>n</i></td><td>Accents every <i>n</i>-th sounding step counting from step 1 and drops every other accent. STEP 4 accents the downbeats, STEP 2 the on-beats, STEP 1 every note. Silent steps are left alone.</td></tr>

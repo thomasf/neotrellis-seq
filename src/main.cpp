@@ -171,14 +171,15 @@ Pattern copy_buffer = Pattern(); // for copy/paste
 uint32_t random_below(uint32_t n) { return random(n); }
 
 // apply_transform applies the TRANSFORM + STEP action for the step key at
-// `index` (0-15, row major) to pattern `p` and reports whether the key is
-// assigned:
+// `index` (0-15, row major) to voice `voice`'s current pattern and reports
+// whether the key is assigned:
 //
 //   row 0: shift right by 1, 2, 3 or 4 steps
 //   row 1: shift left by 1, 2, 3 or 4 steps
-//   row 2: deterministic reshapes: reverse, invert, euclid, unassigned
+//   row 2: deterministic reshapes: reverse, invert, euclid, fill empty
 //   row 3: random reshapes: shuffle, the rest unassigned
-bool apply_transform(Pattern *const p, uint32_t index) {
+bool apply_transform(uint32_t voice, uint32_t index) {
+  Pattern *const p = seq.voices[voice].pattern();
   if (index < 4) {
     p->shift(index + 1);
   } else if (index < 8) {
@@ -189,6 +190,8 @@ bool apply_transform(Pattern *const p, uint32_t index) {
     p->invert();
   } else if (index == 10) {
     p->euclid();
+  } else if (index == 11) {
+    seq.fill_empty(voice);
   } else if (index == 12) {
     p->shuffle(random_below);
   } else {
@@ -198,15 +201,17 @@ bool apply_transform(Pattern *const p, uint32_t index) {
 }
 
 // apply_accent_transform applies the TRANSFORM + ACCENT + STEP action for
-// the step key at `index` to `p`: accent every (index + 1)-th step.
-bool apply_accent_transform(Pattern *const p, uint32_t index) {
-  p->accent_every(index + 1);
+// the step key at `index` to voice `voice`'s current pattern: accent every
+// (index + 1)-th step.
+bool apply_accent_transform(uint32_t voice, uint32_t index) {
+  seq.voices[voice].pattern()->accent_every(index + 1);
   return true;
 }
 
 // Transform is one of the apply_* functions above: it applies the action for
-// step key `index` to a pattern and reports whether that key is assigned.
-typedef bool (*Transform)(Pattern *const p, uint32_t index);
+// step key `index` to a voice's current pattern and reports whether that key
+// is assigned.
+typedef bool (*Transform)(uint32_t voice, uint32_t index);
 
 // seed_random reseeds the stock generator, which is deterministic from boot,
 // from the time of the key press, which is as random as the player.
@@ -215,10 +220,9 @@ void seed_random() { randomSeed(micros()); }
 // transform_pattern applies `transform` for step key `index` to the selected
 // pattern as one undo step. An unassigned key records nothing.
 void transform_pattern(Transform transform, uint32_t index) {
-  Pattern *const p = seq.voice->pattern();
-  Pattern const before = *p;
+  Pattern const before = *seq.voice->pattern();
   seed_random();
-  if (transform(p, index)) {
+  if (transform(seq.voice_idx, index)) {
     begin_edit();
     record_before(seq.voice_idx, seq.voice->pattern_idx, before);
   }
@@ -232,7 +236,7 @@ void transform_all_patterns(Transform transform, uint32_t index) {
   for (uint32_t voice = 0; voice < VOICES; voice++) {
     Voice &v = seq.voices[voice];
     Pattern const before = *v.pattern();
-    if (transform(v.pattern(), index)) {
+    if (transform(voice, index)) {
       record_before(voice, v.pattern_idx, before);
     }
   }

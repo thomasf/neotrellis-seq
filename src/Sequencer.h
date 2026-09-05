@@ -121,6 +121,17 @@ public:
   Voice *voice;                     // current voice
   uint32_t voice_idx;               // current voice index
   void set_voice(uint32_t idx);     // set the currenlty active voice by index
+  // fill_empty rewrites voice `voice`'s current pattern to play in the gaps the
+  // other voices leave: every step within its length where no other voice
+  // sounds gets a note, the rest are cleared. Busy voices count for less: a
+  // voice that sounds on almost every step, a hi-hat say, is near silent for
+  // this purpose, and one that sounds on every step is ignored.
+  //
+  // When no step is free it places as many notes as the sparsest other voice
+  // has, spread evenly over the least crowded steps, so the result is a part
+  // of its own rather than a copy of whichever voice happens to be the least
+  // important. It never produces an exact copy of another voice's steps.
+  void fill_empty(uint32_t voice);
   Sequencer();
 };
 

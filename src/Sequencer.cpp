@@ -181,6 +181,122 @@ Sequencer::Sequencer() {
   voice_idx = 0;
   voice = &voices[0];
 }
+// sounds_like reports whether `a` and `b` sound on the same steps within
+// `len`, ignoring velocity.
+static bool sounds_like(const Pattern &a, const Pattern &b, uint32_t len) {
+  for (uint32_t i = 0; i < len; i++) {
+    if ((a.steps[i].vel > 0) != (b.steps[i].vel > 0)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+void Sequencer::fill_empty(uint32_t voice) {
+  Pattern &target = *voices[voice].pattern();
+  uint32_t const len = std::min<uint32_t>(target.length, target.steps.size());
+
+  // activity[i] sums, over the other voices, the weight of each voice that
+  // sounds on step i. Patterns of other lengths are read wrapped, as they play
+  // during the first pass of the target pattern. sparsest is the note count
+  // of the other voice with the fewest notes, which sets how many notes a
+  // fallback fill places.
+  std::array<uint32_t, 16> activity{};
+  uint32_t sparsest = UINT32_MAX;
+  for (uint32_t other = 0; other < VOICES; other++) {
+    if (other == voice) {
+      continue;
+    }
+    Pattern const &p = *voices[other].pattern();
+    uint32_t const plen = std::min<uint32_t>(p.length, p.steps.size());
+    if (plen == 0) {
+      continue;
+    }
+    uint32_t sounding = 0;
+    for (uint32_t i = 0; i < plen; i++) {
+      sounding += p.steps[i].vel > 0;
+    }
+    if (sounding > 0) {
+      sparsest = std::min(sparsest, sounding);
+    }
+    // The weight is the share of silent steps, scaled to 0..16, so a voice
+    // that never rests weighs nothing and a sparse one weighs nearly full.
+    uint32_t const weight = 16 - (16 * sounding) / plen;
+    if (weight == 0) {
+      continue;
+    }
+    for (uint32_t i = 0; i < len; i++) {
+      if (p.steps[i % plen].vel > 0) {
+        activity[i] += weight;
+      }
+    }
+  }
+
+  for (uint32_t i = 0; i < target.steps.size(); i++) {
+    target.steps[i].vel = 0;
+  }
+  if (len == 0) {
+    return;
+  }
+
+  uint32_t free_steps = 0;
+  for (uint32_t i = 0; i < len; i++) {
+    free_steps += activity[i] == 0;
+  }
+  if (free_steps > 0) {
+    for (uint32_t i = 0; i < len; i++) {
+      if (activity[i] == 0) {
+        target.steps[i].vel = DEFAULT_VELOCITY;
+      }
+    }
+    return;
+  }
+
+  // Fallback: no free step. Place `count` notes, each at the unused step with
+  // the least activity nearest to an evenly spaced ideal position, so the fill
+  // lands in the quietest spots but stays spread out. sparsest is finite here
+  // because at least one other voice sounds on every step.
+  uint32_t const count = std::min(sparsest, len);
+  for (uint32_t j = 0; j < count; j++) {
+    uint32_t const ideal = (j * len) / count;
+    uint32_t best = UINT32_MAX;
+    uint32_t best_activity = UINT32_MAX;
+    uint32_t best_distance = UINT32_MAX;
+    for (uint32_t i = 0; i < len; i++) {
+      if (target.steps[i].vel > 0) {
+        continue;
+      }
+      uint32_t const forward = (i + len - ideal) % len;
+      uint32_t const distance = std::min(forward, len - forward);
+      if (activity[i] < best_activity ||
+          (activity[i] == best_activity && distance < best_distance)) {
+        best = i;
+        best_activity = activity[i];
+        best_distance = distance;
+      }
+    }
+    target.steps[best].vel = DEFAULT_VELOCITY;
+  }
+
+  // A fill that has come out identical to another voice would double it
+  // rather than complement it, which can only happen when every candidate
+  // tied. Dropping the last note placed breaks the tie the cheapest way.
+  for (uint32_t other = 0; other < VOICES; other++) {
+    if (other == voice) {
+      continue;
+    }
+    if (sounds_like(target, *voices[other].pattern(), len)) {
+      for (uint32_t i = len; i > 0; i--) {
+        if (target.steps[i - 1].vel > 0) {
+          target.steps[i - 1].vel = 0;
+          break;
+        }
+      }
+      return;
+    }
+  }
+}
+
 void Sequencer::set_voice(uint32_t idx) {
   voice_idx = idx;
   voice = &voices[idx];
