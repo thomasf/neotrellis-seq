@@ -24,10 +24,10 @@ Adafruit_ADXL343 accel = Adafruit_ADXL343(123, &Wire1);
 // int last_xbend = 0;
 // int last_ybend = 0;
 
-unsigned long start_time;
-unsigned long last_step_time;
-
-uint32_t beat_interval = 60000L / BPM;
+#ifdef INTERNAL_CLOCK
+uint32_t clock_start_us = 0;
+uint64_t internal_clock_ticks = 0;
+#endif
 uint32_t ppqn = 0;
 
 Adafruit_NeoTrellisM4 trellis = Adafruit_NeoTrellisM4();
@@ -372,8 +372,9 @@ void setup() {
   setup_default_patterns();
 
   show_pixels();
-  start_time = millis();
-  last_step_time = start_time;
+#ifdef INTERNAL_CLOCK
+  clock_start_us = micros();
+#endif
 }
 
 uint32_t global_pos = 0;
@@ -760,20 +761,25 @@ void handle_midi_in(midiEventPacket_t const &event) {
 // as possible: clock ticks are only 2.1ms apart at 120 BPM.
 void service_clock() {
 #ifdef INTERNAL_CLOCK
-  uint32_t const now = millis();
-  uint32_t const elapsed = now - last_step_time;
-  uint32_t const step_interval = beat_interval / 4;
-  ppqn = ((4 * 24 * elapsed) / beat_interval);
-  if (elapsed >= step_interval) {
-    run_step();
-    ppqn = 0;
-    last_step_time = now;
-    global_pos++;
-  } else if (elapsed >= step_interval - step_interval / CLOCK_DIVISION) {
-    // one clock's worth ahead of the step, as in on_midi_clock()
-    notes_off();
-    midi_flush();
-  };
+  // In internal clock mode, generate 24 PPQN clock ticks locked to BPM using
+  // microsecond precision. 60,000,000 us / (BPM * 24) = 2,500,000 / BPM us per
+  // tick. Calculating target timestamp directly from total elapsed ticks
+  // completely eliminates cumulative drift and integer truncation errors.
+  uint32_t const now_us = micros();
+  uint32_t target_us =
+      clock_start_us +
+      static_cast<uint32_t>(
+          (static_cast<uint64_t>(internal_clock_ticks + 1) * 2500000ULL) / BPM);
+
+  while (static_cast<int32_t>(now_us - target_us) >= 0) {
+    ++internal_clock_ticks;
+    on_midi_clock();
+    target_us =
+        clock_start_us +
+        static_cast<uint32_t>(
+            (static_cast<uint64_t>(internal_clock_ticks + 1) * 2500000ULL) /
+            BPM);
+  }
 #else
   // read() returns a zeroed packet once the queue is empty; 0 is not a valid
   // code index number so it cannot be mistaken for a message.
