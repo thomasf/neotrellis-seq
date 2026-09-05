@@ -127,36 +127,58 @@ Pattern copy_buffer = Pattern(); // for copy/paste
 
 uint32_t random_below(uint32_t n) { return random(n); }
 
-// transform_pattern applies the TRANSFORM + STEP action for the step key at
-// `index` (0-15, row major) to the selected pattern:
+// apply_transform applies the TRANSFORM + STEP action for the step key at
+// `index` (0-15, row major) to pattern `p` and reports whether the key is
+// assigned:
 //
 //   row 0: shift right by 1, 2, 3 or 4 steps
 //   row 1: shift left by 1, 2, 3 or 4 steps
 //   row 2: deterministic reshapes: reverse, invert, euclid, unassigned
 //   row 3: random reshapes: shuffle, the rest unassigned
-void transform_pattern(uint32_t index) {
-  Pattern *const p = seq.voice->pattern();
+bool apply_transform(Pattern *const p, uint32_t index) {
   if (index < 4) {
-    create_undo_step();
     p->shift(index + 1);
   } else if (index < 8) {
-    create_undo_step();
     p->shift(-(int)(index - 3));
   } else if (index == 8) {
-    create_undo_step();
     p->reverse();
   } else if (index == 9) {
-    create_undo_step();
     p->invert();
   } else if (index == 10) {
-    create_undo_step();
     p->euclid();
   } else if (index == 12) {
-    create_undo_step();
-    // The stock generator is deterministic from boot, so seed it from the
-    // time of the key press, which is as random as the player.
-    randomSeed(micros());
     p->shuffle(random_below);
+  } else {
+    return false;
+  }
+  return true;
+}
+
+// seed_random reseeds the stock generator, which is deterministic from boot,
+// from the time of the key press, which is as random as the player.
+void seed_random() { randomSeed(micros()); }
+
+// transform_pattern applies transform `index` to the selected pattern, with
+// an undo step. An unassigned key leaves at most a redundant undo entry,
+// which create_undo_step already collapses when nothing has changed.
+void transform_pattern(uint32_t index) {
+  create_undo_step();
+  seed_random();
+  apply_transform(seq.voice->pattern(), index);
+}
+
+// transform_all_patterns applies transform `index` to every voice's current
+// pattern (TRANSFORM + ALL + STEP). The undo buffer only knows the selected
+// voice's pattern, and restoring just that one would leave the kit half
+// transformed, so it is cleared instead.
+void transform_all_patterns(uint32_t index) {
+  seed_random();
+  bool changed = false;
+  for (uint32_t voice = 0; voice < VOICES; voice++) {
+    changed |= apply_transform(seq.voices[voice].pattern(), index);
+  }
+  if (changed) {
+    reset_undo();
   }
 }
 
@@ -215,8 +237,6 @@ uint32_t global_pos = 0;
 
 uint32_t seq_color_set = COLOR_VOC0_SET;
 uint32_t seq_color_bg = COLOR_VOC0_UNSET;
-
-bool voice_select_modifier_held = false;
 
 // USB-MIDI wraps every message in a 4 byte packet and lets one bulk transfer
 // carry up to 16 of them. MIDIUSB's sendMIDI() makes a transfer per packet, and
@@ -313,8 +333,6 @@ void render_pixels() {
 
 // handle_keys drains the keypad event queue and applies the edits.
 void handle_keys() {
-  voice_select_modifier_held = false;
-
   while (trellis.available()) {
     keypadEvent e = trellis.read();
     int key = e.bit.KEY;
@@ -402,71 +420,39 @@ void handle_keys() {
           uint32_t index = index_of(step_key, 16, key);
           debug_print("index", index);
 
-          if (trellis.isPressed(KEY_VOICE_SELECT_ALL)) {
-            voice_select_modifier_held = true;
+          if (trellis.isPressed(KEY_TRANSFORM)) {
+            if (trellis.isPressed(KEY_VOICE_SELECT_ALL)) {
+              transform_all_patterns(index);
+            } else {
+              transform_pattern(index);
+            }
+
+          } else if (trellis.isPressed(KEY_VOICE_SELECT_ALL)) {
             for (int voice = 0; voice < VOICES; voice++) {
               seq.voices[voice].pattern_idx = index;
             }
             reset_undo();
+
           } else {
-
-            if (trellis.isPressed(KEY_VOICE_SELECT_0)) {
+            bool voice_select_modifier_held = false;
+            for (uint32_t voice = 0; voice < VOICES; voice++) {
+              if (!trellis.isPressed(voice_index_to_key(voice))) {
+                continue;
+              }
               voice_select_modifier_held = true;
-              if (seq.voices[0].pattern_idx != index) {
-                seq.voices[0].pattern_idx = index;
+              if (seq.voices[voice].pattern_idx != index) {
+                seq.voices[voice].pattern_idx = index;
                 reset_undo();
               }
             }
 
-            if (trellis.isPressed(KEY_VOICE_SELECT_1)) {
-              voice_select_modifier_held = true;
-              if (seq.voices[1].pattern_idx != index) {
-                seq.voices[1].pattern_idx = index;
-                reset_undo();
+            if (!voice_select_modifier_held) {
+              create_undo_step();
+              if (seq.voice->pattern()->steps[index].vel == 0) {
+                seq.voice->pattern()->steps[index].vel = DEFAULT_VELOCITY;
+              } else {
+                seq.voice->pattern()->steps[index].vel = 0;
               }
-            }
-
-            if (trellis.isPressed(KEY_VOICE_SELECT_2)) {
-              voice_select_modifier_held = true;
-              if (seq.voices[2].pattern_idx != index) {
-                seq.voices[2].pattern_idx = index;
-                reset_undo();
-              }
-            }
-
-            if (trellis.isPressed(KEY_VOICE_SELECT_3)) {
-              voice_select_modifier_held = true;
-              if (seq.voices[3].pattern_idx != index) {
-                seq.voices[3].pattern_idx = index;
-                reset_undo();
-              }
-            }
-
-            if (trellis.isPressed(KEY_VOICE_SELECT_4)) {
-              voice_select_modifier_held = true;
-              if (seq.voices[4].pattern_idx != index) {
-                seq.voices[4].pattern_idx = index;
-                reset_undo();
-              }
-            }
-
-            if (trellis.isPressed(KEY_VOICE_SELECT_5)) {
-              voice_select_modifier_held = true;
-              if (seq.voices[5].pattern_idx != index) {
-                seq.voices[5].pattern_idx = index;
-                reset_undo();
-              }
-            }
-          }
-
-          if (trellis.isPressed(KEY_TRANSFORM)) {
-            transform_pattern(index);
-          } else if (!voice_select_modifier_held) {
-            create_undo_step();
-            if (seq.voice->pattern()->steps[index].vel == 0) {
-              seq.voice->pattern()->steps[index].vel = DEFAULT_VELOCITY;
-            } else {
-              seq.voice->pattern()->steps[index].vel = 0;
             }
           }
 
