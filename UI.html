@@ -200,8 +200,8 @@
   voice order, which matters for the ones that read the other voices: fill
   empty, mutate and rule 30 each see the voices before them already changed.
   Declutter and Life are the exceptions, they act on the whole board at once.
-  LEN deals odd lengths to the voices. The other pads do what they do under
-  TRANSFORM alone.
+  LEN deals odd lengths to the voices and CLEAR silences some of them. The
+  other pads do what they do under TRANSFORM alone.
 </p>
 
 <div class="scroll">
@@ -219,7 +219,7 @@
   <div class="step">INVERT <i>STEP 6</i></div>
   <div class="step">EUCLID <i>STEP 7</i></div>
   <div class="step">FILL EMPTY <i>STEP 8</i></div>
-  <div class="off">&mdash; <i>CLEAR</i></div>
+  <div class="act">DROPOUT <i>CLEAR</i></div>
   <div class="act">REDO <i>UNDO</i></div>
   <div class="voc0">SWAP 0 <i>VOICE 0</i></div>
   <div class="voc1">SWAP 1 <i>VOICE 1</i></div>
@@ -252,6 +252,7 @@
   <tr><td class="k">STEP 12</td><td>Life: advances all six voices one generation of Conway&rsquo;s Game of Life, with voices as rows and steps as columns. A step survives with two or three sounding neighbours and keeps its velocity, an empty step with exactly three is born, everything else falls silent. Rows wrap at their own length, the first and last voice are neighbours, and every row is computed from the board as it was before the press. Life needs the whole board to stay alive, a single row against a frozen board dies or freezes within a press or two, which is why this pad runs Rule 30 without ALL.</td></tr>
   <tr><td class="k">ACCENT + STEP <i>n</i></td><td>Accents every <i>n</i>-th sounding step of every voice&rsquo;s current pattern and drops every other accent, as under TRANSFORM + ACCENT.</td></tr>
   <tr><td class="k">LEN</td><td>Odd meters: deals the six odd lengths 5, 7, 9, 11, 13 and 15 to the six voices in random order, so every voice gets a different one and the parts drift against each other. The steps are untouched, so undo, or LEN + STEP 16, brings a pattern back whole. One undo group.</td></tr>
+  <tr><td class="k">CLEAR</td><td>Dropout: silences half of the voices that still sound, rounded down but at least one, chosen at random. Six voices go to three, then two, then one, then none, so the kit breaks down in stages and always passes through a single voice before it falls silent. One undo per press brings it back. Each press is a fresh draw.</td></tr>
   <tr><td class="k">VOICE <i>v</i>, UNDO, PASTE</td><td>As under TRANSFORM alone: swap with voice <i>v</i>, redo, paste into every slot of the selected voice. ALL makes no difference to these.</td></tr>
 </table>
 

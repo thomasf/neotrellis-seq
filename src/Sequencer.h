@@ -168,6 +168,12 @@ public:
   // are compared by index as the grid shows them, each voice within its own
   // length. random_below(n) must return a uniform value in [0, n).
   void declutter(uint32_t (*random_below)(uint32_t n));
+  // dropout silences half of the voices whose current pattern sounds, rounded
+  // down but at least one, chosen at random, within each pattern's length.
+  // Six sounding voices go to three, then two, then one, then none: the kit
+  // breaks down in stages, always passing through a single voice before it
+  // falls silent. random_below(n) must return a uniform value in [0, n).
+  void dropout(uint32_t (*random_below)(uint32_t n));
   // polymeter gives every voice's current pattern a different odd length, the
   // six values 5, 7, 9, 11, 13 and 15 dealt out in random order, so the voices
   // drift against each other and only line up again after many bars. The

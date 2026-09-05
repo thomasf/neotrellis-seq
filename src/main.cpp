@@ -285,6 +285,17 @@ bool transform_board(uint32_t index) {
   return true;
 }
 
+// dropout_patterns silences half of the sounding voices' current patterns
+// (TRANSFORM + ALL + CLEAR) as one undo group.
+void dropout_patterns() {
+  seed_random();
+  begin_edit();
+  for (uint32_t voice = 0; voice < VOICES; voice++) {
+    record_undo(voice);
+  }
+  seq.dropout(random_below);
+}
+
 // polymeter_patterns deals a different odd length to every voice's current
 // pattern (TRANSFORM + ALL + LEN) as one undo group.
 void polymeter_patterns() {
@@ -539,6 +550,10 @@ void handle_keys() {
             create_undo_step();
             seq.voice->replace_pattern(Pattern(copy_buffer));
           }
+
+        } else if (key == KEY_CLEAR && trellis.isPressed(KEY_TRANSFORM) &&
+                   trellis.isPressed(KEY_VOICE_SELECT_ALL)) {
+          dropout_patterns();
 
         } else if (key == KEY_CLEAR) {
           create_undo_step();

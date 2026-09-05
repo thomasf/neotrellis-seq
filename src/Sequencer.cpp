@@ -468,6 +468,32 @@ void Sequencer::declutter(uint32_t (*random_below)(uint32_t n)) {
   }
 }
 
+void Sequencer::dropout(uint32_t (*random_below)(uint32_t n)) {
+  std::array<uint32_t, VOICES> sounding;
+  uint32_t count = 0;
+  for (uint32_t v = 0; v < VOICES; v++) {
+    Pattern const &p = *voices[v].pattern();
+    uint32_t const len = std::min<uint32_t>(p.length, p.steps.size());
+    for (uint32_t i = 0; i < len; i++) {
+      if (p.steps[i].vel > 0) {
+        sounding[count++] = v;
+        break;
+      }
+    }
+  }
+  // Silence the first half, at least one, of a random order of the sounding
+  // voices.
+  uint32_t const drop = std::max<uint32_t>(count / 2, count > 0);
+  for (uint32_t k = 0; k < drop; k++) {
+    std::swap(sounding[k], sounding[k + random_below(count - k)]);
+    Pattern &p = *voices[sounding[k]].pattern();
+    uint32_t const len = std::min<uint32_t>(p.length, p.steps.size());
+    for (uint32_t i = 0; i < len; i++) {
+      p.steps[i].vel = 0;
+    }
+  }
+}
+
 void Sequencer::polymeter(uint32_t (*random_below)(uint32_t n)) {
   std::array<uint32_t, 6> lengths = {5, 7, 9, 11, 13, 15};
   for (uint32_t i = lengths.size(); i > 1; i--) {
