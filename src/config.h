@@ -7,6 +7,8 @@ int static const MIDI_CHANNEL = 0;
 int static const MIDI_NOTE_OFF_VELOCITY = 64;
 // Velocity given to a step when it is switched on from the pad or by invert.
 int static const DEFAULT_VELOCITY = 100;
+// Velocity of an accented step (ACCENT + STEP).
+int static const ACCENT_VELOCITY = 127;
 
 // Undo history depth in patterns. An all-voice transform records one entry per
 // voice, so this holds a mix of a few of those and many single edits.
@@ -39,6 +41,7 @@ int static const KEY_PASTE = 5;
 int static const KEY_CLEAR = 12;
 int static const KEY_UNDO = 13;
 int static const KEY_TRANSFORM = 28;
+int static const KEY_ACCENT = 20;
 
 int static const KEY_SEQ_POS_0 = 0;
 int static const KEY_SEQ_POS_1 = 1;

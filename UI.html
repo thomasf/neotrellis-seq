@@ -75,7 +75,7 @@
   <div class="step">STEP 10 <i>17</i></div>
   <div class="step">STEP 11 <i>18</i></div>
   <div class="step">STEP 12 <i>19</i></div>
-  <div class="off">&mdash; <i>20</i></div>
+  <div class="mod">ACCENT <i>20</i></div>
   <div class="mod">POS <i>21</i></div>
   <div class="voc2">VOICE 2 <i>22</i></div>
   <div class="voc3">VOICE 3 <i>23</i></div>
@@ -105,6 +105,7 @@
 <h2>Held modifiers</h2>
 <table>
   <tr><th>Combination</th><th>Effect</th></tr>
+  <tr><td class="k">ACCENT + STEP <i>n</i></td><td>Accents step <i>n</i> (velocity 127). An accented step goes back to normal velocity, a silent step switches on accented. Never switches a step off.</td></tr>
   <tr><td class="k">LEN + STEP <i>n</i></td><td>Sets the selected pattern&rsquo;s length to <i>n</i> steps.</td></tr>
   <tr><td class="k">POS + STEP <i>n</i></td><td>Moves the selected voice&rsquo;s play head to step <i>n</i>.</td></tr>
   <tr><td class="k">POS + ALL + STEP <i>n</i></td><td>Moves every voice&rsquo;s play head to step <i>n</i>.</td></tr>
@@ -144,7 +145,7 @@
   <div class="step">INVERT <i>STEP 10</i></div>
   <div class="step">EUCLID <i>STEP 11</i></div>
   <div class="off">&mdash; <i>STEP 12</i></div>
-  <div class="off">&mdash; <i>20</i></div>
+  <div class="off">&mdash; <i>ACCENT</i></div>
   <div class="off">&mdash; <i>POS</i></div>
   <div class="voc2">SWAP 2 <i>VOICE 2</i></div>
   <div class="voc3">SWAP 3 <i>VOICE 3</i></div>
@@ -185,8 +186,9 @@
   <tr><td class="k"><span class="sw" style="background:#2050e0"></span>COLOR_VOC<i>n</i></td><td>Voice select pads, one hue per voice</td></tr>
   <tr><td class="k"><span class="sw" style="background:#6174ff"></span>COLOR_VOC<i>n</i>_SET</td><td>Steps with a note, in the selected voice&rsquo;s hue</td></tr>
   <tr><td class="k"><span class="sw" style="background:#000a7f"></span>COLOR_VOC<i>n</i>_UNSET</td><td>Empty steps, in the selected voice&rsquo;s hue</td></tr>
+  <tr><td class="k"><span class="sw" style="background:#b2b6ff"></span>COLOR_VOC<i>n</i>_ACCENT</td><td>Accented steps, a lighter shade of the selected voice&rsquo;s hue</td></tr>
   <tr><td class="k"><span class="sw" style="background:#8080b0"></span>COLOR_PACT</td><td>Copy, paste, clear, undo</td></tr>
-  <tr><td class="k"><span class="sw" style="background:#808b80"></span>COLOR_PMOD</td><td>Length, position, transform</td></tr>
+  <tr><td class="k"><span class="sw" style="background:#808b80"></span>COLOR_PMOD</td><td>Length, position, transform, accent</td></tr>
   <tr><td class="k"><span class="sw" style="background:#d0d0d0"></span>COLOR_PPOS</td><td>Play head, voices firing this step, and the ALL pad</td></tr>
 </table>
 <p class="note">

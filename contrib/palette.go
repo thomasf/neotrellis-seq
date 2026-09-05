@@ -39,10 +39,13 @@ var (
 		PatternAction:   "#8080b0",
 		PatternModifier: "#808b80",
 		ActiveVoices: func(t Theme) Theme {
-			return t.ChangeLightness(0.15)
+			return t.ChangeLightness(0.14)
 		},
 		InactiveVoices: func(t Theme) Theme {
-			return t.ChangeLightness(-0.35)
+			return t.ChangeLightness(-0.38)
+		},
+		AccentVoices: func(t Theme) Theme {
+			return t.ChangeLightness(0.46)
 		},
 	}
 
@@ -62,6 +65,9 @@ var (
 		InactiveVoices: func(t Theme) Theme {
 			return t.ChangeLightness(-0.4)
 		},
+		AccentVoices: func(t Theme) Theme {
+			return t.ChangeLightness(0.6)
+		},
 	}
 )
 
@@ -74,8 +80,9 @@ type Theme struct {
 	Voice3          HexColor
 	Voice4          HexColor
 	Voice5          HexColor
-	ActiveVoices    func(Theme) Theme
-	InactiveVoices  func(Theme) Theme
+	ActiveVoices    func(Theme) Theme // steps with a note
+	InactiveVoices  func(Theme) Theme // silent steps
+	AccentVoices    func(Theme) Theme // steps with an accented note
 	Tool            HexColor
 	PatternAction   HexColor
 	PatternModifier HexColor
@@ -164,6 +171,13 @@ func generateColors() {
 		voiceInactiveStep = voiceInactiveStep.ChangeLightness(-0.3)
 	}
 
+	voiceAccentStep := theme
+	if theme.AccentVoices != nil {
+		voiceAccentStep = voiceAccentStep.AccentVoices(voiceAccentStep)
+	} else {
+		voiceAccentStep = voiceAccentStep.ChangeLightness(0.5)
+	}
+
 	var lines []string
 
 	for k, v := range theme.NamedColors() {
@@ -173,6 +187,9 @@ func generateColors() {
 		lines = append(lines, colorDef(v, k, ""))
 	}
 	for k, v := range voiceInactiveStep.NamedColors().WithPrefix("VOC").AddSuffix("_UNSET") {
+		lines = append(lines, colorDef(v, k, ""))
+	}
+	for k, v := range voiceAccentStep.NamedColors().WithPrefix("VOC").AddSuffix("_ACCENT") {
 		lines = append(lines, colorDef(v, k, ""))
 	}
 

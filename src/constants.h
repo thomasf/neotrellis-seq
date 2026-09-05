@@ -81,6 +81,65 @@ constexpr uint32_t voice_index_to_color(uint32_t idx) {
     return 999;
   };
 };
+// Step grid shades for the selected voice: a silent step, a step with a note,
+// and a step with an accented note.
+constexpr uint32_t voice_index_to_unset_color(uint32_t idx) {
+  switch (idx) {
+  case 0:
+    return COLOR_VOC0_UNSET;
+  case 1:
+    return COLOR_VOC1_UNSET;
+  case 2:
+    return COLOR_VOC2_UNSET;
+  case 3:
+    return COLOR_VOC3_UNSET;
+  case 4:
+    return COLOR_VOC4_UNSET;
+  case 5:
+    return COLOR_VOC5_UNSET;
+  default:
+    return 999;
+  };
+};
+
+constexpr uint32_t voice_index_to_set_color(uint32_t idx) {
+  switch (idx) {
+  case 0:
+    return COLOR_VOC0_SET;
+  case 1:
+    return COLOR_VOC1_SET;
+  case 2:
+    return COLOR_VOC2_SET;
+  case 3:
+    return COLOR_VOC3_SET;
+  case 4:
+    return COLOR_VOC4_SET;
+  case 5:
+    return COLOR_VOC5_SET;
+  default:
+    return 999;
+  };
+};
+
+constexpr uint32_t voice_index_to_accent_color(uint32_t idx) {
+  switch (idx) {
+  case 0:
+    return COLOR_VOC0_ACCENT;
+  case 1:
+    return COLOR_VOC1_ACCENT;
+  case 2:
+    return COLOR_VOC2_ACCENT;
+  case 3:
+    return COLOR_VOC3_ACCENT;
+  case 4:
+    return COLOR_VOC4_ACCENT;
+  case 5:
+    return COLOR_VOC5_ACCENT;
+  default:
+    return 999;
+  };
+};
+
 const uint32_t step_key[16] = {
     // row 0
     KEY_SEQ_POS_0, KEY_SEQ_POS_1, KEY_SEQ_POS_2, KEY_SEQ_POS_3,

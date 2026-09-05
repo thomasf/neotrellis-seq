@@ -263,6 +263,7 @@ void setup() {
   set_pixel(KEY_PATTERN_LEN, COLOR_PMOD);
   set_pixel(KEY_PATTERN_POS, COLOR_PMOD);
   set_pixel(KEY_TRANSFORM, COLOR_PMOD);
+  set_pixel(KEY_ACCENT, COLOR_PMOD);
 
   set_pixel(KEY_COPY, COLOR_PACT);
   set_pixel(KEY_PASTE, COLOR_PACT);
@@ -280,8 +281,18 @@ void setup() {
 
 uint32_t global_pos = 0;
 
+// Step grid shades for the selected voice, see select_voice().
 uint32_t seq_color_set = COLOR_VOC0_SET;
 uint32_t seq_color_bg = COLOR_VOC0_UNSET;
+uint32_t seq_color_accent = COLOR_VOC0_ACCENT;
+
+// select_voice makes voice `idx` the one the grid shows and edits.
+void select_voice(uint32_t idx) {
+  seq.set_voice(idx);
+  seq_color_set = voice_index_to_set_color(idx);
+  seq_color_bg = voice_index_to_unset_color(idx);
+  seq_color_accent = voice_index_to_accent_color(idx);
+}
 
 // USB-MIDI wraps every message in a 4 byte packet and lets one bulk transfer
 // carry up to 16 of them. MIDIUSB's sendMIDI() makes a transfer per packet, and
@@ -368,6 +379,8 @@ void render_pixels() {
       set_pixel(step_key[i], COLOR_PPOS);
     } else if (seq.voice->pattern()->length <= i) {
       set_pixel(step_key[i], COLOR_OFF);
+    } else if (seq.voice->step(i).vel >= ACCENT_VELOCITY) {
+      set_pixel(step_key[i], seq_color_accent);
     } else if (seq.voice->step(i).vel > 0) {
       set_pixel(step_key[i], seq_color_set);
     } else {
@@ -409,35 +422,8 @@ void handle_keys() {
 
       } else {
 
-        if (key == KEY_VOICE_SELECT_0) {
-          seq.set_voice(0);
-          seq_color_set = COLOR_VOC0_SET;
-          seq_color_bg = COLOR_VOC0_UNSET;
-
-        } else if (key == KEY_VOICE_SELECT_1) {
-          seq.set_voice(1);
-          seq_color_set = COLOR_VOC1_SET;
-          seq_color_bg = COLOR_VOC1_UNSET;
-
-        } else if (key == KEY_VOICE_SELECT_2) {
-          seq.set_voice(2);
-          seq_color_set = COLOR_VOC2_SET;
-          seq_color_bg = COLOR_VOC2_UNSET;
-
-        } else if (key == KEY_VOICE_SELECT_3) {
-          seq.set_voice(3);
-          seq_color_set = COLOR_VOC3_SET;
-          seq_color_bg = COLOR_VOC3_UNSET;
-
-        } else if (key == KEY_VOICE_SELECT_4) {
-          seq.set_voice(4);
-          seq_color_set = COLOR_VOC4_SET;
-          seq_color_bg = COLOR_VOC4_UNSET;
-
-        } else if (key == KEY_VOICE_SELECT_5) {
-          seq.set_voice(5);
-          seq_color_set = COLOR_VOC5_SET;
-          seq_color_bg = COLOR_VOC5_UNSET;
+        if (voice_key_to_index(key) < VOICES) {
+          select_voice(voice_key_to_index(key));
 
         } else if (key == KEY_UNDO) {
           if (trellis.isPressed(KEY_TRANSFORM)) {
@@ -469,6 +455,14 @@ void handle_keys() {
             } else {
               transform_pattern(index);
             }
+
+          } else if (trellis.isPressed(KEY_ACCENT)) {
+            // Accent moves a step between loud and normal and switches a
+            // silent one on loud; it never switches a step off.
+            create_undo_step();
+            Step &step = seq.voice->pattern()->steps[index];
+            step.vel = step.vel >= ACCENT_VELOCITY ? DEFAULT_VELOCITY
+                                                   : ACCENT_VELOCITY;
 
           } else if (trellis.isPressed(KEY_VOICE_SELECT_ALL)) {
             for (int voice = 0; voice < VOICES; voice++) {
