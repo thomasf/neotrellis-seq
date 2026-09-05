@@ -34,8 +34,7 @@ static byte colPins[COLS] = {
     2, 3, 4, 5, 6, 7, 8, 9}; // connect to the column pinouts of the keypad
 
 Adafruit_NeoTrellisM4::Adafruit_NeoTrellisM4(void)
-    : Adafruit_Keypad(makeKeymap(trellisKeys), rowPins, colPins, ROWS, COLS),
-      Adafruit_NeoPixel_ZeroDMA(ROWS * COLS, NEO_PIN, NEO_GRB) {
+    : Adafruit_NeoPixel_ZeroDMA(ROWS * COLS, NEO_PIN, NEO_GRB) {
   _num_keys = ROWS * COLS;
   _rows = ROWS;
   _cols = COLS;
@@ -45,6 +44,10 @@ Adafruit_NeoTrellisM4::Adafruit_NeoTrellisM4(void)
   _midi_channel_uart = 0;
   _pending_midi = false;
   _auto_update = true;
+  _keys_current = 0;
+  _keys_previous = 0;
+  _event_head = 0;
+  _event_tail = 0;
 }
 
 /**************************************************************************/
@@ -55,7 +58,15 @@ x*/
 /**************************************************************************/
 
 void Adafruit_NeoTrellisM4::begin(void) {
-  Adafruit_Keypad::begin();
+  // Initialize row pins as input with pull-ups
+  for (int r = 0; r < ROWS; r++) {
+    pinMode(rowPins[r], INPUT_PULLUP);
+  }
+  // Initialize column pins as output driven HIGH
+  for (int c = 0; c < COLS; c++) {
+    pinMode(colPins[c], OUTPUT);
+    digitalWrite(colPins[c], HIGH);
+  }
 
   // Initialize all pixels to 'off'
   Adafruit_NeoPixel_ZeroDMA::begin();
@@ -111,20 +122,102 @@ pressed/released.
 x*/
 /**************************************************************************/
 void Adafruit_NeoTrellisM4::tick(void) {
-  Adafruit_Keypad::tick();
-  // look for an entire column being pressed at once and if it was, clear the
-  // whole buffer
-  uint8_t rcount[] = {0, 0, 0, 0, 0, 0, 0, 0};
-  for (int i = 0; i < (COLS * ROWS) - 1; i++) {
-    if (Adafruit_Keypad::justPressed(i + 1, false))
-      rcount[i % COLS]++;
-  }
-  for (int i = 0; i < COLS; i++) {
-    if (rcount[i] >= ROWS) {
-      Adafruit_Keypad::clear();
-      break;
+  // Column bitmasks on PORTA: D2..D9 -> PA14, PA15, PA16, PA17, PA20, PA21, PA22, PA23
+  static const uint32_t col_masks[8] = {
+      (1UL << 14), (1UL << 15), (1UL << 16), (1UL << 17),
+      (1UL << 20), (1UL << 21), (1UL << 22), (1UL << 23)};
+
+  uint32_t scanned_keys = 0;
+
+  for (uint8_t c = 0; c < 8; c++) {
+    // Drive column c LOW using direct PORTA register
+    PORT->Group[0].OUTCLR.reg = col_masks[c];
+    delayMicroseconds(2); // Short 2us settling time instead of 20us
+
+    // Read all rows via single-cycle 32-bit PORT registers
+    uint32_t const in_a = PORT->Group[0].IN.reg;
+    uint32_t const in_b = PORT->Group[1].IN.reg;
+
+    // Drive column c back HIGH
+    PORT->Group[0].OUTSET.reg = col_masks[c];
+
+    // Row 0: PA18, Row 1: PA19, Row 2: PB22, Row 3: PB23
+    bool const r0 = !(in_a & (1UL << 18));
+    bool const r1 = !(in_a & (1UL << 19));
+    bool const r2 = !(in_b & (1UL << 22));
+    bool const r3 = !(in_b & (1UL << 23));
+
+    // Suppress column if all 4 rows are shorted (hardware ghosting)
+    if (r0 && r1 && r2 && r3) {
+      continue;
     }
+
+    if (r0) scanned_keys |= (1UL << (0 * 8 + c));
+    if (r1) scanned_keys |= (1UL << (1 * 8 + c));
+    if (r2) scanned_keys |= (1UL << (2 * 8 + c));
+    if (r3) scanned_keys |= (1UL << (3 * 8 + c));
   }
+
+  _keys_current = scanned_keys;
+
+  // Detect edge transitions across all 32 keys in parallel
+  uint32_t just_pressed = _keys_current & ~_keys_previous;
+  uint32_t just_released = ~_keys_current & _keys_previous;
+  _keys_previous = _keys_current;
+
+  // Queue JUST_PRESSED events
+  while (just_pressed) {
+    uint8_t const key = __builtin_ctz(just_pressed);
+    uint8_t const next_head = (_event_head + 1) & (EVENT_BUF_SIZE - 1);
+    if (next_head != _event_tail) {
+      keypadEvent &e = _event_buf[_event_head];
+      e.bit.KEY = key;
+      e.bit.EVENT = KEY_JUST_PRESSED;
+      e.bit.ROW = key >> 3;
+      e.bit.COL = key & 7;
+      _event_head = next_head;
+    }
+    just_pressed &= ~(1UL << key);
+  }
+
+  // Queue JUST_RELEASED events
+  while (just_released) {
+    uint8_t const key = __builtin_ctz(just_released);
+    uint8_t const next_head = (_event_head + 1) & (EVENT_BUF_SIZE - 1);
+    if (next_head != _event_tail) {
+      keypadEvent &e = _event_buf[_event_head];
+      e.bit.KEY = key;
+      e.bit.EVENT = KEY_JUST_RELEASED;
+      e.bit.ROW = key >> 3;
+      e.bit.COL = key & 7;
+      _event_head = next_head;
+    }
+    just_released &= ~(1UL << key);
+  }
+}
+
+int Adafruit_NeoTrellisM4::available(void) {
+  return (_event_head - _event_tail) & (EVENT_BUF_SIZE - 1);
+}
+
+keypadEvent Adafruit_NeoTrellisM4::read(void) {
+  if (_event_head == _event_tail) {
+    keypadEvent empty;
+    empty.reg = 0;
+    return empty;
+  }
+  keypadEvent e = _event_buf[_event_tail];
+  _event_tail = (_event_tail + 1) & (EVENT_BUF_SIZE - 1);
+  return e;
+}
+
+bool Adafruit_NeoTrellisM4::isPressed(uint8_t key) const {
+  if (key >= 32) return false;
+  return (_keys_current & (1UL << key)) != 0;
+}
+
+void Adafruit_NeoTrellisM4::clear(void) {
+  _event_tail = _event_head;
 }
 
 /**************************************************************************/

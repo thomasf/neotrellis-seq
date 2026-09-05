@@ -17,13 +17,17 @@
 
 /*!    @brief  NeoTrellis M4 helper library that handles DMA NeoPixel, Keypad
  * scanning, and some basic MIDI messages */
-class Adafruit_NeoTrellisM4 : public Adafruit_Keypad,
-                              public Adafruit_NeoPixel_ZeroDMA {
+class Adafruit_NeoTrellisM4 : public Adafruit_NeoPixel_ZeroDMA {
 
 public:
   Adafruit_NeoTrellisM4();
   void begin(void);
   void tick(void);
+
+  int available(void);
+  keypadEvent read(void);
+  bool isPressed(uint8_t key) const;
+  void clear(void);
 
   void autoUpdateNeoPixels(boolean flag);
   void setPixelColor(uint32_t pixel, uint32_t color);
@@ -48,6 +52,14 @@ private:
   int _num_keys, _rows, _cols;
   boolean _pending_midi, _auto_update, _midi_usb, _midi_uart;
   int _midi_channel_usb, _midi_channel_uart;
+
+  uint32_t _keys_current = 0;
+  uint32_t _keys_previous = 0;
+
+  static const uint8_t EVENT_BUF_SIZE = 32;
+  keypadEvent _event_buf[EVENT_BUF_SIZE];
+  uint8_t _event_head = 0;
+  uint8_t _event_tail = 0;
 };
 
 #endif
