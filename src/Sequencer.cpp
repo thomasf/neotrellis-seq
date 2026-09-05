@@ -393,6 +393,81 @@ void Sequencer::rule30(uint32_t voice, uint32_t (*random_below)(uint32_t n)) {
   }
 }
 
+void Sequencer::mutate(uint32_t voice, uint32_t (*random_below)(uint32_t n)) {
+  if (voice >= VOICES) {
+    return;
+  }
+  Pattern &target = *voices[voice].pattern();
+  uint32_t const len = std::min<uint32_t>(target.length, target.steps.size());
+  if (len < 2) {
+    return;
+  }
+
+  // busy[i] is set when another voice that rests somewhere sounds on step i.
+  std::array<bool, 16> busy{};
+  for (uint32_t other = 0; other < VOICES; other++) {
+    if (other == voice) {
+      continue;
+    }
+    Pattern const &p = *voices[other].pattern();
+    uint32_t const plen = std::min<uint32_t>(p.length, p.steps.size());
+    if (plen == 0) {
+      continue;
+    }
+    uint32_t sounding = 0;
+    for (uint32_t i = 0; i < plen; i++) {
+      sounding += p.steps[i].vel > 0;
+    }
+    if (sounding == plen) {
+      continue;
+    }
+    for (uint32_t i = 0; i < len; i++) {
+      busy[i] = busy[i] || p.steps[i % plen].vel > 0;
+    }
+  }
+
+  // Every note can move to either neighbour, so at most 32 moves.
+  struct Move {
+    uint8_t from;
+    uint8_t to;
+  };
+  std::array<Move, 32> moves;
+  uint32_t count = 0;
+  for (uint32_t i = 0; i < len; i++) {
+    if (target.steps[i].vel == 0) {
+      continue;
+    }
+    for (int d = -1; d <= 1; d += 2) {
+      uint32_t const to = (i + len + d) % len;
+      if (target.steps[to].vel == 0 && !busy[to]) {
+        moves[count++] = {(uint8_t)i, (uint8_t)to};
+      }
+    }
+  }
+  if (count == 0) {
+    return;
+  }
+  Move const m = moves[random_below(count)];
+  target.steps[m.to] = target.steps[m.from];
+  target.steps[m.from].vel = 0;
+}
+
+void Sequencer::declutter(uint32_t (*random_below)(uint32_t n)) {
+  for (uint32_t i = 0; i < 16; i++) {
+    std::array<uint32_t, VOICES> sounding;
+    uint32_t count = 0;
+    for (uint32_t v = 0; v < VOICES; v++) {
+      Pattern const &p = *voices[v].pattern();
+      if (i < p.length && p.steps[i].vel > 0) {
+        sounding[count++] = v;
+      }
+    }
+    if (count >= 2) {
+      voices[sounding[random_below(count)]].pattern()->steps[i].vel = 0;
+    }
+  }
+}
+
 void Sequencer::polymeter(uint32_t (*random_below)(uint32_t n)) {
   std::array<uint32_t, 6> lengths = {5, 7, 9, 11, 13, 15};
   for (uint32_t i = lengths.size(); i > 1; i--) {

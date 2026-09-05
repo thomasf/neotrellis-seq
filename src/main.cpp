@@ -170,8 +170,11 @@ Pattern copy_buffer = Pattern(); // for copy/paste
 
 uint32_t random_below(uint32_t n) { return random(n); }
 
-// KEY_LIFE_INDEX is the step key index (row 2, last key) that runs rule 30 on
-// one voice and life on all of them.
+// Step key indices (row major) of the two keys whose ALL version is a board
+// transform rather than the single-voice transform applied to each voice:
+// STEP 11 is mutate alone and declutter with ALL, STEP 12 rule 30 alone and
+// life with ALL. See transform_board.
+uint32_t static const KEY_MUTATE_INDEX = 10;
 uint32_t static const KEY_LIFE_INDEX = 11;
 
 // apply_transform applies the TRANSFORM + STEP action for the step key at
@@ -181,10 +184,9 @@ uint32_t static const KEY_LIFE_INDEX = 11;
 //   row 0: shift left by 1, right by 1, left by 4, right by 4
 //   row 1: deterministic reshapes: reverse, invert, euclid, fill empty (which
 //          is random only when no step is free)
-//   row 2: shuffle, echo, one unassigned key, then rule 30 with the note
-//          count locked. With ALL that last key is life instead, see
-//          life_all_patterns, since every row must be computed from the same
-//          board.
+//   row 2: shuffle, echo, mutate, rule 30 with the note count locked. With
+//          ALL the last two are declutter and life instead, see
+//          transform_board.
 //   row 3: unassigned
 bool apply_transform(uint32_t voice, uint32_t index) {
   Pattern *const p = seq.voices[voice].pattern();
@@ -208,6 +210,8 @@ bool apply_transform(uint32_t voice, uint32_t index) {
     p->shuffle(random_below);
   } else if (index == 9) {
     p->echo();
+  } else if (index == KEY_MUTATE_INDEX) {
+    seq.mutate(voice, random_below);
   } else if (index == KEY_LIFE_INDEX) {
     seq.rule30(voice, random_below);
   } else {
@@ -258,17 +262,27 @@ void transform_all_patterns(Transform transform, uint32_t index) {
   }
 }
 
-// life_all_patterns advances every voice's current pattern one generation of
-// the Game of Life (TRANSFORM + ALL + STEP 12) as one undo group. It does not
-// go through transform_all_patterns because every row must be computed from
-// the board as it was before any row moved, and because a single row against
-// a frozen board is not interesting: that key alone runs rule 30 instead.
-void life_all_patterns() {
+// transform_board applies the TRANSFORM + ALL + STEP action for the keys
+// whose all-voice version acts on the board as a whole, declutter and life,
+// as one undo group, and reports whether `index` is one of them. They do not
+// go through transform_all_patterns because they must see every voice's
+// pattern as it was before any of them changed: life computes every row from
+// the same board, and declutter picks among the voices sounding on a step.
+bool transform_board(uint32_t index) {
+  if (index != KEY_MUTATE_INDEX && index != KEY_LIFE_INDEX) {
+    return false;
+  }
+  seed_random();
   begin_edit();
   for (uint32_t voice = 0; voice < VOICES; voice++) {
     record_undo(voice);
   }
-  seq.life();
+  if (index == KEY_MUTATE_INDEX) {
+    seq.declutter(random_below);
+  } else {
+    seq.life();
+  }
+  return true;
 }
 
 // polymeter_patterns deals a different odd length to every voice's current
@@ -545,9 +559,7 @@ void handle_keys() {
                                             ? apply_accent_transform
                                             : apply_transform;
             if (trellis.isPressed(KEY_VOICE_SELECT_ALL)) {
-              if (index == KEY_LIFE_INDEX && !trellis.isPressed(KEY_ACCENT)) {
-                life_all_patterns();
-              } else {
+              if (trellis.isPressed(KEY_ACCENT) || !transform_board(index)) {
                 transform_all_patterns(transform, index);
               }
             } else {

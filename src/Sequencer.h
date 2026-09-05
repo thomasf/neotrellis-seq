@@ -155,6 +155,19 @@ public:
   // wrapped as in fill_empty; ties are broken at random. random_below(n) must
   // return a uniform value in [0, n).
   void rule30(uint32_t voice, uint32_t (*random_below)(uint32_t n));
+  // mutate moves one note of voice `voice`'s current pattern one step left or
+  // right, chosen at random among the moves that land on a step where the
+  // voice is silent and no other voice sounds, read wrapped as in fill_empty.
+  // A voice that sounds on every step is ignored, as there, so a running
+  // hi-hat blocks nothing. The note keeps its velocity. When no move fits,
+  // nothing changes. random_below(n) must return a uniform value in [0, n).
+  void mutate(uint32_t voice, uint32_t (*random_below)(uint32_t n));
+  // declutter silences, on every step where two or more voices sound, one of
+  // those voices chosen at random, so each press thins the pile-ups by one
+  // voice and repeated presses end with at most one voice per step. Steps
+  // are compared by index as the grid shows them, each voice within its own
+  // length. random_below(n) must return a uniform value in [0, n).
+  void declutter(uint32_t (*random_below)(uint32_t n));
   // polymeter gives every voice's current pattern a different odd length, the
   // six values 5, 7, 9, 11, 13 and 15 dealt out in random order, so the voices
   // drift against each other and only line up again after many bars. The

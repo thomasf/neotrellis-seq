@@ -149,7 +149,7 @@
 
   <div class="step">SHUFFLE <i>STEP 9</i></div>
   <div class="step">ECHO <i>STEP 10</i></div>
-  <div class="off">&mdash; <i>STEP 11</i></div>
+  <div class="step">MUTATE <i>STEP 11</i></div>
   <div class="step">RULE 30 <i>STEP 12</i></div>
   <div class="mod">ACCENT &hellip; <i>ACCENT</i></div>
   <div class="off">&mdash; <i>POS</i></div>
@@ -177,6 +177,7 @@
   <tr><td class="k">STEP 8</td><td>Fill empty: replaces the pattern with notes on every step where no other voice sounds. Busy voices count for less, so a hi-hat on every step does not block anything. If there is no free step, it places as many notes as the sparsest other voice has on steps drawn at random from the least crowded ones, so each press gives a different fill. It never copies another voice outright.</td></tr>
   <tr><td class="k">STEP 9</td><td>Shuffles the steps into a random order.</td></tr>
   <tr><td class="k">STEP 10</td><td>Echo: every note gets a copy two steps later at half its velocity, wrapping at the pattern length. A copy never replaces a louder step, so the original notes and accents stay. Press again and the echoes echo, one more repeat per press, each half as loud.</td></tr>
+  <tr><td class="k">STEP 11</td><td>Mutate: moves one note one step left or right, chosen at random among the moves that land on a step where this voice is silent and no other voice sounds. A voice that sounds on every step blocks nothing, as with fill empty. The note keeps its velocity. Press repeatedly to let a groove drift while it keeps out of the other parts&rsquo; way; when no move fits, nothing changes. With ALL this pad is Declutter instead, see below.</td></tr>
   <tr><td class="k">STEP 12</td><td>Rule 30: advances the pattern one generation of the Rule 30 cellular automaton, a chaotic one-dimensional rule where each step&rsquo;s fate is decided by itself and its two neighbours, with the pattern read as a ring. The result is trimmed back to the number of notes the pattern had, keeping the steps where the fewest other voices sound and breaking ties at random, so the voice keeps its density and never falls silent. Steps that keep sounding keep their velocity. With ALL this pad is Life instead, see below.</td></tr>
   <tr><td class="k">ACCENT + STEP <i>n</i></td><td>Accents every <i>n</i>-th sounding step counting from step 1 and drops every other accent. STEP 4 accents the downbeats, STEP 2 the on-beats, STEP 1 every note. Silent steps are left alone.</td></tr>
   <tr><td class="k">VOICE <i>v</i></td><td>Swaps the selected pattern with voice <i>v</i>&rsquo;s current pattern.</td></tr>
@@ -187,7 +188,7 @@
 <p class="note">
   Row one shifts, by one step on the first pair of pads and by four on the
   second, left then right. Row two holds the deterministic reshapes and
-  row three shuffle, echo and the cellular automata. Row four is free. Every
+  row three shuffle, echo, mutate and rule 30. Row four is free. Every
   transform is a single undo step, including swaps.
 </p>
 
@@ -196,10 +197,11 @@
   The pad map while TRANSFORM and ALL are both held. Every step pad applies its
   transform to each voice&rsquo;s current pattern, as one undo group, so one
   press of UNDO brings all six back. The transforms run voice by voice in
-  voice order, which matters for the two that read the other voices: fill
-  empty and rule 30 each see the voices before them already changed. Life is
-  the exception, it is computed for the whole board at once. LEN deals odd
-  lengths to the voices. The other pads do what they do under TRANSFORM alone.
+  voice order, which matters for the ones that read the other voices: fill
+  empty, mutate and rule 30 each see the voices before them already changed.
+  Declutter and Life are the exceptions, they act on the whole board at once.
+  LEN deals odd lengths to the voices. The other pads do what they do under
+  TRANSFORM alone.
 </p>
 
 <div class="scroll">
@@ -224,7 +226,7 @@
 
   <div class="step">SHUFFLE <i>STEP 9</i></div>
   <div class="step">ECHO <i>STEP 10</i></div>
-  <div class="off">&mdash; <i>STEP 11</i></div>
+  <div class="step">DECLUTTER <i>STEP 11</i></div>
   <div class="step">LIFE <i>STEP 12</i></div>
   <div class="mod">ACCENT &hellip; <i>ACCENT</i></div>
   <div class="off">&mdash; <i>POS</i></div>
@@ -246,6 +248,7 @@
   <tr><th>Pad</th><th>Effect</th></tr>
   <tr><td class="k">STEP 1&ndash;7, 9, 10</td><td>The transform of the same pad under TRANSFORM alone, applied to every voice&rsquo;s current pattern.</td></tr>
   <tr><td class="k">STEP 8</td><td>Fill empty for every voice in turn. Voice 0 fills the gaps the other five leave, voice 1 then fills around voice 0&rsquo;s new pattern and the rest, and so on, so the result is a set of interlocking parts rather than six copies of the same fill.</td></tr>
+  <tr><td class="k">STEP 11</td><td>Declutter: on every step where two or more voices sound, silences one of them, chosen at random. Each press thins the pile-ups by one voice, so a step with three voices takes two presses, and once no step has more than one voice the pad does nothing. Steps are compared as the grid shows them, each voice within its own length. The random choice means two presses from the same kit give different results.</td></tr>
   <tr><td class="k">STEP 12</td><td>Life: advances all six voices one generation of Conway&rsquo;s Game of Life, with voices as rows and steps as columns. A step survives with two or three sounding neighbours and keeps its velocity, an empty step with exactly three is born, everything else falls silent. Rows wrap at their own length, the first and last voice are neighbours, and every row is computed from the board as it was before the press. Life needs the whole board to stay alive, a single row against a frozen board dies or freezes within a press or two, which is why this pad runs Rule 30 without ALL.</td></tr>
   <tr><td class="k">ACCENT + STEP <i>n</i></td><td>Accents every <i>n</i>-th sounding step of every voice&rsquo;s current pattern and drops every other accent, as under TRANSFORM + ACCENT.</td></tr>
   <tr><td class="k">LEN</td><td>Odd meters: deals the six odd lengths 5, 7, 9, 11, 13 and 15 to the six voices in random order, so every voice gets a different one and the parts drift against each other. The steps are untouched, so undo, or LEN + STEP 16, brings a pattern back whole. One undo group.</td></tr>
