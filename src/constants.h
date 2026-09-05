@@ -42,6 +42,27 @@ constexpr uint32_t voice_index_to_key(uint32_t idx) {
   };
 };
 
+// voice_key_to_index maps a VOICE pad to its voice, or VOICES for any other
+// key, so `voice_key_to_index(key) < VOICES` doubles as an is-voice-key test.
+constexpr uint32_t voice_key_to_index(uint32_t key) {
+  switch (key) {
+  case KEY_VOICE_SELECT_0:
+    return 0;
+  case KEY_VOICE_SELECT_1:
+    return 1;
+  case KEY_VOICE_SELECT_2:
+    return 2;
+  case KEY_VOICE_SELECT_3:
+    return 3;
+  case KEY_VOICE_SELECT_4:
+    return 4;
+  case KEY_VOICE_SELECT_5:
+    return 5;
+  default:
+    return VOICES;
+  };
+};
+
 constexpr uint32_t voice_index_to_color(uint32_t idx) {
   switch (idx) {
   case 0:

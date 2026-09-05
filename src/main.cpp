@@ -160,6 +160,18 @@ void transform_pattern(uint32_t index) {
   }
 }
 
+// swap_pattern exchanges the selected voice's current pattern with voice
+// `other`'s current pattern (TRANSFORM + VOICE). The undo buffer only knows
+// the selected voice's pattern, so it is cleared just as when a different
+// pattern is selected; pressing the same chord again swaps back.
+void swap_pattern(uint32_t other) {
+  if (other >= VOICES || other == seq.voice_idx) {
+    return;
+  }
+  std::swap(*seq.voice->pattern(), *seq.voices[other].pattern());
+  reset_undo();
+}
+
 void setup() {
   Serial.begin(115200);
 #ifdef DEBUG
@@ -327,6 +339,10 @@ void handle_keys() {
         } else {
           seq.voice->seek(index);
         };
+
+      } else if (trellis.isPressed(KEY_TRANSFORM) &&
+                 voice_key_to_index(key) < VOICES) {
+        swap_pattern(voice_key_to_index(key));
 
       } else {
 
