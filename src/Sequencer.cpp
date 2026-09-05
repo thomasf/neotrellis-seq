@@ -49,6 +49,35 @@ void Pattern::invert() {
   }
 }
 
+void Pattern::reverse() {
+  uint32_t const len = std::min<uint32_t>(length, steps.size());
+  std::reverse(steps.begin(), steps.begin() + len);
+}
+
+void Pattern::euclid() {
+  uint32_t const len = std::min<uint32_t>(length, steps.size());
+  std::array<uint8_t, 16> vels;
+  uint32_t k = 0;
+  for (uint32_t i = 0; i < len; i++) {
+    if (steps[i].vel > 0) {
+      vels[k++] = steps[i].vel;
+    }
+    steps[i].vel = 0;
+  }
+  if (k == 0) {
+    return;
+  }
+  // Bresenham form of the Euclidean rhythm E(k, len): step i sounds when the
+  // running total i * k crosses a multiple of len, which lands k onsets as
+  // evenly as integers allow with the first one on step 0.
+  uint32_t next = 0;
+  for (uint32_t i = 0; i < len; i++) {
+    if ((i * k) % len < k) {
+      steps[i].vel = vels[next++];
+    }
+  }
+}
+
 Voice::Voice() {
   pos = 0;
   pattern_idx = 0;

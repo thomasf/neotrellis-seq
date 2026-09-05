@@ -31,6 +31,13 @@ public:
   // invert silences every sounding step within the pattern length and turns
   // every silent one into a step at the default velocity.
   void invert();
+  // reverse mirrors the steps within the pattern length, so the last step
+  // becomes the first.
+  void reverse();
+  // euclid keeps the sounding steps within the pattern length but spreads
+  // them as evenly as possible across it, starting on the first step. The
+  // velocities keep their order, so accents travel with the notes.
+  void euclid();
   Pattern();
   Pattern(const Pattern &p);
   bool operator==(const Pattern &p) const;

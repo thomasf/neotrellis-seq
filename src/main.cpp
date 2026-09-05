@@ -132,9 +132,8 @@ uint32_t random_below(uint32_t n) { return random(n); }
 //
 //   row 0: shift right by 1, 2, 3 or 4 steps
 //   row 1: shift left by 1, 2, 3 or 4 steps
-//   row 2: first key shuffles the steps, second inverts them, the rest are
-//          unassigned
-//   row 3: unassigned
+//   row 2: deterministic reshapes: reverse, invert, euclid, unassigned
+//   row 3: random reshapes: shuffle, the rest unassigned
 void transform_pattern(uint32_t index) {
   Pattern *const p = seq.voice->pattern();
   if (index < 4) {
@@ -145,13 +144,19 @@ void transform_pattern(uint32_t index) {
     p->shift(-(int)(index - 3));
   } else if (index == 8) {
     create_undo_step();
+    p->reverse();
+  } else if (index == 9) {
+    create_undo_step();
+    p->invert();
+  } else if (index == 10) {
+    create_undo_step();
+    p->euclid();
+  } else if (index == 12) {
+    create_undo_step();
     // The stock generator is deterministic from boot, so seed it from the
     // time of the key press, which is as random as the player.
     randomSeed(micros());
     p->shuffle(random_below);
-  } else if (index == 9) {
-    create_undo_step();
-    p->invert();
   }
 }
 
