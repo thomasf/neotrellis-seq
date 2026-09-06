@@ -7,7 +7,7 @@
 ## Requirements
 
 - [PlatformIO Core](https://docs.platformio.org/en/latest/core/installation/) — builds and uploads the firmware
-- [Go](https://go.dev/dl/) — regenerates the colour palette (`src/colors.h`) and pattern presets (`src/PatternPresets.h`, `UI.html`)
+- [Go](https://go.dev/dl/) — regenerates the colour palette (`src/colors.h`) and pattern presets (`src/PatternPresets.h`, `MANUAL.html`)
 - [watchexec](https://github.com/watchexec/watchexec) — for the auto-rebuild loop in `dev.sh`
 - `clang-format` — for `fmt.sh`
 
@@ -63,7 +63,7 @@ It watches `.cpp`, `.h`, `.ini`, `.go` and `.txt` files and re-runs `run.sh` on 
 
 Note that `run.sh` rewrites the tracked file `src/colors.h` on every iteration.
 Edit the themes in `contrib/palette.go`, never `src/colors.h` directly.
-Similarly, edit rhythm presets and kits in `patterns.txt`, never `src/PatternPresets.h` directly (`go run contrib/patterns.go` updates both `src/PatternPresets.h` and `UI.html`).
+Similarly, edit rhythm presets and kits in `patterns.txt`, never `src/PatternPresets.h` directly (`go run contrib/patterns.go` updates both `src/PatternPresets.h` and `MANUAL.html`).
 
 
 ## Building and installing a release

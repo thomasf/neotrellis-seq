@@ -13,6 +13,7 @@
   h3 { font-size: .95rem; font-weight: 700; color: #333330; margin: 1.8rem 0 .5rem; }
   .note { color: #6b6b66; }
   code, .k { font: 13px/1.4 ui-monospace, monospace; }
+  .act-name { font-weight: 600; white-space: nowrap; color: #111; }
 
   /* The pad grid: 8 columns x 4 rows, in hardware order. */
   .grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: .4rem;
@@ -97,7 +98,21 @@
   @media print {
     @page {
       size: portrait;
-      margin: 8mm 10mm;
+      margin: 7mm 10mm 10mm 10mm;
+      @bottom-right {
+        content: "Page " counter(page) " of " counter(pages);
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 8.5pt;
+        font-weight: 500;
+        color: #555555;
+      }
+      @bottom-left {
+        content: "Trellis M4 Sequencer";
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 8.5pt;
+        font-weight: 500;
+        color: #777777;
+      }
     }
 
     * {
@@ -108,8 +123,8 @@
     body {
       background: #ffffff !important;
       color: #000000 !important;
-      font-size: 7.8pt;
-      line-height: 1.26;
+      font-size: 12pt;
+      line-height: 1.3;
       max-width: 100% !important;
       padding: 0 !important;
       margin: 0 !important;
@@ -118,8 +133,6 @@
     .screen-page {
       page-break-after: always;
       break-after: page;
-      page-break-inside: avoid;
-      break-inside: avoid;
       padding-top: 2pt;
     }
 
@@ -129,16 +142,16 @@
     }
 
     h1 {
-      font-size: 13pt;
-      margin: 0 0 2pt;
+      font-size: 17.5pt;
+      margin: 0 0 2.5pt;
       color: #000000 !important;
     }
 
     h2 {
-      font-size: 8.8pt;
+      font-size: 13.2pt;
       margin: 5pt 0 2pt;
       color: #000000 !important;
-      border-bottom: 1pt solid #000000;
+      border-bottom: 1.2pt solid #000000;
       padding-bottom: 1pt;
       letter-spacing: .04em;
       page-break-after: avoid;
@@ -146,32 +159,32 @@
     }
 
     h3 {
-      font-size: 7.8pt;
+      font-size: 11.2pt;
       font-weight: 700;
-      margin: 4pt 0 1.5pt;
+      margin: 4.5pt 0 2pt;
       color: #000000 !important;
       page-break-after: avoid;
       break-after: avoid;
     }
 
     .screen-title {
-      font-size: 11pt !important;
+      font-size: 14.5pt !important;
       font-weight: 700 !important;
-      margin: 0 0 2pt !important;
+      margin: 0 0 2.5pt !important;
       text-transform: none !important;
-      border-bottom: 1.5pt solid #000000 !important;
+      border-bottom: 1.8pt solid #000000 !important;
       padding-bottom: 2pt !important;
     }
 
     .note {
       color: #2b2b2b !important;
-      font-size: 7.2pt;
-      line-height: 1.22;
-      margin: 2pt 0 4pt;
+      font-size: 10.5pt;
+      line-height: 1.25;
+      margin: 2pt 0 3.5pt;
     }
 
     code, .k {
-      font-size: 6.9pt;
+      font-size: 10.5pt;
       color: #000000 !important;
     }
 
@@ -190,8 +203,8 @@
       background: #ffffff !important;
       border: 1.5pt solid #000000 !important;
       border-radius: 3pt !important;
-      padding: 2.5pt !important;
-      gap: 2pt !important;
+      padding: 2pt !important;
+      gap: 1.8pt !important;
       box-sizing: border-box !important;
       page-break-inside: avoid;
       break-inside: avoid;
@@ -199,19 +212,20 @@
 
     .grid div {
       border-radius: 2pt !important;
-      padding: 2pt 2.5pt !important;
-      min-height: 23pt !important;
-      font-size: 6.6pt !important;
+      padding: 1.8pt 1.8pt !important;
+      min-height: 24pt !important;
+      font-size: 8.8pt !important;
       font-weight: 700 !important;
-      line-height: 1.12 !important;
+      line-height: 1.15 !important;
       box-sizing: border-box !important;
       border: 0.75pt solid #444444 !important;
+      overflow: hidden !important;
     }
 
     .grid i {
-      font-size: 5.6pt !important;
+      font-size: 7.5pt !important;
       line-height: 1.15 !important;
-      margin-top: 1.5pt !important;
+      margin-top: 1.2pt !important;
       opacity: 1 !important;
     }
 
@@ -288,29 +302,33 @@
     /* Tables in print */
     table {
       width: 100% !important;
-      font-size: 7.2pt !important;
-      margin: 2pt 0 4pt !important;
+      font-size: 10.5pt !important;
+      margin: 2pt 0 3.5pt !important;
       border-collapse: collapse !important;
-      page-break-inside: avoid;
-      break-inside: avoid;
     }
 
     th {
-      font-size: 6.4pt !important;
+      font-size: 9.5pt !important;
       color: #000000 !important;
       border-bottom: 1.2pt solid #000000 !important;
-      padding: 1.2pt 2.5pt !important;
+      padding: 1pt 2.5pt !important;
     }
 
     td {
       color: #111111 !important;
       border-bottom: 0.5pt solid #cccccc !important;
-      padding: 1.5pt 2.5pt !important;
+      padding: 1pt 2.5pt !important;
       line-height: 1.2 !important;
     }
 
+    .act-name {
+      font-weight: 600 !important;
+      white-space: nowrap !important;
+      color: #000000 !important;
+    }
+
     .k {
-      font-size: 6.8pt !important;
+      font-size: 10.5pt !important;
       font-weight: 700 !important;
       color: #000000 !important;
       white-space: nowrap !important;
@@ -318,16 +336,18 @@
 
     .sw {
       border: 0.8pt solid #000000 !important;
+      width: 9pt !important;
+      height: 9pt !important;
     }
 
     /* Compact print legend */
     .print-legend {
       display: flex !important;
-      gap: 10pt;
-      font-size: 6.5pt;
+      gap: 8pt;
+      font-size: 9.5pt;
       color: #222222;
-      margin: 2pt 0 4pt;
-      padding: 2pt 4pt;
+      margin: 2pt 0 3pt;
+      padding: 1.5pt 3.5pt;
       background: #fbfbfb;
       border: 0.5pt solid #dddddd;
       border-radius: 2pt;
@@ -344,7 +364,7 @@
     .legend-box {
       display: inline-block;
       width: 9pt;
-      height: 7pt;
+      height: 7.5pt;
       border-radius: 1.5pt;
       vertical-align: middle;
       box-sizing: border-box;
@@ -361,8 +381,13 @@
       page-break-inside: auto !important;
       break-inside: auto !important;
     }
-    #page-kits table,
-    .pattern-table {
+    .kits-header {
+      page-break-before: always;
+      break-before: page;
+    }
+    /* Pattern tables in print should avoid page breaks */
+    .pattern-table,
+    #page-kits table {
       page-break-inside: avoid;
       break-inside: avoid;
     }
@@ -371,6 +396,7 @@
       page-break-inside: auto;
       break-inside: auto;
     }
+    tr,
     #page-kits tr,
     .kit-pattern,
     .kit-voices {
@@ -378,24 +404,41 @@
       break-inside: avoid !important;
     }
     .vtag {
-      font-size: 5.6pt !important;
-      padding: 0 2pt !important;
-      min-width: 25pt !important;
+      display: inline-block !important;
+      font-size: 7.5pt !important;
+      font-weight: 700 !important;
+      line-height: 1.12 !important;
+      padding: 0.5pt 0 !important;
+      width: 42pt !important;
+      min-width: 42pt !important;
+      max-width: 42pt !important;
+      text-align: center !important;
+      box-sizing: border-box !important;
       border: 0.6pt solid #333333 !important;
       background: #f0f0f0 !important;
       color: #000000 !important;
-      border-radius: 1.5pt !important;
-      margin-right: 3pt !important;
+      border-radius: 2pt !important;
+      margin-right: 6pt !important;
+      flex-shrink: 0 !important;
+      letter-spacing: 0.04em !important;
     }
     .kit-voices {
-      gap: 0.8pt !important;
+      gap: 0.5pt !important;
+    }
+    .kit-v {
+      display: flex !important;
+      align-items: center !important;
+      white-space: nowrap !important;
     }
     .kit-v code {
-      font-size: 6.2pt !important;
-      line-height: 1.15 !important;
+      font-size: 8.8pt !important;
+      line-height: 1.12 !important;
+      font-family: ui-monospace, monospace !important;
+      display: inline-block !important;
+      white-space: pre !important;
     }
     .genre-tag {
-      font-size: 6.2pt !important;
+      font-size: 8.2pt !important;
       color: #444444 !important;
     }
   }
@@ -403,11 +446,64 @@
 </head>
 <body>
 
-<section class="screen-page" id="page-pad-map">
-<h1>Trellis M4 pad map</h1>
+<section class="screen-page" id="page-front">
+<h1>Trellis M4 MIDI Drum Sequencer</h1>
 <p class="note">
-  The 8&times;4 keypad as wired in <code>src/config.h</code>. Each cell shows its
-  hardware key number. Work in progress: <em>todo</em> pads are planned only.
+  Standalone 6-voice polyphonic USB-MIDI step sequencer for the Adafruit NeoTrellis M4
+  (SAMD51 Cortex-M4 at 120&thinsp;MHz, 8&times;4 RGB elastomeric keypad). Features polyrhythmic track
+  lengths, 4-level velocity dynamics, generative algorithmic transforms, and 256-step undo/redo.
+</p>
+
+<h2>Specifications &amp; Architecture</h2>
+<table>
+  <tr><th>Feature</th><th>Description</th></tr>
+  <tr><td class="k">Voices</td><td>6 independent drum channels (Voice 0&ndash;5), default MIDI notes 36&ndash;41 (C1&ndash;F1) on Channel 1.</td></tr>
+  <tr><td class="k">Pattern Memory</td><td>16 pattern slots per voice (96 total), switchable on the fly without interrupting playback.</td></tr>
+  <tr><td class="k">Track Length</td><td>Independent length per voice (1&ndash;16 steps) for evolving polyrhythms and phase meters.</td></tr>
+  <tr><td class="k">Velocities</td><td>4 expressive levels: Accent (127), Normal (99), Ghost / Muted (50), and Rest / Silence (0).</td></tr>
+  <tr><td class="k">Undo / Redo</td><td>256 edits deep across all voices. Swaps and all-voice transforms undo/redo in a single press.</td></tr>
+  <tr><td class="k">Transforms</td><td>Algorithmic generators: Euclidean, Game of Life, Rule 30, Shift, Echo, Invert, Drift, Declutter, Fill Empty.</td></tr>
+  <tr><td class="k">MIDI Transport</td><td>Class-compliant USB-MIDI following host clock (24 PPQN), start, stop, continue, and SPP.</td></tr>
+</table>
+
+<h2>Colours &amp; Visual Feedback</h2>
+<table>
+  <tr><th>Constant</th><th>Used for</th></tr>
+  <tr><td class="k"><span class="sw" style="background:#000"></span>COLOR_OFF</td><td>Unassigned pads, and steps past the pattern length</td></tr>
+  <tr><td class="k"><span class="sw" style="background:#2050e0"></span>COLOR_VOC<i>n</i></td><td>Voice select pads, one hue per voice (Voice 0&ndash;5)</td></tr>
+  <tr><td class="k"><span class="sw" style="background:#6174ff"></span>COLOR_VOC<i>n</i>_SET</td><td>Steps with a note, in the selected voice&rsquo;s hue</td></tr>
+  <tr><td class="k"><span class="sw" style="background:#000a7f"></span>COLOR_VOC<i>n</i>_UNSET</td><td>Empty steps within pattern length, dimmed in the selected voice&rsquo;s hue</td></tr>
+  <tr><td class="k"><span class="sw" style="background:#b2b6ff"></span>COLOR_VOC<i>n</i>_ACCENT</td><td>Accented steps (velocity 127), a lighter shade of the selected voice&rsquo;s hue</td></tr>
+  <tr><td class="k"><span class="sw" style="background:#8080b0"></span>COLOR_PACT</td><td>Copy, paste, clear, undo</td></tr>
+  <tr><td class="k"><span class="sw" style="background:#808b80"></span>COLOR_PMOD</td><td>Length, position, transform, accent</td></tr>
+  <tr><td class="k"><span class="sw" style="background:#d0d0d0"></span>COLOR_PPOS</td><td>Play head, voices firing this step, and the ALL pad</td></tr>
+</table>
+<p class="note">
+  Values live in <code>src/colors.h</code>, generated from <code>contrib/palette.go</code>.
+  The step grids on subsequent pages are drawn in voice 0&rsquo;s hue; on the device they follow the selected voice.
+</p>
+
+<h2>Default Voice Assignments</h2>
+<p class="note">
+  Default General MIDI drum notes on Channel 1. While any voice can trigger any external MIDI instrument,
+  these assignments primarily define the roles and voicings used by the built-in pattern presets and coordinated kits.
+</p>
+<table>
+  <tr><th>Voice</th><th>Pad</th><th>Default MIDI Note</th><th>Preset Role &amp; Instrument Type</th></tr>
+  <tr><td class="k">VOICE 0</td><td>14</td><td>36 (C1)</td><td><strong>Kick / Bass Drum:</strong> 4-on-the-floor anchors, syncopated drop kicks, sub-pulse ghost drives.</td></tr>
+  <tr><td class="k">VOICE 1</td><td>15</td><td>37 (C#1)</td><td><strong>Snare / Clap:</strong> Backbeats on steps 5 &amp; 13, ghost flams, syncopated rolls on 15&ndash;16.</td></tr>
+  <tr><td class="k">VOICE 2</td><td>22</td><td>38 (D1)</td><td><strong>Hi-Hat:</strong> Unified closed hats, ghost shuffles, and accented open hits on offbeats.</td></tr>
+  <tr><td class="k">VOICE 3</td><td>23</td><td>39 (D#1)</td><td><strong>Percussion 1 (Low/Mid):</strong> Low conga/tumbao, low toms, woodblock, sub-hits, and bass drops.</td></tr>
+  <tr><td class="k">VOICE 4</td><td>30</td><td>40 (E1)</td><td><strong>Percussion 2 (Mid/High):</strong> High conga slaps, mid toms, timbales, cowbells, rimshots, and chord stabs.</td></tr>
+  <tr><td class="k">VOICE 5</td><td>31</td><td>41 (F1)</td><td><strong>Percussion 3 (High/Texture):</strong> Shaker beds, tambourine, repinique, ride cymbals, clicks, and textures.</td></tr>
+</table>
+</section>
+
+<section class="screen-page" id="page-pad-map">
+<h2 class="screen-title">Trellis M4 Pad Map</h2>
+<p class="note">
+  The 8&times;4 keypad layout as wired in <code>src/config.h</code>. Each cell shows its
+  hardware key number.
 </p>
 
 <div class="scroll">
@@ -418,7 +514,7 @@
   <div class="step">STEP 4 <i>3</i></div>
   <div class="act">COPY <i>4</i></div>
   <div class="act">PASTE <i>5</i></div>
-  <div class="off">MENU <i>6 todo</i></div>
+  <div class="off">MENU <i>6</i></div>
   <div class="ppos">ALL <i>7</i></div>
 
   <div class="step">STEP 5 <i>8</i></div>
@@ -461,27 +557,27 @@
 
 <h2>Presses</h2>
 <table>
-  <tr><th>Pad</th><th>Action</th></tr>
-  <tr><td class="k">STEP <i>n</i></td><td>Toggles the note on step <i>n</i> of the selected pattern.</td></tr>
-  <tr><td class="k">VOICE <i>v</i></td><td>Selects voice <i>v</i> for editing, and lights up while it fires.</td></tr>
-  <tr><td class="k">COPY</td><td>Copies the selected pattern to the paste buffer.</td></tr>
-  <tr><td class="k">PASTE</td><td>Overwrites the selected pattern with the paste buffer.</td></tr>
-  <tr><td class="k">CLEAR</td><td>Zeroes every step of the selected pattern.</td></tr>
-  <tr><td class="k">UNDO</td><td>Steps back through pattern edits, 256 patterns deep. Each edit is restored to the voice and pattern slot it came from, whether or not that is what the grid is showing. A swap or an all-voice transform undoes in one press. TRANSFORM + UNDO redoes.</td></tr>
+  <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
+  <tr><td class="k">STEP <i>n</i></td><td class="act-name">Toggle Step</td><td>Toggles the note on step <i>n</i> of the selected pattern.</td></tr>
+  <tr><td class="k">VOICE <i>v</i></td><td class="act-name">Select Voice</td><td>Selects voice <i>v</i> for editing, and lights up while it fires.</td></tr>
+  <tr><td class="k">COPY</td><td class="act-name">Copy Pattern</td><td>Copies the selected pattern to the paste buffer.</td></tr>
+  <tr><td class="k">PASTE</td><td class="act-name">Paste Pattern</td><td>Overwrites the selected pattern with the paste buffer.</td></tr>
+  <tr><td class="k">CLEAR</td><td class="act-name">Clear Pattern</td><td>Zeroes every step of the selected pattern.</td></tr>
+  <tr><td class="k">UNDO</td><td class="act-name">Undo / Redo</td><td>Steps back through pattern edits (256 deep). Restores to original voice and slot. TRANSFORM + UNDO redoes.</td></tr>
 </table>
 
 <h2>Held modifiers</h2>
 <table>
-  <tr><th>Combination</th><th>Effect</th></tr>
-  <tr><td class="k">ACCENT + STEP <i>n</i></td><td>Accents step <i>n</i> (velocity 127). An accented step goes back to normal velocity, a silent step switches on accented. Never switches a step off.</td></tr>
-  <tr><td class="k">ACCENT + CLEAR</td><td>Removes every accent from the selected pattern, leaving the notes in place.</td></tr>
-  <tr><td class="k">LEN + STEP <i>n</i></td><td>Sets the selected pattern&rsquo;s length to <i>n</i> steps.</td></tr>
-  <tr><td class="k">POS + STEP <i>n</i></td><td>Moves the selected voice&rsquo;s play head to step <i>n</i>.</td></tr>
-  <tr><td class="k">POS + ALL + STEP <i>n</i></td><td>Moves every voice&rsquo;s play head to step <i>n</i>.</td></tr>
-  <tr><td class="k">VOICE <i>v</i> + STEP <i>n</i></td><td>Selects pattern <i>n</i> for voice <i>v</i> without toggling the step. Several voice pads can be held at once.</td></tr>
-  <tr><td class="k">ALL + STEP <i>n</i></td><td>Selects pattern <i>n</i> for all six voices.</td></tr>
-  <tr><td class="k">TRANSFORM + &hellip;</td><td>Pattern transforms, see below.</td></tr>
-  <tr><td class="k">TRANSFORM + ALL + &hellip;</td><td>The same transforms on every voice at once, see below.</td></tr>
+  <tr><th>Combination</th><th>Action</th><th>Description</th></tr>
+  <tr><td class="k">ACCENT + STEP <i>n</i></td><td class="act-name">Accent Step</td><td>Accents step <i>n</i> (velocity 127). Toggles an accented step back to normal velocity (99); switches a silent step on accented.</td></tr>
+  <tr><td class="k">ACCENT + CLEAR</td><td class="act-name">Clear Accents</td><td>Removes all accents from the selected pattern, leaving notes in place.</td></tr>
+  <tr><td class="k">LEN + STEP <i>n</i></td><td class="act-name">Set Length</td><td>Sets the selected pattern&rsquo;s loop length to <i>n</i> steps.</td></tr>
+  <tr><td class="k">POS + STEP <i>n</i></td><td class="act-name">Set Position</td><td>Moves the selected voice&rsquo;s playhead to step <i>n</i>.</td></tr>
+  <tr><td class="k">POS + ALL + STEP <i>n</i></td><td class="act-name">Set All Position</td><td>Moves every voice&rsquo;s playhead to step <i>n</i> simultaneously.</td></tr>
+  <tr><td class="k">VOICE <i>v</i> + STEP <i>n</i></td><td class="act-name">Select Pattern</td><td>Selects pattern slot <i>n</i> for voice <i>v</i> without modifying step data. Multiple voice pads can be held at once.</td></tr>
+  <tr><td class="k">ALL + STEP <i>n</i></td><td class="act-name">Select All Patterns</td><td>Selects pattern slot <i>n</i> for all six voices simultaneously.</td></tr>
+  <tr><td class="k">TRANSFORM + &hellip;</td><td class="act-name">Transform</td><td>Applies real-time pattern transforms to the selected voice (see below).</td></tr>
+  <tr><td class="k">TRANSFORM + ALL + &hellip;</td><td class="act-name">Transform All</td><td>Applies transforms to all six voices simultaneously (see below).</td></tr>
 </table>
 </section>
 
@@ -547,46 +643,36 @@
 </div>
 
 <table>
-  <tr><th>Pad</th><th>Effect</th></tr>
-  <tr><td class="k">STEP 1, 2</td><td>Shifts the pattern left or right by 1 step, wrapping within its length.</td></tr>
-  <tr><td class="k">STEP 3, 4</td><td>Shifts the pattern left or right by 4 steps, wrapping within its length.</td></tr>
-  <tr><td class="k">STEP 5</td><td>Reverses the pattern.</td></tr>
-  <tr><td class="k">STEP 6</td><td>Inverts the pattern: sounding steps go silent and silent steps start sounding.</td></tr>
-  <tr><td class="k">STEP 7</td><td>Spreads the sounding steps evenly across the length (a Euclidean rhythm), keeping their velocities in order.</td></tr>
-  <tr><td class="k">STEP 8</td><td>Fill empty: replaces the pattern with notes on every step where no other voice sounds. Busy voices count for less, so a hi-hat on every step does not block anything. If there is no free step, it places as many notes as the sparsest other voice has on steps drawn at random from the least crowded ones, so each press gives a different fill. It never copies another voice outright.</td></tr>
-  <tr><td class="k">STEP 9</td><td>Shuffles the steps into a random order.</td></tr>
-  <tr><td class="k">STEP 10</td><td>Echo: every note gets a copy two steps later at half its velocity, wrapping at the pattern length. A copy never replaces a louder step, so the original notes and accents stay. Press again and the echoes echo, one more repeat per press, each half as loud.</td></tr>
-  <tr><td class="k">STEP 11</td><td>Drift: moves one note one step left or right, chosen at random among the moves that land on a step where this voice is silent and no other voice sounds. A voice that sounds on every step blocks nothing, as with fill empty. The note keeps its velocity. Press repeatedly to let a groove drift while it keeps out of the other parts&rsquo; way; when no move fits, nothing changes. With ALL this pad is Declutter instead, see below.</td></tr>
-  <tr><td class="k">STEP 12</td><td>Rule 30: advances the pattern one generation of the Rule 30 cellular automaton, a chaotic one-dimensional rule where each step&rsquo;s fate is decided by itself and its two neighbours, with the pattern read as a ring. The result is trimmed back to the number of notes the pattern had, keeping the steps where the fewest other voices sound and breaking ties at random, so the voice keeps its density and never falls silent. Steps that keep sounding keep their velocity. With ALL this pad is Life instead, see below.</td></tr>
-  <tr><td class="k">STEP 13</td><td>Snap: every note moves one step toward its nearest downbeat (steps 1, 5, 9, 13), a note halfway between two toward the earlier one, and notes on a downbeat stay. When two notes meet the louder survives. Repeated presses quantise a smeared groove back onto the beats, the way back from Drift. With ALL this pad is Sync lengths instead, see below.</td></tr>
-  <tr><td class="k">ACCENT + STEP <i>n</i></td><td>Loads pattern preset <i>n</i> (1&ndash;16), incorporating accents, full-velocity hits, and muted/ghost (half-velocity) steps. With ALL, applies preset <i>n</i> to all voices as one undo group.</td></tr>
-  <tr><td class="k">POS</td><td>Rewind: resets the playback position of all voices to step 0 and arms them to fire on the next step (or the next clock if stopped), staying in sync. Not a pattern edit, so undo leaves it alone.</td></tr>
-  <tr><td class="k">VOICE <i>v</i></td><td>Swaps the selected pattern with voice <i>v</i>&rsquo;s current pattern.</td></tr>
-  <tr><td class="k">VOICE <i>v</i>, selected</td><td>Moves voice <i>v</i>&rsquo;s MIDI note up 6 semitones, or back. Not a pattern edit, so undo leaves it alone.</td></tr>
-  <tr><td class="k">UNDO</td><td>Redoes the last undone edit. Any new edit after an undo discards what could have been redone.</td></tr>
-  <tr><td class="k">PASTE</td><td>Overwrites all 16 pattern slots of the selected voice with the paste buffer, as one undo step.</td></tr>
+  <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
+  <tr><td class="k">STEP 1, 2</td><td class="act-name">Shift &plusmn;1</td><td>Shifts pattern left (STEP 1) or right (STEP 2) by 1 step, wrapping within length.</td></tr>
+  <tr><td class="k">STEP 3, 4</td><td class="act-name">Shift &plusmn;4</td><td>Shifts pattern left (STEP 3) or right (STEP 4) by 4 steps, wrapping within length.</td></tr>
+  <tr><td class="k">STEP 5</td><td class="act-name">Reverse</td><td>Reverses the pattern within its active length.</td></tr>
+  <tr><td class="k">STEP 6</td><td class="act-name">Invert</td><td>Inverts sounding and silent steps, keeping active pattern length.</td></tr>
+  <tr><td class="k">STEP 7</td><td class="act-name">Euclid</td><td>Distributes sounding steps evenly across the length (Euclidean rhythm), preserving velocities.</td></tr>
+  <tr><td class="k">STEP 8</td><td class="act-name">Fill Empty</td><td>Adds notes on steps where no other voice sounds, prioritizing least crowded steps.</td></tr>
+  <tr><td class="k">STEP 9</td><td class="act-name">Shuffle</td><td>Randomly shuffles step order within the active pattern length.</td></tr>
+  <tr><td class="k">STEP 10</td><td class="act-name">Echo</td><td>Copies each note 2 steps later at half velocity. Repeated presses add successive echoes.</td></tr>
+  <tr><td class="k">STEP 11</td><td class="act-name">Drift</td><td>Moves one note 1 step left or right onto a free step, preserving velocity.</td></tr>
+  <tr><td class="k">STEP 12</td><td class="act-name">Rule 30</td><td>Advances pattern one generation of the 1D Rule 30 automaton ring, preserving note density.</td></tr>
+  <tr><td class="k">STEP 13</td><td class="act-name">Snap</td><td>Moves notes toward nearest downbeat (steps 1, 5, 9, 13). Higher velocity survives collisions.</td></tr>
+  <tr><td class="k">ACCENT + STEP <i>n</i></td><td class="act-name">Load Preset</td><td>Loads pattern preset <i>n</i> (1&ndash;16), incorporating accents, normal hits, and ghost notes.</td></tr>
+  <tr><td class="k">POS</td><td class="act-name">Rewind</td><td>Resets playback position of all voices to step 0 and arms them to fire on next step/clock.</td></tr>
+  <tr><td class="k">VOICE <i>v</i></td><td class="act-name">Swap Pattern</td><td>Swaps selected pattern with voice <i>v</i>&rsquo;s current pattern.</td></tr>
+  <tr><td class="k">VOICE <i>v</i>, selected</td><td class="act-name">Transpose (+6)</td><td>Transposes voice <i>v</i>&rsquo;s MIDI note up 6 semitones, or back.</td></tr>
+  <tr><td class="k">UNDO</td><td class="act-name">Redo</td><td>Redoes the last undone edit. Subsequent new edits clear redo history.</td></tr>
+  <tr><td class="k">PASTE</td><td class="act-name">Paste All Slots</td><td>Overwrites all 16 pattern slots of the selected voice with the paste buffer.</td></tr>
 </table>
 <p class="note">
-  Row one shifts, by one step on the first pair of pads and by four on the
-  second, left then right. Row two holds the deterministic reshapes and
-  row three shuffle, echo, drift and rule 30, and row four starts with snap.
-  The rest of row four is free. Every
-  transform is a single undo step, including swaps.
+  Every transform is a single undo step, including voice swaps.
 </p>
 </section>
 
 <section class="screen-page" id="page-transforms-all">
 <h2 class="screen-title">Transforms on all voices</h2>
 <p class="note">
-  The pad map while TRANSFORM and ALL are both held. Every step pad applies its
-  transform to each voice&rsquo;s current pattern, as one undo group, so one
-  press of UNDO brings all six back. The transforms run voice by voice in
-  voice order, which matters for the ones that read the other voices: fill
-  empty, drift and rule 30 each see the voices before them already changed.
-  Declutter, Life and Sync lengths are the exceptions, they act on the whole
-  board at once.
-  LEN deals odd lengths to the voices and CLEAR silences some of them. The
-  other pads do what they do under TRANSFORM alone.
+  The pad map while TRANSFORM and ALL are both held. Applies transforms across all six
+  voices simultaneously as a single undo group. Evaluates voices in order, enabling
+  generative interlocking variations across all drum tracks.
 </p>
 
 <div class="scroll">
@@ -639,62 +725,26 @@
 </div>
 
 <table>
-  <tr><th>Pad</th><th>Effect</th></tr>
-  <tr><td class="k">STEP 1&ndash;7, 9, 10</td><td>The transform of the same pad under TRANSFORM alone, applied to every voice&rsquo;s current pattern.</td></tr>
-  <tr><td class="k">STEP 8</td><td>Fill empty for every voice in turn. Voice 0 fills the gaps the other five leave, voice 1 then fills around voice 0&rsquo;s new pattern and the rest, and so on, so the result is a set of interlocking parts rather than six copies of the same fill.</td></tr>
-  <tr><td class="k">STEP 11</td><td>Declutter: on every step where two or more voices sound, silences one of them, chosen at random. Each press thins the pile-ups by one voice, so a step with three voices takes two presses, and once no step has more than one voice the pad does nothing. Steps are compared as the grid shows them, each voice within its own length. The random choice means two presses from the same kit give different results.</td></tr>
-  <tr><td class="k">STEP 12</td><td>Life: advances all six voices one generation of Conway&rsquo;s Game of Life, with voices as rows and steps as columns. A step survives with two or three sounding neighbours and keeps its velocity, an empty step with exactly three is born, everything else falls silent. Rows wrap at their own length, the first and last voice are neighbours, and every row is computed from the board as it was before the press. Life needs the whole board to stay alive, a single row against a frozen board dies or freezes within a press or two, which is why this pad runs Rule 30 without ALL.</td></tr>
-  <tr><td class="k">ACCENT + STEP <i>n</i></td><td>Loads pattern preset <i>n</i> (1&ndash;16) into every voice&rsquo;s current pattern as one undo group.</td></tr>
-  <tr><td class="k">STEP 13</td><td>Sync lengths: sets every voice&rsquo;s current pattern length to the selected voice&rsquo;s. The steps are untouched. The way back from Odd meters.</td></tr>
-  <tr><td class="k">LEN</td><td>Odd meters: deals the six odd lengths 5, 7, 9, 11, 13 and 15 to the six voices in random order, so every voice gets a different one and the parts drift against each other. The steps are untouched, so undo, or LEN + STEP 16, brings a pattern back whole. One undo group.</td></tr>
-  <tr><td class="k">CLEAR</td><td>Dropout: silences half of the voices that still sound, rounded down but at least one, chosen at random. Six voices go to three, then two, then one, then none, so the kit breaks down in stages and always passes through a single voice before it falls silent. One undo per press brings it back. Each press is a fresh draw.</td></tr>
-  <tr><td class="k">VOICE <i>v</i>, UNDO, PASTE</td><td>As under TRANSFORM alone: swap with voice <i>v</i>, redo, paste into every slot of the selected voice. ALL makes no difference to these.</td></tr>
+  <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
+  <tr><td class="k">STEP 1&ndash;7, 9, 10</td><td class="act-name">Transform All</td><td>Applies corresponding single-voice transform to all six voices simultaneously.</td></tr>
+  <tr><td class="k">STEP 8</td><td class="act-name">Interlocking Fill</td><td>Fill empty for each voice in sequence, creating complementary polyrhythmic parts.</td></tr>
+  <tr><td class="k">STEP 11</td><td class="act-name">Declutter</td><td>Silences one randomly chosen voice on steps where two or more voices collide.</td></tr>
+  <tr><td class="k">STEP 12</td><td class="act-name">Life</td><td>Advances all six voices one generation of Conway&rsquo;s Game of Life (voices as rows, steps as columns).</td></tr>
+  <tr><td class="k">ACCENT + STEP <i>n</i></td><td class="act-name">Load Kit Preset</td><td>Loads pattern preset <i>n</i> (1&ndash;16) across all six voices as one undo group.</td></tr>
+  <tr><td class="k">STEP 13</td><td class="act-name">Sync Lengths</td><td>Sets all voice loop lengths to match the selected voice&rsquo;s current pattern length.</td></tr>
+  <tr><td class="k">LEN</td><td class="act-name">Odd Meters</td><td>Assigns odd lengths (5, 7, 9, 11, 13, 15) randomly across the six voices without altering step data.</td></tr>
+  <tr><td class="k">CLEAR</td><td class="act-name">Dropout</td><td>Silences half of currently sounding voices at random (minimum 1 voice per press).</td></tr>
+  <tr><td class="k">VOICE <i>v</i>, UNDO, PASTE</td><td class="act-name">Voice Actions</td><td>Swap with voice <i>v</i>, redo, or paste into all 16 slots of selected voice.</td></tr>
 </table>
-
-<h2>Colours</h2>
-<table>
-  <tr><th>Constant</th><th>Used for</th></tr>
-  <tr><td class="k"><span class="sw" style="background:#000"></span>COLOR_OFF</td><td>Unassigned pads, and steps past the pattern length</td></tr>
-  <tr><td class="k"><span class="sw" style="background:#2050e0"></span>COLOR_VOC<i>n</i></td><td>Voice select pads, one hue per voice</td></tr>
-  <tr><td class="k"><span class="sw" style="background:#6174ff"></span>COLOR_VOC<i>n</i>_SET</td><td>Steps with a note, in the selected voice&rsquo;s hue</td></tr>
-  <tr><td class="k"><span class="sw" style="background:#000a7f"></span>COLOR_VOC<i>n</i>_UNSET</td><td>Empty steps, in the selected voice&rsquo;s hue</td></tr>
-  <tr><td class="k"><span class="sw" style="background:#b2b6ff"></span>COLOR_VOC<i>n</i>_ACCENT</td><td>Accented steps, a lighter shade of the selected voice&rsquo;s hue</td></tr>
-  <tr><td class="k"><span class="sw" style="background:#8080b0"></span>COLOR_PACT</td><td>Copy, paste, clear, undo</td></tr>
-  <tr><td class="k"><span class="sw" style="background:#808b80"></span>COLOR_PMOD</td><td>Length, position, transform, accent</td></tr>
-  <tr><td class="k"><span class="sw" style="background:#d0d0d0"></span>COLOR_PPOS</td><td>Play head, voices firing this step, and the ALL pad</td></tr>
-</table>
-<p class="note">
-  Values live in <code>src/colors.h</code>, generated from <code>contrib/palette.go</code>.
-  The step grid above is drawn in voice 0&rsquo;s hue; on the device it follows the selected voice.
-</p>
 </section>
 
 <section class="screen-page" id="page-kits">
-<h2 class="screen-title">Built-in Pattern Presets &amp; 6-Voice Kits</h2>
-<p class="note">
-  The sequencer contains 16 curated pattern presets for individual voices and 16 full 6-voice coordinated drum kits,
-  using visual velocity hit symbols: <strong>■</strong> Accent (velocity 127), <strong>●</strong> Normal (velocity 99),
-  <strong>○</strong> Ghost / Muted (velocity 50), and <strong>·</strong> Rest / Silence.
-</p>
-
-<h2>Voice Assignments</h2>
-<table>
-  <tr><th>Voice</th><th>Pad</th><th>Default MIDI Note</th><th>Role &amp; Instrument Type</th></tr>
-  <tr><td class="k">VOICE 0</td><td>14</td><td>36 (C1)</td><td><strong>Kick / Bass Drum:</strong> 4-on-the-floor anchors, syncopated drop kicks, sub-pulse ghost drives.</td></tr>
-  <tr><td class="k">VOICE 1</td><td>15</td><td>37 (C#1)</td><td><strong>Snare / Clap:</strong> Backbeats on steps 5 &amp; 13, ghost flams, syncopated rolls on 15&ndash;16.</td></tr>
-  <tr><td class="k">VOICE 2</td><td>22</td><td>38 (D1)</td><td><strong>Hi-Hat:</strong> Unified closed hats, ghost shuffles, and accented open hits on offbeats.</td></tr>
-  <tr><td class="k">VOICE 3</td><td>23</td><td>39 (D#1)</td><td><strong>Percussion 1 (Low/Mid):</strong> Low conga/tumbao, low toms, woodblock, sub-hits, and bass drops.</td></tr>
-  <tr><td class="k">VOICE 4</td><td>30</td><td>40 (E1)</td><td><strong>Percussion 2 (Mid/High):</strong> High conga slaps, mid toms, timbales, cowbells, rimshots, and chord stabs.</td></tr>
-  <tr><td class="k">VOICE 5</td><td>31</td><td>41 (F1)</td><td><strong>Percussion 3 (High/Texture):</strong> Shaker beds, tambourine, repinique, ride cymbals, clicks, and textures.</td></tr>
-</table>
 
 <!-- BEGIN_PATTERNS_PRESETS -->
-<h2>Single-Voice Pattern Presets (<code>TRANSFORM + ACCENT + STEP n</code>)</h2>
+<h2 class="presets-header">Single-Voice Pattern Presets (<code>TRANSFORM + ACCENT + STEP n</code>)</h2>
 <p class="note">
   Applies preset <i>n</i> (1&ndash;16) to the active voice's current pattern as one undo step.
-  Each of the 6 voices has its own individual 16-pattern bank tailored to its specific role:
-  Voice 0 (Kick), Voice 1 (Snare/Clap), Voice 2 (Hi-Hat), Voice 3 (Low/Mid Percussion),
-  Voice 4 (Mid/High Percussion), and Voice 5 (High/Texture Percussion).
+  Velocity symbols: <strong>■</strong> Accent (127), <strong>●</strong> Normal (99), <strong>○</strong> Ghost (50), <strong>·</strong> Rest.
 </p>
 
 <h3>Voice 0: Kick / Bass Drum Presets</h3>
@@ -825,7 +875,7 @@
 <!-- END_PATTERNS_PRESETS -->
 
 <!-- BEGIN_PATTERNS_KITS -->
-<h2>Full 6-Voice Kits (<code>TRANSFORM + ALL + ACCENT + STEP n</code>)</h2>
+<h2 class="kits-header">Full 6-Voice Kits (<code>TRANSFORM + ALL + ACCENT + STEP n</code>)</h2>
 <p class="note">
   Loads a coordinated 6-voice arrangement across the entire drum machine simultaneously, as a single undo step.
   Each kit includes all 6 tracks formatted in 16-step columns.

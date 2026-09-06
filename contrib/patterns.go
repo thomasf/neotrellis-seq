@@ -36,7 +36,7 @@ func main() {
 	rootDir := findRootDir()
 	patternsPath := filepath.Join(rootDir, "patterns.txt")
 	presetsHPath := filepath.Join(rootDir, "src", "PatternPresets.h")
-	uiHTMLPath := filepath.Join(rootDir, "UI.html")
+	uiHTMLPath := filepath.Join(rootDir, "MANUAL.html")
 
 	if len(os.Args) > 1 {
 		patternsPath = os.Args[1]
@@ -60,9 +60,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println("Updating UI.html documentation...")
+	fmt.Println("Updating html documentation...")
 	if err := updateUIHTML(uiHTMLPath, bank); err != nil {
-		fmt.Fprintf(os.Stderr, "Error updating UI.html: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error updating html: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -637,14 +637,14 @@ func updateUIHTML(filePath string, bank *PatternBank) error {
 
 	newBytes := []byte(content)
 	if bytes.Equal(newBytes, contentBytes) {
-		fmt.Println("UI.html is already up to date.")
+		fmt.Println("html is already up to date.")
 		return nil
 	}
 
 	if err := os.WriteFile(filePath, newBytes, 0644); err != nil {
 		return err
 	}
-	fmt.Println("Updated UI.html")
+	fmt.Println("Updated html")
 	return nil
 }
 
@@ -681,12 +681,10 @@ func generatePresetsHTML(bank *PatternBank) string {
 	}
 
 	var sb strings.Builder
-	sb.WriteString(`<h2>Single-Voice Pattern Presets (<code>TRANSFORM + ACCENT + STEP n</code>)</h2>
+	sb.WriteString(`<h2 class="presets-header">Single-Voice Pattern Presets (<code>TRANSFORM + ACCENT + STEP n</code>)</h2>
 <p class="note">
   Applies preset <i>n</i> (1&ndash;16) to the active voice's current pattern as one undo step.
-  Each of the 6 voices has its own individual 16-pattern bank tailored to its specific role:
-  Voice 0 (Kick), Voice 1 (Snare/Clap), Voice 2 (Hi-Hat), Voice 3 (Low/Mid Percussion),
-  Voice 4 (Mid/High Percussion), and Voice 5 (High/Texture Percussion).
+  Velocity symbols: <strong>■</strong> Accent (127), <strong>●</strong> Normal (99), <strong>○</strong> Ghost (50), <strong>·</strong> Rest.
 </p>`)
 
 	for v := 0; v < 6; v++ {
@@ -712,7 +710,7 @@ func generatePresetsHTML(bank *PatternBank) string {
 
 func generateKitsHTML(bank *PatternBank) string {
 	var sb strings.Builder
-	sb.WriteString(`<h2>Full 6-Voice Kits (<code>TRANSFORM + ALL + ACCENT + STEP n</code>)</h2>
+	sb.WriteString(`<h2 class="kits-header">Full 6-Voice Kits (<code>TRANSFORM + ALL + ACCENT + STEP n</code>)</h2>
 <p class="note">
   Loads a coordinated 6-voice arrangement across the entire drum machine simultaneously, as a single undo step.
   Each kit includes all 6 tracks formatted in 16-step columns.
