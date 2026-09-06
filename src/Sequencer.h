@@ -82,7 +82,7 @@ enum PathModifier : uint8_t {
   PATH_NONE = 0,
   PATH_PINGPONG = 1 << 0, // forward and then backward
   PATH_SPIRAL = 1 << 1,   // spiral (outside-in)
-  PATH_VERTICAL = 1 << 2, // column-first / vertical scan
+  PATH_STUTTER = 1 << 2,  // micro-hesitation / stutter (0, 1, 1, 3)
   PATH_PHASE = 1 << 3,    // phase slip / rotational drift (+1 step shift each cycle)
   PATH_STRIDE = PATH_PHASE, // backwards-compatible alias
 };

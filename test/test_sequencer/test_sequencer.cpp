@@ -795,13 +795,13 @@ void test_path_modifier_spiral(void) {
   }
 }
 
-void test_path_modifier_vertical(void) {
+void test_path_modifier_stutter(void) {
   Voice v;
   v.pattern()->length = 16;
-  v.path_modifiers = PATH_VERTICAL;
+  v.path_modifiers = PATH_STUTTER;
 
-  uint32_t const expected[16] = {0, 4, 8,  12, 1, 5, 9,  13,
-                                 2, 6, 10, 14, 3, 7, 11, 15};
+  uint32_t const expected[16] = {0, 1, 1, 3,  4, 5, 5, 7,
+                                 8, 9, 9, 11, 12, 13, 13, 15};
   v.seek(0);
   for (uint32_t i = 0; i < 16; i++) {
     v.advance();
@@ -861,20 +861,23 @@ void test_path_modifier_pingpong_spiral_combination(void) {
 void test_path_modifier_all_four_combination(void) {
   Voice v;
   v.pattern()->length = 16;
-  v.path_modifiers = PATH_PINGPONG | PATH_SPIRAL | PATH_VERTICAL | PATH_PHASE;
+  v.path_modifiers = PATH_PINGPONG | PATH_SPIRAL | PATH_STUTTER | PATH_PHASE;
 
   // Cycle length is (2 * 16 - 2) * 16 = 480. Ensure all indices are in [0, 16)
   v.seek(0);
   std::array<bool, 16> visited{};
+  uint32_t visited_count = 0;
   for (uint32_t i = 0; i < 480; i++) {
     v.advance();
     TEST_ASSERT_TRUE(v.pos < 16);
-    visited[v.pos] = true;
+    if (!visited[v.pos]) {
+      visited[v.pos] = true;
+      visited_count++;
+    }
   }
-  // All 16 steps must be visited over the cycle
-  for (uint32_t i = 0; i < 16; i++) {
-    TEST_ASSERT_TRUE(visited[i]);
-  }
+  // PATH_STUTTER repeats the offbeat (0, 1, 1, 3) within each 4-step group,
+  // visiting 12 unique positions per cycle while skipping 4.
+  TEST_ASSERT_EQUAL_UINT32(12, visited_count);
 }
 
 int main(int argc, char **argv) {
@@ -902,7 +905,7 @@ int main(int argc, char **argv) {
   RUN_TEST(test_path_modifier_flags);
   RUN_TEST(test_path_modifier_pingpong);
   RUN_TEST(test_path_modifier_spiral);
-  RUN_TEST(test_path_modifier_vertical);
+  RUN_TEST(test_path_modifier_stutter);
   RUN_TEST(test_path_modifier_phase);
   RUN_TEST(test_path_modifier_pingpong_spiral_combination);
   RUN_TEST(test_path_modifier_all_four_combination);

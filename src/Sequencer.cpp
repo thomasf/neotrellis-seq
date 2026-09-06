@@ -162,9 +162,6 @@ Step Voice::step() { return pattern()->steps[pos]; }
 static constexpr uint8_t SPIRAL_TABLE[16] = {0,  1,  2, 3, 7, 11, 15, 14,
                                              13, 12, 8, 4, 5, 6,  10, 9};
 
-static constexpr uint8_t TRANSPOSE_TABLE[16] = {0, 4, 8,  12, 1, 5, 9,  13,
-                                                2, 6, 10, 14, 3, 7, 11, 15};
-
 static uint32_t filter_perm(const uint8_t table[16], uint32_t idx,
                             uint32_t len) {
   if (len >= 16) {
@@ -208,8 +205,10 @@ uint32_t Voice::calculate_pos(uint32_t tick) const {
     u = (u + shift) % len;
   }
 
-  if (path_modifiers & PATH_VERTICAL) {
-    u = filter_perm(TRANSPOSE_TABLE, u, len);
+  if (path_modifiers & PATH_STUTTER) {
+    if (u % 4 == 2) {
+      u = u - 1;
+    }
   }
 
   if (path_modifiers & PATH_SPIRAL) {

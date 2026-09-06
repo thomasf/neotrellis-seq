@@ -61,7 +61,7 @@ void MenuMode::on_key(const KeyContext &ctx) {
     } else if (option_index == 5) {
       seq.toggle_path_modifier(current_page_, PATH_SPIRAL);
     } else if (option_index == 6) {
-      seq.toggle_path_modifier(current_page_, PATH_VERTICAL);
+      seq.toggle_path_modifier(current_page_, PATH_STUTTER);
     } else if (option_index == 7) {
       seq.toggle_path_modifier(current_page_, PATH_PHASE);
     }
@@ -100,7 +100,7 @@ void MenuMode::render_leds() {
   set_pixel(step_key[5], seq.has_path_modifier(current_page_, PATH_SPIRAL)
                              ? COLOR_GREEN
                              : COLOR_RED);
-  set_pixel(step_key[6], seq.has_path_modifier(current_page_, PATH_VERTICAL)
+  set_pixel(step_key[6], seq.has_path_modifier(current_page_, PATH_STUTTER)
                              ? COLOR_GREEN
                              : COLOR_RED);
   set_pixel(step_key[7], seq.has_path_modifier(current_page_, PATH_PHASE)
