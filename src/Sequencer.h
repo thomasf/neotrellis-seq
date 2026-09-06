@@ -83,7 +83,8 @@ enum PathModifier : uint8_t {
   PATH_PINGPONG = 1 << 0, // forward and then backward
   PATH_SPIRAL = 1 << 1,   // spiral (outside-in)
   PATH_VERTICAL = 1 << 2, // column-first / vertical scan
-  PATH_STRIDE = 1 << 3,   // coprime stride (+3 dotted jump)
+  PATH_PHASE = 1 << 3,    // phase slip / rotational drift (+1 step shift each cycle)
+  PATH_STRIDE = PATH_PHASE, // backwards-compatible alias
 };
 
 // Voice is a collection of patterns
@@ -102,6 +103,7 @@ public:
   void replace_pattern(const Pattern &p); // replace current pattern
   uint32_t pos = 0;                       // current position
   uint32_t calculate_pos(uint32_t tick) const;
+  uint32_t cycle_length() const;
   Step advance();          // advance to next step (see seek)
   Step step();             // get current step value
   Step step(uint32_t idx); // get current step value for pos

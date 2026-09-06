@@ -767,7 +767,7 @@
   <div class="green">PINGPONG <i>STEP 5</i></div>
   <div class="green">SPIRAL <i>STEP 6</i></div>
   <div class="green">VERTICAL <i>STEP 7</i></div>
-  <div class="green">STRIDE <i>STEP 8</i></div>
+  <div class="green">PHASE <i>STEP 8</i></div>
   <div class="off">&mdash; <i>CLEAR</i></div>
   <div class="off">&mdash; <i>UNDO</i></div>
   <div class="voc0">PAGE 0 <i>VOICE 0</i></div>
@@ -800,7 +800,7 @@
   <tr><td class="k">STEP 5 (Row 2)</td><td class="act-name">Ping-Pong Path</td><td>Toggles forward-then-backward playback. Lights green when active, red when inactive.</td></tr>
   <tr><td class="k">STEP 6 (Row 2)</td><td class="act-name">Spiral Path</td><td>Toggles outside-in spiral traversal. Lights green when active, red when inactive.</td></tr>
   <tr><td class="k">STEP 7 (Row 2)</td><td class="act-name">Vertical Scan Path</td><td>Toggles column-first (transposed) matrix scan. Lights green when active, red when inactive.</td></tr>
-  <tr><td class="k">STEP 8 (Row 2)</td><td class="act-name">Stride Path</td><td>Toggles coprime stride jump (+3 step interval). Lights green when active, red when inactive.</td></tr>
+  <tr><td class="k">STEP 8 (Row 2)</td><td class="act-name">Phase Slip Path</td><td>Toggles rotational phase slip (+1 step offset each cycle). Lights green when active, red when inactive.</td></tr>
   <tr><td class="k">MENU</td><td class="act-name">Exit Menu</td><td>Exits Menu Mode and returns to the sequencer.</td></tr>
 </table>
 
@@ -831,8 +831,8 @@
   <li><strong>Ping-Pong (STEP 5)</strong>: Plays forward through the pattern, then bounces back in reverse without repeating the start and end steps (period is <code>2L - 2</code> steps for length <code>L &gt; 1</code>). For example, a 4-step pattern cycles <code>0 &rarr; 1 &rarr; 2 &rarr; 3 &rarr; 2 &rarr; 1</code>.</li>
   <li><strong>Spiral (STEP 6)</strong>: Scans the 4&times;4 step grid in an outside-in spiral: clockwise around the outer border (steps 0, 1, 2, 3, 7, 11, 15, 14, 13, 12, 8, 4), then through the inner core (5, 6, 10, 9). For shorter patterns, only steps within the pattern length are visited in spiral order.</li>
   <li><strong>Vertical Scan (STEP 7)</strong>: Transposes the 4&times;4 step grid so the voice steps down columns before advancing to the next column (<code>0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15</code>). Turns straight 16th-note grooves into 4-beat syncopations.</li>
-  <li><strong>Stride (STEP 8)</strong>: Advances through the steps using a coprime stride (+3 steps, or +7 if length is divisible by 3) modulo pattern length. Guarantees every step is played with a dotted, hopping feel before repeating.</li>
-  <li><strong>Combining Modifiers</strong>: Combining modifiers applies them deterministically in sequence (Ping-Pong &rarr; Stride &rarr; Vertical &rarr; Spiral). For instance, combining <strong>Ping-Pong + Spiral</strong> cycles inward through the spiral to the center and then spirals back out toward the edges. Combining all four yields complex, non-repetitive phrases that remain locked to the bar structure.</li>
+  <li><strong>Phase Slip (STEP 8)</strong>: Shifts the pattern starting offset forward by +1 step every time a full cycle completes (Steve Reich-style minimalist phasing). Preserves the melodic and rhythmic motif while continuously evolving its placement across the metric pulse.</li>
+  <li><strong>Combining Modifiers</strong>: Combining modifiers applies them deterministically in sequence (Ping-Pong &rarr; Phase &rarr; Vertical &rarr; Spiral). For instance, combining <strong>Ping-Pong + Spiral</strong> cycles inward through the spiral to the center and then spirals back out toward the edges. Combining all four yields complex, non-repetitive phrases that remain locked to the bar structure.</li>
 </ul>
 </section>
 

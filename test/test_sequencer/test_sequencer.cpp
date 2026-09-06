@@ -809,18 +809,30 @@ void test_path_modifier_vertical(void) {
   }
 }
 
-void test_path_modifier_stride(void) {
+void test_path_modifier_phase(void) {
   Voice v;
-  v.pattern()->length = 16;
-  v.path_modifiers = PATH_STRIDE;
+  v.pattern()->length = 4;
+  v.path_modifiers = PATH_PHASE;
 
-  uint32_t const expected[16] = {0, 3,  6,  9, 12, 15, 2,  5,
-                                 8, 11, 14, 1, 4,  7,  10, 13};
+  // For length 4, cycle is 4 * 4 = 16 steps.
+  // Pass 0 (ticks 0..3):   0, 1, 2, 3
+  // Pass 1 (ticks 4..7):   1, 2, 3, 0
+  // Pass 2 (ticks 8..11):  2, 3, 0, 1
+  // Pass 3 (ticks 12..15): 3, 0, 1, 2
+  uint32_t const expected[16] = {
+      0, 1, 2, 3,
+      1, 2, 3, 0,
+      2, 3, 0, 1,
+      3, 0, 1, 2,
+  };
   v.seek(0);
   for (uint32_t i = 0; i < 16; i++) {
     v.advance();
     TEST_ASSERT_EQUAL_UINT32(expected[i], v.pos);
   }
+  // Wrap to start
+  v.advance();
+  TEST_ASSERT_EQUAL_UINT32(0, v.pos);
 }
 
 void test_path_modifier_pingpong_spiral_combination(void) {
@@ -849,12 +861,12 @@ void test_path_modifier_pingpong_spiral_combination(void) {
 void test_path_modifier_all_four_combination(void) {
   Voice v;
   v.pattern()->length = 16;
-  v.path_modifiers = PATH_PINGPONG | PATH_SPIRAL | PATH_VERTICAL | PATH_STRIDE;
+  v.path_modifiers = PATH_PINGPONG | PATH_SPIRAL | PATH_VERTICAL | PATH_PHASE;
 
-  // Cycle length is 30. Ensure all indices are in [0, 16)
+  // Cycle length is (2 * 16 - 2) * 16 = 480. Ensure all indices are in [0, 16)
   v.seek(0);
   std::array<bool, 16> visited{};
-  for (uint32_t i = 0; i < 30; i++) {
+  for (uint32_t i = 0; i < 480; i++) {
     v.advance();
     TEST_ASSERT_TRUE(v.pos < 16);
     visited[v.pos] = true;
@@ -891,7 +903,7 @@ int main(int argc, char **argv) {
   RUN_TEST(test_path_modifier_pingpong);
   RUN_TEST(test_path_modifier_spiral);
   RUN_TEST(test_path_modifier_vertical);
-  RUN_TEST(test_path_modifier_stride);
+  RUN_TEST(test_path_modifier_phase);
   RUN_TEST(test_path_modifier_pingpong_spiral_combination);
   RUN_TEST(test_path_modifier_all_four_combination);
 

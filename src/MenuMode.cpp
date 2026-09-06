@@ -63,7 +63,7 @@ void MenuMode::on_key(const KeyContext &ctx) {
     } else if (option_index == 6) {
       seq.toggle_path_modifier(current_page_, PATH_VERTICAL);
     } else if (option_index == 7) {
-      seq.toggle_path_modifier(current_page_, PATH_STRIDE);
+      seq.toggle_path_modifier(current_page_, PATH_PHASE);
     }
     return;
   }
@@ -103,7 +103,7 @@ void MenuMode::render_leds() {
   set_pixel(step_key[6], seq.has_path_modifier(current_page_, PATH_VERTICAL)
                              ? COLOR_GREEN
                              : COLOR_RED);
-  set_pixel(step_key[7], seq.has_path_modifier(current_page_, PATH_STRIDE)
+  set_pixel(step_key[7], seq.has_path_modifier(current_page_, PATH_PHASE)
                              ? COLOR_GREEN
                              : COLOR_RED);
 

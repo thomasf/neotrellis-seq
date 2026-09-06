@@ -182,23 +182,30 @@ static uint32_t filter_perm(const uint8_t table[16], uint32_t idx,
   return idx % len;
 }
 
+uint32_t Voice::cycle_length() const {
+  uint32_t const len = pattern()->length;
+  if (len <= 1) {
+    return len == 0 ? 0 : 1;
+  }
+  uint32_t const base_cycle =
+      ((path_modifiers & PATH_PINGPONG) && len > 1) ? (2 * len - 2) : len;
+  return (path_modifiers & PATH_PHASE) ? (base_cycle * len) : base_cycle;
+}
+
 uint32_t Voice::calculate_pos(uint32_t tick) const {
   uint32_t const len = pattern()->length;
   if (len <= 1) {
     return 0;
   }
-  uint32_t u = 0;
-  if (path_modifiers & PATH_PINGPONG) {
-    uint32_t const cycle = 2 * len - 2;
-    uint32_t const t = tick % cycle;
-    u = (t < len) ? t : (cycle - t);
-  } else {
-    u = tick % len;
-  }
+  uint32_t const base_cycle =
+      ((path_modifiers & PATH_PINGPONG) && len > 1) ? (2 * len - 2) : len;
+  uint32_t const t = tick % base_cycle;
+  uint32_t u = (path_modifiers & PATH_PINGPONG) ? ((t < len) ? t : (base_cycle - t))
+                                                : t;
 
-  if (path_modifiers & PATH_STRIDE) {
-    uint32_t const stride = (len % 3 != 0) ? 3 : 7;
-    u = (u * stride) % len;
+  if (path_modifiers & PATH_PHASE) {
+    uint32_t const shift = (tick / base_cycle) % len;
+    u = (u + shift) % len;
   }
 
   if (path_modifiers & PATH_VERTICAL) {
@@ -220,9 +227,7 @@ Step Voice::advance() {
   if (seek_pending) {
     seek_pending = false;
   } else {
-    uint32_t const cycle =
-        ((path_modifiers & PATH_PINGPONG) && len > 1) ? (2 * len - 2) : len;
-    play_head = (play_head + 1) % cycle;
+    play_head = (play_head + 1) % cycle_length();
     pos = calculate_pos(play_head);
   }
   return step();
@@ -233,7 +238,7 @@ void Voice::seek(uint32_t step) {
   if (len == 0) {
     return;
   }
-  play_head = step % len;
+  play_head = step % cycle_length();
   pos = calculate_pos(play_head);
   seek_pending = true;
 }
