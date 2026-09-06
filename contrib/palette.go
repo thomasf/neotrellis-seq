@@ -36,6 +36,8 @@ var (
 		Voice4:          "#b030b0",
 		Voice5:          "#808000",
 		Tool:            "#902020",
+		Red:             "#d02020",
+		Green:           "#20d020",
 		PatternAction:   "#8080b0",
 		PatternModifier: "#808b80",
 		ActiveVoices: func(t Theme) Theme {
@@ -59,6 +61,8 @@ var (
 		Voice4:       GruvboxPurple,
 		Voice5:       GruvboxRed,
 		Tool:         GruvboxBrightPurple,
+		Red:          GruvboxBrightRed,
+		Green:        GruvboxBrightGreen,
 		ActiveVoices: func(t Theme) Theme {
 			return t.ChangeLightness(0.2)
 		},
@@ -84,6 +88,8 @@ type Theme struct {
 	InactiveVoices  func(Theme) Theme // silent steps
 	AccentVoices    func(Theme) Theme // steps with an accented note
 	Tool            HexColor
+	Red             HexColor
+	Green           HexColor
 	PatternAction   HexColor
 	PatternModifier HexColor
 }
@@ -98,6 +104,8 @@ func (b *Theme) modifyColors(fn func(c *HexColor)) {
 	fn(&b.Voice4)
 	fn(&b.Voice5)
 	fn(&b.Tool)
+	fn(&b.Red)
+	fn(&b.Green)
 	fn(&b.PatternAction)
 	fn(&b.PatternModifier)
 }
@@ -125,17 +133,19 @@ func (b Theme) ChangeSaturation(amount float64) Theme {
 
 func (p Theme) NamedColors() NamedColors {
 	return NamedColors{
-		"OFF":  HexColor(p.Off),
-		"PPOS": HexColor(p.PlayPosition),
-		"VOC0": HexColor(p.Voice0),
-		"VOC1": HexColor(p.Voice1),
-		"VOC2": HexColor(p.Voice2),
-		"VOC3": HexColor(p.Voice3),
-		"VOC4": HexColor(p.Voice4),
-		"VOC5": HexColor(p.Voice5),
-		"TOOL": HexColor(p.Tool),
-		"PMOD": HexColor(p.PatternModifier),
-		"PACT": HexColor(p.PatternAction),
+		"OFF":   HexColor(p.Off),
+		"PPOS":  HexColor(p.PlayPosition),
+		"VOC0":  HexColor(p.Voice0),
+		"VOC1":  HexColor(p.Voice1),
+		"VOC2":  HexColor(p.Voice2),
+		"VOC3":  HexColor(p.Voice3),
+		"VOC4":  HexColor(p.Voice4),
+		"VOC5":  HexColor(p.Voice5),
+		"TOOL":  HexColor(p.Tool),
+		"RED":   HexColor(p.Red),
+		"GREEN": HexColor(p.Green),
+		"PMOD":  HexColor(p.PatternModifier),
+		"PACT":  HexColor(p.PatternAction),
 	}
 }
 

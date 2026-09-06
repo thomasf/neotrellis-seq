@@ -2,10 +2,12 @@
 #ifndef COLORS_H
 #define COLORS_H
 
+uint32_t static const COLOR_GREEN = 0x20D020;
 uint32_t static const COLOR_OFF = 0x000000;
 uint32_t static const COLOR_PACT = 0x8080B0;
 uint32_t static const COLOR_PMOD = 0x808B80;
 uint32_t static const COLOR_PPOS = 0xD0D0D0;
+uint32_t static const COLOR_RED = 0xD02020;
 uint32_t static const COLOR_TOOL = 0x902020;
 uint32_t static const COLOR_VOC0 = 0x2050E0;
 uint32_t static const COLOR_VOC0_ACCENT = 0xC5C6FF;

@@ -11,19 +11,19 @@ static void exit_menu() { mode_manager.pop_mode(); }
 
 static const KeyBinding MENU_BINDINGS[] = {
     {KEY_MENU, 0, 0, exit_menu},
-    {KEY_CLEAR, 0, 0, exit_menu},
 };
 
 static constexpr size_t MENU_BINDING_COUNT =
     sizeof(MENU_BINDINGS) / sizeof(MENU_BINDINGS[0]);
 
 void MenuMode::on_enter() {
+  current_page_ = (seq.voice_idx < VOICES) ? seq.voice_idx : 0;
+
   // Dim all pads initially
   fill_pixels(COLOR_OFF);
 
-  // Light up MENU and CLEAR (Back)
+  // Light up MENU (Exit)
   set_pixel(KEY_MENU, COLOR_PPOS);
-  set_pixel(KEY_CLEAR, COLOR_PACT);
 
   // Light up the category / page selector buttons (voice keys 0..5)
   for (uint32_t i = 0; i < VOICES; i++) {
@@ -54,8 +54,9 @@ void MenuMode::on_key(const KeyContext &ctx) {
   // 3. Step keys: handle page-specific options
   if (ctx.is_step()) {
     uint32_t option_index = ctx.step_index();
-    (void)option_index;
-    // Extensible: dispatch option adjustment for current_page_
+    if (option_index == 0) {
+      seq.toggle_protected(current_page_);
+    }
     return;
   }
 }
@@ -63,7 +64,7 @@ void MenuMode::on_key(const KeyContext &ctx) {
 void MenuMode::render_leds() {
   // Keep MENU indicator active
   set_pixel(KEY_MENU, COLOR_PPOS);
-  set_pixel(KEY_CLEAR, COLOR_PACT);
+  set_pixel(KEY_CLEAR, COLOR_OFF);
 
   // Highlight the currently active menu page button
   for (uint32_t i = 0; i < VOICES; i++) {
@@ -75,9 +76,12 @@ void MenuMode::render_leds() {
     }
   }
 
-  // Example menu display: draw options for current_page_ on the 16 step keys
-  for (uint32_t i = 0; i < 16; i++) {
-    // Can be customized per menu page
-    set_pixel(step_key[i], (i == current_page_) ? COLOR_TOOL : COLOR_OFF);
+  // Step 0 (top-left button): Voice Protect toggle
+  bool const is_prot = seq.is_protected(current_page_);
+  set_pixel(step_key[0], is_prot ? COLOR_GREEN : COLOR_RED);
+
+  // Remaining step keys are unassigned for voice settings page
+  for (uint32_t i = 1; i < 16; i++) {
+    set_pixel(step_key[i], COLOR_OFF);
   }
 }

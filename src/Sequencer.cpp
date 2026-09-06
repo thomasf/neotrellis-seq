@@ -456,13 +456,17 @@ void Sequencer::declutter(uint32_t (*random_below)(uint32_t n)) {
   for (uint32_t i = 0; i < 16; i++) {
     std::array<uint32_t, VOICES> sounding;
     uint32_t count = 0;
+    uint32_t total_sounding = 0;
     for (uint32_t v = 0; v < VOICES; v++) {
       Pattern const &p = *voices[v].pattern();
       if (i < p.length && p.steps[i].vel > 0) {
-        sounding[count++] = v;
+        total_sounding++;
+        if (!voices[v].is_protected) {
+          sounding[count++] = v;
+        }
       }
     }
-    if (count >= 2) {
+    if (total_sounding >= 2 && count > 0) {
       voices[sounding[random_below(count)]].pattern()->steps[i].vel = 0;
     }
   }
@@ -472,6 +476,9 @@ void Sequencer::dropout(uint32_t (*random_below)(uint32_t n)) {
   std::array<uint32_t, VOICES> sounding;
   uint32_t count = 0;
   for (uint32_t v = 0; v < VOICES; v++) {
+    if (voices[v].is_protected) {
+      continue;
+    }
     Pattern const &p = *voices[v].pattern();
     uint32_t const len = std::min<uint32_t>(p.length, p.steps.size());
     for (uint32_t i = 0; i < len; i++) {
@@ -480,6 +487,9 @@ void Sequencer::dropout(uint32_t (*random_below)(uint32_t n)) {
         break;
       }
     }
+  }
+  if (count == 0) {
+    return;
   }
   // Silence the first half, at least one, of a random order of the sounding
   // voices.
@@ -497,6 +507,9 @@ void Sequencer::dropout(uint32_t (*random_below)(uint32_t n)) {
 void Sequencer::sync_lengths() {
   uint32_t const len = voice->pattern()->length;
   for (uint32_t v = 0; v < VOICES; v++) {
+    if (voices[v].is_protected) {
+      continue;
+    }
     voices[v].pattern()->length = len;
   }
 }
@@ -507,6 +520,9 @@ void Sequencer::polymeter(uint32_t (*random_below)(uint32_t n)) {
     std::swap(lengths[i - 1], lengths[random_below(i)]);
   }
   for (uint32_t v = 0; v < VOICES; v++) {
+    if (voices[v].is_protected) {
+      continue;
+    }
     voices[v].pattern()->length = lengths[v % lengths.size()];
   }
 }
@@ -601,6 +617,9 @@ void VirtualBoard::extract_to_voices(std::array<Voice, VOICES> &voices) const {
     for (uint32_t vc = 0; vc < CORE_COLS; vc++) {
       uint32_t const voice_idx =
           (vr / GRID_SIZE) * VOICE_COLS + (vc / GRID_SIZE);
+      if (voices[voice_idx].is_protected) {
+        continue;
+      }
       uint32_t const step_idx = (vr % GRID_SIZE) * GRID_SIZE + (vc % GRID_SIZE);
       Pattern &p = *voices[voice_idx].pattern();
       uint32_t const plen = std::min<uint32_t>(p.length, p.steps.size());

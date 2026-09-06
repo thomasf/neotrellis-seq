@@ -182,6 +182,120 @@ void test_pattern_has_sounding_notes(void) {
   TEST_ASSERT_FALSE(p_short.has_sounding_notes());
 }
 
+static uint32_t mock_random_zero(uint32_t) { return 0; }
+
+void test_voice_protect_flags(void) {
+  Sequencer seq;
+  for (uint32_t v = 0; v < VOICES; v++) {
+    TEST_ASSERT_FALSE(seq.is_protected(v));
+  }
+  seq.set_protected(1, true);
+  TEST_ASSERT_TRUE(seq.is_protected(1));
+  TEST_ASSERT_TRUE(seq.voices[1].is_protected);
+
+  seq.toggle_protected(1);
+  TEST_ASSERT_FALSE(seq.is_protected(1));
+
+  seq.toggle_protected(2);
+  TEST_ASSERT_TRUE(seq.is_protected(2));
+}
+
+void test_voice_protect_declutter(void) {
+  Sequencer seq;
+  // Put a note at step 0 for Voice 0 and Voice 1
+  seq.voices[0].pattern()->steps[0].vel = 100;
+  seq.voices[1].pattern()->steps[0].vel = 100;
+
+  // Protect Voice 0
+  seq.set_protected(0, true);
+
+  // Run declutter
+  seq.declutter(mock_random_zero);
+
+  // Voice 0 must be preserved, Voice 1 must be cleared
+  TEST_ASSERT_EQUAL_UINT8(100, seq.voices[0].pattern()->steps[0].vel);
+  TEST_ASSERT_EQUAL_UINT8(0, seq.voices[1].pattern()->steps[0].vel);
+
+  // Both protected: neither cleared
+  seq.voices[0].pattern()->steps[0].vel = 100;
+  seq.voices[1].pattern()->steps[0].vel = 100;
+  seq.set_protected(1, true);
+
+  seq.declutter(mock_random_zero);
+  TEST_ASSERT_EQUAL_UINT8(100, seq.voices[0].pattern()->steps[0].vel);
+  TEST_ASSERT_EQUAL_UINT8(100, seq.voices[1].pattern()->steps[0].vel);
+}
+
+void test_voice_protect_dropout(void) {
+  Sequencer seq;
+  for (uint32_t v = 0; v < VOICES; v++) {
+    seq.voices[v].pattern()->steps[0].vel = 100;
+  }
+  // Protect Voice 0 and Voice 2
+  seq.set_protected(0, true);
+  seq.set_protected(2, true);
+
+  seq.dropout(mock_random_zero);
+
+  // Protected voices must not have been dropped
+  TEST_ASSERT_EQUAL_UINT8(100, seq.voices[0].pattern()->steps[0].vel);
+  TEST_ASSERT_EQUAL_UINT8(100, seq.voices[2].pattern()->steps[0].vel);
+}
+
+void test_voice_protect_sync_lengths(void) {
+  Sequencer seq;
+  seq.voice->pattern()->length = 16;
+  seq.voices[1].pattern()->length = 7;
+  seq.voices[2].pattern()->length = 9;
+
+  // Protect Voice 1
+  seq.set_protected(1, true);
+
+  seq.sync_lengths();
+
+  // Voice 1 stays 7; Voice 2 becomes 16
+  TEST_ASSERT_EQUAL_UINT32(7, seq.voices[1].pattern()->length);
+  TEST_ASSERT_EQUAL_UINT32(16, seq.voices[2].pattern()->length);
+}
+
+void test_voice_protect_polymeter(void) {
+  Sequencer seq;
+  seq.voices[3].pattern()->length = 12;
+  seq.set_protected(3, true);
+
+  seq.polymeter(mock_random_zero);
+
+  // Protected Voice 3 length must remain unchanged
+  TEST_ASSERT_EQUAL_UINT32(12, seq.voices[3].pattern()->length);
+}
+
+void test_voice_protect_life(void) {
+  Sequencer seq;
+  // Blinkers in Voice 0 and Voice 1
+  seq.voices[0].pattern()->steps[4].vel = 100;
+  seq.voices[0].pattern()->steps[5].vel = 110;
+  seq.voices[0].pattern()->steps[6].vel = 120;
+
+  seq.voices[1].pattern()->steps[4].vel = 100;
+  seq.voices[1].pattern()->steps[5].vel = 110;
+  seq.voices[1].pattern()->steps[6].vel = 120;
+
+  // Protect Voice 0
+  seq.set_protected(0, true);
+
+  seq.life();
+
+  // Voice 0 pattern must be completely unchanged
+  TEST_ASSERT_EQUAL_UINT8(100, seq.voices[0].pattern()->steps[4].vel);
+  TEST_ASSERT_EQUAL_UINT8(110, seq.voices[0].pattern()->steps[5].vel);
+  TEST_ASSERT_EQUAL_UINT8(120, seq.voices[0].pattern()->steps[6].vel);
+
+  // Unprotected Voice 1 evolved
+  TEST_ASSERT_EQUAL_UINT8(0, seq.voices[1].pattern()->steps[4].vel);
+  TEST_ASSERT_EQUAL_UINT8(110, seq.voices[1].pattern()->steps[5].vel);
+  TEST_ASSERT_EQUAL_UINT8(0, seq.voices[1].pattern()->steps[6].vel);
+}
+
 int main(int argc, char **argv) {
   UNITY_BEGIN();
   RUN_TEST(test_step_coordinates);
@@ -191,5 +305,11 @@ int main(int argc, char **argv) {
   RUN_TEST(test_viewport_panning);
   RUN_TEST(test_pattern_length_preservation);
   RUN_TEST(test_pattern_has_sounding_notes);
+  RUN_TEST(test_voice_protect_flags);
+  RUN_TEST(test_voice_protect_declutter);
+  RUN_TEST(test_voice_protect_dropout);
+  RUN_TEST(test_voice_protect_sync_lengths);
+  RUN_TEST(test_voice_protect_polymeter);
+  RUN_TEST(test_voice_protect_life);
   return UNITY_END();
 }

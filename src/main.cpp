@@ -199,6 +199,9 @@ void load_kit_preset(uint32_t kit_index) {
   }
   begin_edit();
   for (uint32_t voice = 0; voice < VOICES; voice++) {
+    if (seq.is_protected(voice)) {
+      continue;
+    }
     record_undo(voice);
     PatternPresets::apply_kit_voice(voice, kit_index,
                                     seq.voices[voice].pattern());
@@ -316,6 +319,9 @@ void transform_all_patterns(Transform transform, uint32_t index) {
   seed_random();
   begin_edit();
   for (uint32_t voice = 0; voice < VOICES; voice++) {
+    if (seq.is_protected(voice)) {
+      continue;
+    }
     Voice &v = seq.voices[voice];
     Pattern const before = *v.pattern();
     if (transform(voice, index)) {
@@ -339,7 +345,9 @@ bool transform_board(uint32_t index) {
   seed_random();
   begin_edit();
   for (uint32_t voice = 0; voice < VOICES; voice++) {
-    record_undo(voice);
+    if (!seq.is_protected(voice)) {
+      record_undo(voice);
+    }
   }
   if (index == KEY_DRIFT_INDEX) {
     seq.declutter(random_below);
@@ -357,7 +365,9 @@ void dropout_patterns() {
   seed_random();
   begin_edit();
   for (uint32_t voice = 0; voice < VOICES; voice++) {
-    record_undo(voice);
+    if (!seq.is_protected(voice)) {
+      record_undo(voice);
+    }
   }
   seq.dropout(random_below);
 }
@@ -368,7 +378,9 @@ void polymeter_patterns() {
   seed_random();
   begin_edit();
   for (uint32_t voice = 0; voice < VOICES; voice++) {
-    record_undo(voice);
+    if (!seq.is_protected(voice)) {
+      record_undo(voice);
+    }
   }
   seq.polymeter(random_below);
 }
@@ -499,7 +511,8 @@ void run_step() {
     if (current_step.vel > 0) {
       v.playing_note = FIRST_MIDI_NOTE + voice + v.note_offset;
       midi_note_on(v.playing_note, current_step.vel);
-      set_pixel(voice_index_to_key(voice), COLOR_PPOS);
+      uint32_t const flash_color = v.is_protected ? COLOR_RED : COLOR_PPOS;
+      set_pixel(voice_index_to_key(voice), flash_color);
       v.is_playing = true;
       is_voice_select_hl_period = true;
     }

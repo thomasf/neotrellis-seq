@@ -94,7 +94,9 @@ void SequencerMode::handle_step(const KeyContext &ctx) {
     step.vel = step.vel >= ACCENT_VELOCITY ? DEFAULT_VELOCITY : ACCENT_VELOCITY;
   } else if (ctx.has(Mod::ALL)) {
     for (auto &voice : seq.voices) {
-      voice.pattern_idx = index;
+      if (!voice.is_protected) {
+        voice.pattern_idx = index;
+      }
     }
   } else if (ctx.any_voice_held()) {
     for (uint32_t voice = 0; voice < VOICES; voice++) {

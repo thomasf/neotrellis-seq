@@ -86,6 +86,7 @@ public:
   uint8_t playing_note = 0;               // the note is_playing refers to
   uint8_t note_offset = 0;                // semitones added to the base note
   uint32_t pattern_idx = 0;               // current pattern index
+  bool is_protected = false;              // voice protect flag
   Pattern *pattern();                     // current pattern
   const Pattern *pattern() const;         // current pattern (const)
   void replace_pattern(const Pattern &p); // replace current pattern
@@ -268,6 +269,19 @@ public:
   Voice *voice;                     // current voice
   uint32_t voice_idx;               // current voice index
   void set_voice(uint32_t idx);     // set the currenlty active voice by index
+  bool is_protected(uint32_t idx) const {
+    return idx < VOICES && voices[idx].is_protected;
+  }
+  void set_protected(uint32_t idx, bool protect) {
+    if (idx < VOICES) {
+      voices[idx].is_protected = protect;
+    }
+  }
+  void toggle_protected(uint32_t idx) {
+    if (idx < VOICES) {
+      voices[idx].is_protected = !voices[idx].is_protected;
+    }
+  }
   // fill_empty rewrites voice `voice`'s current pattern to play in the gaps the
   // other voices leave: every step within its length where no other voice
   // sounds gets a note, the rest are cleared. Busy voices count for less: a
