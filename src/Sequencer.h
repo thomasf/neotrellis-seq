@@ -78,6 +78,14 @@ public:
 // has velocity > 0.
 bool pattern_has_sounding_notes(const Pattern &p);
 
+enum PathModifier : uint8_t {
+  PATH_NONE = 0,
+  PATH_PINGPONG = 1 << 0, // forward and then backward
+  PATH_SPIRAL = 1 << 1,   // spiral (outside-in)
+  PATH_VERTICAL = 1 << 2, // column-first / vertical scan
+  PATH_STRIDE = 1 << 3,   // coprime stride (+3 dotted jump)
+};
+
 // Voice is a collection of patterns
 class Voice {
 public:
@@ -87,13 +95,16 @@ public:
   uint8_t note_offset = 0;                // semitones added to the base note
   uint32_t pattern_idx = 0;               // current pattern index
   bool is_protected = false;              // voice protect flag
+  uint8_t path_modifiers = PATH_NONE;     // active playback path modifiers
+  uint32_t play_head = 0;                 // progression step counter
   Pattern *pattern();                     // current pattern
   const Pattern *pattern() const;         // current pattern (const)
   void replace_pattern(const Pattern &p); // replace current pattern
   uint32_t pos = 0;                       // current position
-  Step advance();                         // advance to next step (see seek)
-  Step step();                            // get current step value
-  Step step(uint32_t idx);                // get current step value for pos
+  uint32_t calculate_pos(uint32_t tick) const;
+  Step advance();          // advance to next step (see seek)
+  Step step();             // get current step value
+  Step step(uint32_t idx); // get current step value for pos
   // seek moves the play head to step (wrapped to the pattern length) and
   // arms it: the next advance() plays that step instead of the one after it.
   // This is how Start, Song Position Pointer and the POS key land on a step
@@ -280,6 +291,23 @@ public:
   void toggle_protected(uint32_t idx) {
     if (idx < VOICES) {
       voices[idx].is_protected = !voices[idx].is_protected;
+    }
+  }
+  bool has_path_modifier(uint32_t idx, uint8_t mod) const {
+    return idx < VOICES && (voices[idx].path_modifiers & mod) != 0;
+  }
+  void set_path_modifier(uint32_t idx, uint8_t mod, bool enable) {
+    if (idx < VOICES) {
+      if (enable) {
+        voices[idx].path_modifiers |= mod;
+      } else {
+        voices[idx].path_modifiers &= ~mod;
+      }
+    }
+  }
+  void toggle_path_modifier(uint32_t idx, uint8_t mod) {
+    if (idx < VOICES) {
+      voices[idx].path_modifiers ^= mod;
     }
   }
   // fill_empty rewrites voice `voice`'s current pattern to play in the gaps the

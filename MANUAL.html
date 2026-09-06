@@ -567,7 +567,7 @@
   <tr><td class="k">PASTE</td><td class="act-name">Paste Pattern</td><td>Overwrites the selected pattern with the paste buffer.</td></tr>
   <tr><td class="k">CLEAR</td><td class="act-name">Clear Pattern</td><td>Zeroes every step of the selected pattern.</td></tr>
   <tr><td class="k">UNDO</td><td class="act-name">Undo / Redo</td><td>Steps back through pattern edits (256 deep). Restores to original voice and slot. TRANSFORM + UNDO redoes.</td></tr>
-  <tr><td class="k">MENU</td><td class="act-name">Menu Mode</td><td>Enters settings menu (Voice Protect and voice settings). Press MENU again to return to sequencer.</td></tr>
+  <tr><td class="k">MENU</td><td class="act-name">Menu Mode</td><td>Enters settings menu (Voice Protect, playback path modifiers). Press MENU again to return to sequencer.</td></tr>
 </table>
 
 <h2>Held modifiers</h2>
@@ -744,11 +744,13 @@
 </section>
 
 <section class="screen-page" id="page-menu">
-<h2 class="screen-title">Menu Mode &amp; Voice Protect</h2>
+<h2 class="screen-title">Menu Mode: Voice Protect &amp; Playback Paths</h2>
 <p class="note">
   Press <code>MENU</code> to enter settings. Voice pads 0&ndash;5 select the settings page
   for that voice (the active voice lights in white). The top-left button (STEP 1) toggles
-  <strong>Voice Protect</strong> on and off for the active page.
+  <strong>Voice Protect</strong> on and off. The second step row (STEP 5&ndash;8) toggles
+  4 independent, combinable <strong>Playback Path Modifiers</strong>. All toggles illuminate
+  green (<code>COLOR_GREEN</code>) when active and red (<code>COLOR_RED</code>) when inactive.
 </p>
 
 <div class="scroll">
@@ -762,10 +764,10 @@
   <div class="ppos">MENU <i>exit</i></div>
   <div class="off">&mdash; <i>ALL</i></div>
 
-  <div class="off">&mdash; <i>STEP 5</i></div>
-  <div class="off">&mdash; <i>STEP 6</i></div>
-  <div class="off">&mdash; <i>STEP 7</i></div>
-  <div class="off">&mdash; <i>STEP 8</i></div>
+  <div class="green">PINGPONG <i>STEP 5</i></div>
+  <div class="green">SPIRAL <i>STEP 6</i></div>
+  <div class="green">VERTICAL <i>STEP 7</i></div>
+  <div class="green">STRIDE <i>STEP 8</i></div>
   <div class="off">&mdash; <i>CLEAR</i></div>
   <div class="off">&mdash; <i>UNDO</i></div>
   <div class="voc0">PAGE 0 <i>VOICE 0</i></div>
@@ -794,7 +796,11 @@
 <table>
   <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
   <tr><td class="k">VOICE 0&ndash;5</td><td class="act-name">Select Voice Page</td><td>Selects which voice&rsquo;s settings page is displayed. Active voice button lights in white.</td></tr>
-  <tr><td class="k">STEP 1 (top-left)</td><td class="act-name">Toggle Voice Protect</td><td>Toggles Voice Protect for the selected voice page. Lights green (<code>COLOR_GREEN</code>) when active (protected), and red (<code>COLOR_RED</code>) when inactive (unprotected).</td></tr>
+  <tr><td class="k">STEP 1 (Row 1)</td><td class="act-name">Toggle Voice Protect</td><td>Toggles Voice Protect for the selected voice page. Lights green (<code>COLOR_GREEN</code>) when active (protected), and red (<code>COLOR_RED</code>) when inactive (unprotected).</td></tr>
+  <tr><td class="k">STEP 5 (Row 2)</td><td class="act-name">Ping-Pong Path</td><td>Toggles forward-then-backward playback. Lights green when active, red when inactive.</td></tr>
+  <tr><td class="k">STEP 6 (Row 2)</td><td class="act-name">Spiral Path</td><td>Toggles outside-in spiral traversal. Lights green when active, red when inactive.</td></tr>
+  <tr><td class="k">STEP 7 (Row 2)</td><td class="act-name">Vertical Scan Path</td><td>Toggles column-first (transposed) matrix scan. Lights green when active, red when inactive.</td></tr>
+  <tr><td class="k">STEP 8 (Row 2)</td><td class="act-name">Stride Path</td><td>Toggles coprime stride jump (+3 step interval). Lights green when active, red when inactive.</td></tr>
   <tr><td class="k">MENU</td><td class="act-name">Exit Menu</td><td>Exits Menu Mode and returns to the sequencer.</td></tr>
 </table>
 
@@ -816,6 +822,18 @@
 <p class="note">
   Direct editing when explicitly selecting the voice and targeted voice swapping (<code>TRANSFORM + VOICE v</code>) remain available.
 </p>
+
+<h3>Playback Path Modifiers</h3>
+<p class="note">
+  Row 2 provides 4 independent playback path modifiers for each voice. Modifiers alter how the playhead traverses the steps in real time without altering or corrupting the underlying pattern data. All 4 modifiers can be combined freely for unusual, complex rhythmic evolutions:
+</p>
+<ul>
+  <li><strong>Ping-Pong (STEP 5)</strong>: Plays forward through the pattern, then bounces back in reverse without repeating the start and end steps (period is <code>2L - 2</code> steps for length <code>L &gt; 1</code>). For example, a 4-step pattern cycles <code>0 &rarr; 1 &rarr; 2 &rarr; 3 &rarr; 2 &rarr; 1</code>.</li>
+  <li><strong>Spiral (STEP 6)</strong>: Scans the 4&times;4 step grid in an outside-in spiral: clockwise around the outer border (steps 0, 1, 2, 3, 7, 11, 15, 14, 13, 12, 8, 4), then through the inner core (5, 6, 10, 9). For shorter patterns, only steps within the pattern length are visited in spiral order.</li>
+  <li><strong>Vertical Scan (STEP 7)</strong>: Transposes the 4&times;4 step grid so the voice steps down columns before advancing to the next column (<code>0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15</code>). Turns straight 16th-note grooves into 4-beat syncopations.</li>
+  <li><strong>Stride (STEP 8)</strong>: Advances through the steps using a coprime stride (+3 steps, or +7 if length is divisible by 3) modulo pattern length. Guarantees every step is played with a dotted, hopping feel before repeating.</li>
+  <li><strong>Combining Modifiers</strong>: Combining modifiers applies them deterministically in sequence (Ping-Pong &rarr; Stride &rarr; Vertical &rarr; Spiral). For instance, combining <strong>Ping-Pong + Spiral</strong> cycles inward through the spiral to the center and then spirals back out toward the edges. Combining all four yields complex, non-repetitive phrases that remain locked to the bar structure.</li>
+</ul>
 </section>
 
 <section class="screen-page" id="page-kits">

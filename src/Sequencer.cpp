@@ -159,17 +159,82 @@ Step Voice::step(uint32_t idx) { return pattern()->steps[idx]; }
 
 Step Voice::step() { return pattern()->steps[pos]; }
 
+static constexpr uint8_t SPIRAL_TABLE[16] = {0,  1,  2, 3, 7, 11, 15, 14,
+                                             13, 12, 8, 4, 5, 6,  10, 9};
+
+static constexpr uint8_t TRANSPOSE_TABLE[16] = {0, 4, 8,  12, 1, 5, 9,  13,
+                                                2, 6, 10, 14, 3, 7, 11, 15};
+
+static uint32_t filter_perm(const uint8_t table[16], uint32_t idx,
+                            uint32_t len) {
+  if (len >= 16) {
+    return table[idx % 16];
+  }
+  uint32_t count = 0;
+  for (uint32_t i = 0; i < 16; i++) {
+    if (table[i] < len) {
+      if (count == idx) {
+        return table[i];
+      }
+      count++;
+    }
+  }
+  return idx % len;
+}
+
+uint32_t Voice::calculate_pos(uint32_t tick) const {
+  uint32_t const len = pattern()->length;
+  if (len <= 1) {
+    return 0;
+  }
+  uint32_t u = 0;
+  if (path_modifiers & PATH_PINGPONG) {
+    uint32_t const cycle = 2 * len - 2;
+    uint32_t const t = tick % cycle;
+    u = (t < len) ? t : (cycle - t);
+  } else {
+    u = tick % len;
+  }
+
+  if (path_modifiers & PATH_STRIDE) {
+    uint32_t const stride = (len % 3 != 0) ? 3 : 7;
+    u = (u * stride) % len;
+  }
+
+  if (path_modifiers & PATH_VERTICAL) {
+    u = filter_perm(TRANSPOSE_TABLE, u, len);
+  }
+
+  if (path_modifiers & PATH_SPIRAL) {
+    u = filter_perm(SPIRAL_TABLE, u, len);
+  }
+
+  return u;
+}
+
 Step Voice::advance() {
+  uint32_t const len = pattern()->length;
+  if (len == 0) {
+    return Step(0);
+  }
   if (seek_pending) {
     seek_pending = false;
   } else {
-    pos = (pos + 1) % pattern()->length;
+    uint32_t const cycle =
+        ((path_modifiers & PATH_PINGPONG) && len > 1) ? (2 * len - 2) : len;
+    play_head = (play_head + 1) % cycle;
+    pos = calculate_pos(play_head);
   }
   return step();
 }
 
 void Voice::seek(uint32_t step) {
-  pos = step % pattern()->length;
+  uint32_t const len = pattern()->length;
+  if (len == 0) {
+    return;
+  }
+  play_head = step % len;
+  pos = calculate_pos(play_head);
   seek_pending = true;
 }
 
