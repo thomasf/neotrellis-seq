@@ -63,10 +63,15 @@ void SequencerMode::handle_step(const KeyContext &ctx) {
   uint32_t index = ctx.step_index();
 
   if (ctx.has(Mod::TRANSFORM)) {
+    if (ctx.has(Mod::ACCENT) && ctx.has(Mod::ALL)) {
+      load_kit_preset(index);
+      return;
+    }
+
     Transform const transform =
         ctx.has(Mod::ACCENT) ? apply_accent_transform : apply_transform;
     if (ctx.has(Mod::ALL)) {
-      if (ctx.has(Mod::ACCENT) || !transform_board(index)) {
+      if (!transform_board(index)) {
         transform_all_patterns(transform, index);
       }
     } else {

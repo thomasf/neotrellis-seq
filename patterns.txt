@@ -1,0 +1,593 @@
+# =============================================================================
+# Trellis M4 Drum Sequencer - Pattern Presets & Kits Specification
+# =============================================================================
+#
+# This file is the single source of truth for both C++ presets (src/PatternPresets.h)
+# and documentation (UI.html). Run `go run contrib/patterns.go` to regenerate.
+#
+# SYNTAX GUIDE:
+# -----------------------------------------------------------------------------
+# - Comments start with '#' and blank lines are ignored.
+# - Step tokens:
+#     _ or . = Rest / silence (velocity 0)
+#     g      = Ghost note (velocity 50)
+#     N      = Normal note (velocity 99)
+#     A      = Accent note (velocity 127)
+#     0..127 = Explicit numeric velocity (e.g. for dynamic rolls / crescendo)
+#   Tokens can be grouped with spaces for readability (e.g. groups of 4).
+#   Each pattern or track must contain exactly 16 steps.
+#
+# - Single-Voice Presets:
+#     [voice.<index>: <Name>] defines a 16-preset bank for Voice <index> (0..5):
+#       Voice 0: Kick / Bass Drum
+#       Voice 1: Snare / Clap
+#       Voice 2: Hi-Hat
+#       Voice 3: Percussion 1 (Low/Mid)
+#       Voice 4: Percussion 2 (Mid/High)
+#       Voice 5: Percussion 3 (High/Texture)
+#
+#     Within a voice section, each preset (pads 1..16) is defined as:
+#       <pad>: <Preset Name> | <Style / Characteristics>
+#       [display: <optional custom representation for HTML table>]
+#       <16 step tokens>
+#
+# - Full 6-Voice Coordinated Kits:
+#     [kit.<pad>] defines an coordinated kit for Pad <pad> (1..16):
+#       name:  <Kit Name>
+#       genre: <Genre>
+#       desc:  <Ensemble Behavior / Description>
+#       kick:  <16 step tokens>
+#       snare: <16 step tokens>
+#       hihat: <16 step tokens>
+#       perc1: <16 step tokens>
+#       perc2: <16 step tokens>
+#       perc3: <16 step tokens>
+# =============================================================================
+
+# =============================================================================
+# Voice 0: Kick / Bass Drum Presets
+# =============================================================================
+[voice.0: Kick / Bass Drum]
+
+# Row 0 (Pads 1-4): Four-on-the-Floor Foundations
+1: Four on Floor | Solid four-on-the-floor foundation
+A _ _ _  A _ _ _  A _ _ _  A _ _ _
+
+2: Four on Floor Pickup | Four-on-the-floor with subtle 16th ghost pickup
+A _ _ _  N _ _ _  A _ _ _  N _ _ g
+
+3: Pumping 4/4 Drive | French touch pumping drive with ghost pushes
+A _ _ g  N _ _ _  A _ _ g  N _ _ _
+
+4: Berlin Rumble 4/4 | Techno four-on-the-floor with sub-rumble drop
+A _ _ _  A _ _ _  A _ _ _  A _ N _
+
+# Row 1 (Pads 5-8): Syncopated House, Latin & Dembow
+5: Dembow Reggaeton | Heavy 4/4 with syncopated sub bounce
+A _ _ _  A _ _ _  A _ N _  A _ _ _
+
+6: Tresillo 3-3-2 | Latin / Afro-House syncopated 3-3-2 kick pulse
+A _ _ N  _ _ A _  A _ _ N  _ _ A _
+
+7: Afro-House Minimal | Minimal hypnotic kick with delayed push
+A _ _ _  _ _ A _  A _ _ _  N _ _ _
+
+8: Samba Surdo Bounce | Brazilian carnival surdo syncopated downbeat
+A _ _ N  _ _ A _  _ _ A _  _ N _ _
+
+# Row 2 (Pads 9-12): UK Bass, Electro & Breakbeat
+9: UK Garage 2-Step | Iconic skipped-beat 2-step kick (steps 1 & 8)
+A _ _ _  _ _ _ A  _ _ _ _  _ _ _ _
+
+10: Electro 808 Sync | Detroit electro syncopated 808 kick drops
+A _ _ N  _ _ _ _  A _ _ N  _ _ N _
+
+11: Breakbeat Funk | Funky syncopated breakbeat kick anchors
+A _ _ _  _ _ A _  _ _ A _  _ _ _ _
+
+12: Baile Favela Drop | Favela tamborzão syncopated kick punch
+A _ _ N  _ _ N _  A _ _ N  _ _ _ _
+
+# Row 3 (Pads 13-16): Minimal, Broken Beat & Polyrhythms
+13: Offbeat Skip Kick | Skipping beat 3 for broken beat and house tension
+A _ _ _  N _ _ _  _ _ A _  N _ _ _
+
+14: Dub Techno Deep | Sparse beats 1 & 9 with cavernous room for delay
+A _ _ _  _ _ _ _  A _ _ _  _ _ _ _
+
+15: Microhouse Minimal | Delicate micro-kick with subtle end-bar tick
+A _ _ _  _ _ _ _  N _ _ _  _ _ _ g
+
+16: Dotted 8th Phasing | Polyrhythmic 3-against-4 kick phasing
+A _ _ N  _ _ A _  _ N _ _  A _ _ _
+
+
+# =============================================================================
+# Voice 1: Snare / Clap Presets
+# =============================================================================
+[voice.1: Snare / Clap]
+
+# Row 0 (Pads 1-4): Classic Backbeats & Flams
+1: Classic Backbeat | Essential backbeat clap/snare on steps 5 & 13
+_ _ _ _  A _ _ _  _ _ _ _  A _ _ _
+
+2: Backbeat & Flam | Backbeat with subtle 16th ghost pickup flam
+_ _ _ _  A _ _ _  _ _ _ _  A _ _ g
+
+3: Double Clap Pump | Punchy double clap on steps 13 & 14
+_ _ _ _  A _ _ _  _ _ _ _  A N _ _
+
+4: House Backbeat Roll | Ghost roll pickup into the step 13 backbeat
+_ _ _ _  A _ _ _  _ _ g g  A _ _ _
+
+# Row 1 (Pads 5-8): Syncopated Latin, Dembow & Afro
+5: Dembow Syncopation | Signature Reggaeton/Dembow snare on 4, 7, 12, 15
+_ _ _ A  _ _ A _  _ _ _ A  _ _ A _
+
+6: Tresillo Snare | Latin 3-3-2 syncopated rim/snare hits
+_ _ _ A  _ _ A _  _ _ _ A  _ _ _ _
+
+7: Afro Woodblock Drop | Keinemusik signature single woodblock on beat 3 (step 9)
+_ _ _ _  _ _ _ _  A _ _ _  _ _ _ _
+
+8: Samba Caixa Roll | Brazilian caixa snare shuffle with backbeat accents
+_ _ _ g  A _ _ g  _ _ _ g  A _ g _
+
+# Row 2 (Pads 9-12): UK Garage, Electro & Breakbeat
+9: UKG 2-Step Snare | Crisp backbeats with snappy step 15 syncopation
+_ _ _ _  A _ _ _  _ _ _ _  A _ N _
+
+10: Electro 808 Snare | Sharp 808 snare backbeat with subtle offbeat ghost
+_ _ _ _  A _ _ g  _ _ _ _  A _ _ _
+
+11: Breakbeat Ghost | Clyde Stubblefield funky drummer ghost pocket
+_ _ _ _  A _ _ g  _ g _ _  A _ _ g
+
+12: Baile Funk Snare | Aggressive syncopated favela snare accents
+_ _ _ _  A _ _ A  _ _ _ _  A _ _ _
+
+# Row 3 (Pads 13-16): Dynamic 16-Step Snare Rolls (Down, Up, Up-Down, Down-Up)
+13: Roll Down | 16th-note snare roll fading from velocity 127 down to 50
+display: ■&rarr;○ decrescendo
+127 122 117 112  106 101 96 91  86 81 76 71  65 60 55 50
+
+14: Roll Up | 16th-note snare roll building from velocity 50 up to 127
+display: ○&rarr;■ crescendo
+50 55 60 65  71 76 81 86  91 96 101 106  112 117 122 127
+
+15: Roll Up-Down | 16th-note snare roll swelling up to 127 and back down to 50
+display: ○&rarr;■&rarr;○ swell
+50 61 72 83  94 105 116 127  127 116 105 94  83 72 61 50
+
+16: Roll Down-Up | 16th-note snare roll dipping down to 50 and rising back to 127
+display: ■&rarr;○&rarr;■ dip
+127 116 105 94  83 72 61 50  50 61 72 83  94 105 116 127
+
+
+# =============================================================================
+# Voice 2: Hi-Hat Presets
+# =============================================================================
+[voice.2: Hi-Hat]
+
+# Row 0 (Pads 1-4): Classic Offbeats & 8th Notes (Airy & Spacious)
+1: Classic Offbeat Open | The quintessential Chicago open offbeat hat (air & pump)
+_ _ A _  _ _ A _  _ _ A _  _ _ A _
+
+2: Offbeat & Pickup | Pumping offbeat hat with 16th pickup into beat 4
+_ _ A _  _ _ A _  _ _ A _  _ g A _
+
+3: Straight 8th Notes | Disco/Nu-Disco closed downbeats and open offbeats
+N _ A _  N _ A _  N _ A _  N _ A _
+
+4: Minimal Dub Ticks | Spacious open hats on 3 & 11 with cavernous air
+_ _ A _  _ _ _ _  _ _ A _  _ _ _ _
+
+# Row 1 (Pads 5-8): Swung, Skipped & Latin Grooves
+5: UKG Swung Skip | Skipped-beat UK Garage swing with breathing room
+N _ A _  _ g A _  N _ A _  _ g A _
+
+6: Breakbeat Swung 8ths | Funky breakbeat swung hats with 16th rests
+N _ A g  N _ A _  N _ A g  N _ A _
+
+7: Cumbia Guiro Scrape | Classic Latin/Cumbia 8th-note scraping pattern
+_ N _ A  _ N _ A  _ N _ A  _ N _ A
+
+8: Afro Feathered Hat | Afro-House open offbeats with subtle ghost touches
+_ _ A g  _ _ A _  _ _ A g  _ _ A _
+
+# Row 2 (Pads 9-12): Polyrhythms, Skips & Micro-Grooves
+9: Dotted 8th Phasing | Hypnotic 3-against-4 polyrhythmic open hats
+A _ _ N  _ _ A _  _ N _ _  A _ _ _
+
+10: Microhouse Delicate | Whispering micro-ticks with vast breathing space
+_ _ A _  _ _ _ g  _ _ A _  _ _ _ _
+
+11: Downbeat Ticks | Quarter-note downbeat hats for driving transitions
+A _ _ _  N _ _ _  A _ _ _  N _ _ _
+
+12: Half-Time Triplet | Triplet-spaced hats for half-time and trap bounce
+A _ _ N  _ _ N _  A _ _ N  _ _ N _
+
+# Row 3 (Pads 13-16): Driving 16ths & High-Energy Rolls (Busy where desired)
+13: Chicago 909 Groove | Continuous 16th rolling 909 hat drive
+N g A g  N g A g  N g A g  N g A g
+
+14: Detroit Electro 16ths | Fast syncopated 808 16th electro hat machine
+N g N A  N g N A  N g N A  N g N A
+
+15: Berlin Peak 16ths | Driving industrial peak-time 16th techno hats
+A g N g  A g N g  A g N g  A g N g
+
+16: Batucada Samba Roll | Relentless Brazilian carnival shaker/hat roll
+A g A g  A g A g  A g A g  A g A g
+
+
+# =============================================================================
+# Voice 3: Percussion 1 Presets (Low/Mid)
+# =============================================================================
+[voice.3: Percussion 1 (Low/Mid)]
+
+# Row 0 (Pads 1-4): Low Conga Grooves
+1: Low Conga Tumbao | Classic low conga open tone on steps 7 & 15
+_ _ _ _  _ _ A _  _ _ _ _  _ _ N _
+
+2: Low Conga Bounce | Offbeat low conga bounce on steps 7 & 14
+_ _ _ _  _ _ A _  _ _ _ _  _ N _ _
+
+3: Afro Low Tumbadora | Hypnotic low conga pulse with breathing rests
+A _ _ N  _ _ A _  _ _ N _  _ _ _ _
+
+4: Guaguanco Low Hit | Afro-Cuban low conga tones on steps 3, 8, 11
+_ _ A _  _ _ _ N  _ _ A _  _ _ _ _
+
+# Row 1 (Pads 5-8): Low Toms & Sub Drops
+5: Low Tom Downbeat | Heavy low tom hits on beats 1 & 3 (steps 1 & 9)
+A _ _ _  _ _ _ _  A _ _ _  _ _ _ _
+
+6: Rolling Tribal Low | Hardgroove rolling low toms on 3, 7, 11, 15
+_ _ N _  _ _ N _  _ _ N _  _ _ N _
+
+7: 808 Low Tom Sync | Detroit electro syncopated low tom on steps 7 & 15
+_ _ _ _  _ _ A _  _ _ _ _  _ _ A _
+
+8: Dub Reso-Tom | Resonant deep tom pulse on step 5
+_ _ _ _  A _ _ _  _ _ _ _  _ _ _ _
+
+# Row 2 (Pads 9-12): Woodblock & Bass Pulses
+9: Afro Woodblock Beat 3 | Signature Keinemusik deep block on beat 3 (step 9)
+_ _ _ _  _ _ _ _  A _ _ _  _ _ _ _
+
+10: Woodblock Clack 3:2 | Deep wooden block strikes in 3:2 clave pattern
+A _ _ N  _ _ _ A  _ _ N _  A _ _ _
+
+11: Sub Bass Drop 1 | Isolated sub-bass drop on downbeat 1 with vast air
+A _ _ _  _ _ _ _  _ _ _ _  _ _ _ _
+
+12: Sub Bass 2-Step | UK Garage sub pocket hits on steps 1 & 8
+A _ _ _  _ _ _ A  _ _ _ _  _ _ _ _
+
+# Row 3 (Pads 13-16): Polyrhythms, Cumbia & Breaks
+13: Cumbia Low Tumbao | Syncopated low cumbia pulse on steps 7 & 15
+_ _ _ _  _ _ N _  _ _ _ _  _ _ N _
+
+14: Breakbeat Low Tom | Funky syncopated low tom accent on beat 3
+_ _ _ _  _ _ _ _  N _ _ _  _ _ _ _
+
+15: Microhouse Low Wood | Delicate minimal wood clicks on steps 6 & 14
+_ _ _ _  _ N _ _  _ _ _ _  _ N _ _
+
+16: Dotted 8th Low Pulse | Hypnotic 3-against-4 low percussive phasing
+A _ _ N  _ _ A _  _ N _ _  A _ _ _
+
+
+# =============================================================================
+# Voice 4: Percussion 2 Presets (Mid/High)
+# =============================================================================
+[voice.4: Percussion 2 (Mid/High)]
+
+# Row 0 (Pads 1-4): High Conga & Clave Accents
+1: High Conga Slap | Sharp high conga slap on beat 2 (step 5) with wide space
+_ _ _ _  A _ _ _  _ _ _ _  _ _ _ _
+
+2: Afro Conga Slaps | Syncopated organic high conga slaps on steps 8 & 14
+_ _ _ _  _ _ _ A  _ _ _ _  _ A _ _
+
+3: Rumba Clave 3:2 | Authentic 5-strike 3:2 Rumba Clave on mid rims
+A _ _ N  _ _ _ A  _ _ N _  A _ _ _
+
+4: Son Clave 3:2 | Classic 5-strike 3:2 Son Clave rim foundation
+A _ _ N  _ _ A _  _ _ N _  A _ _ _
+
+# Row 1 (Pads 5-8): Cowbells & Latin Bells
+5: Syncopated Cowbell | Disco/House syncopated cowbell stabs on steps 3, 7, 11
+_ _ A _  _ _ A _  _ _ A _  _ _ _ _
+
+6: Campana Cumbia Bell | Salsa/Cumbia bongo bell pattern on steps 1, 7, 11, 15
+A _ _ _  _ _ A _  _ _ A _  _ _ A _
+
+7: 808 Cowbell Sync | Detroit electro 808 cowbell hits on steps 1 & 9
+A _ _ _  _ _ _ _  A _ _ _  _ _ _ _
+
+8: Agogo Bell Mid/High | Two-tone Brazilian samba agogo bell melodic line
+A _ N _  A _ _ A  _ N _ _  N _ A _
+
+# Row 2 (Pads 9-12): Rimshots & Wood Clicks
+9: House Rimshot Sync | Subtle syncopated house rimshot on step 11
+_ _ _ _  _ _ _ _  _ _ N _  _ _ _ _
+
+10: UKG Rim Counter-Skip | UK Garage wooden rim counter-skips on steps 4 & 16
+_ _ _ N  _ _ _ _  _ _ _ _  _ _ _ N
+
+11: Dembow Clack Accent | Syncopated Dembow perc clack on step 10
+_ _ _ _  _ _ _ _  _ N _ _  _ _ _ _
+
+12: Microhouse Org Pop | Single organic pop on step 7 floating in silence
+_ _ _ _  _ _ A _  _ _ _ _  _ _ _ _
+
+# Row 3 (Pads 13-16): Dub Stabs, Timbales & Toms
+13: Dub Techno Stabs | Deep Basic Channel dub chord stabs on steps 3 & 10
+_ _ A _  _ _ _ _  _ N _ _  _ _ _ _
+
+14: Mid Tom Response | Tribal mid tom response accents on steps 5 & 13
+_ _ _ _  A _ _ _  _ _ _ _  A _ _ _
+
+15: Timbale End Roll | Snappy Latin timbale fill on steps 14, 15, 16
+_ _ _ _  _ _ _ _  _ _ _ _  _ A N A
+
+16: Industrial Metal Anvil | Techno metallic anvil strikes on steps 5 & 13
+_ _ _ _  N _ _ _  _ _ _ _  N _ _ _
+
+
+# =============================================================================
+# Voice 5: Percussion 3 Presets (High/Texture)
+# =============================================================================
+[voice.5: Percussion 3 (High/Texture)]
+
+# Row 0 (Pads 1-4): Shakers & Grooves (Airy Beds)
+1: Gentle 8th Shaker | Soft breathing 8th-note shaker bed
+_ g _ N  _ g _ N  _ g _ N  _ g _ N
+
+2: Minimal Shaker Touch | Quarter-note offbeat shaker touch on 4, 8, 12, 16
+_ _ _ N  _ _ _ N  _ _ _ N  _ _ _ N
+
+3: Afro Seed Shaker | Organic seed shaker with delicate ghost movement
+_ g _ N  _ g _ N  _ g _ N  _ g _ N
+
+4: Continuous 16th Shaker | High-energy 16th continuous driving shaker bed
+g N g N  g N g N  g N g N  g N g N
+
+# Row 1 (Pads 5-8): Tambourines & Carnival
+5: Backbeat Tambourine | Accented tambourine hits doubling the backbeat
+_ _ _ _  A _ _ _  _ _ _ _  A _ _ _
+
+6: Offbeat Tambourine | Pumping tambourine on the offbeats (steps 3, 7, 11, 15)
+_ _ N _  _ _ N _  _ _ N _  _ _ N _
+
+7: Samba Repinique | Brazilian carnival repinique syncopated fills
+_ g _ N  _ g _ N  _ g _ N  _ g _ N
+
+8: Tamborim 16ths | Fast Brazilian tamborim drive with dynamic accents
+A g N g  A g N g  A g N g  A g N g
+
+# Row 2 (Pads 9-12): Ride Cymbals & Crashes
+9: Offbeat Ride Cymbal | Ringing jazz/techno ride cymbal on the upbeats
+_ _ N _  _ _ N _  _ _ N _  _ _ N _
+
+10: Downbeat Ride Ping | Ride cymbal pings on downbeats 1 & 9
+A _ _ _  _ _ _ _  A _ _ _  _ _ _ _
+
+11: Single Ride Accent | Single ride cymbal ping on step 7 (classic UKG accent)
+_ _ _ _  _ _ A _  _ _ _ _  _ _ _ _
+
+12: Ride Cymbal 8ths | Steady 8th-note ride cymbal bed
+N _ N _  N _ N _  N _ N _  N _ N _
+
+# Row 3 (Pads 13-16): Micro-Dust, Clicks & Fills
+13: Vinyl Dust & Clicks | Microhouse clicks and vinyl dust on downbeats 1 & 9
+g _ _ _  _ _ _ _  g _ _ _  _ _ _ _
+
+14: Tape Crackle Echo | Single soft tape dust texture on step 13
+_ _ _ _  _ _ _ _  _ _ _ _  g _ _ _
+
+15: High Tom Accent Roll | Hardgroove tribal high tom accents on steps 1, 7, 13
+A _ _ _  _ _ A _  _ _ _ _  A _ _ _
+
+16: Bongo Slap Flam | Snappy bongo roll pickup into the next downbeat
+_ _ _ _  _ _ _ _  _ _ _ _  _ _ N A
+
+
+# =============================================================================
+# Full 6-Voice Coordinated Kits (Pads 1-16)
+# =============================================================================
+
+# Kit 1 (Pad 1): Classic 90s Chicago House (Kickless groove / intro)
+[kit.1]
+name: Classic Chicago House
+genre: House
+desc: Kickless groove/breakdown, backbeat clap, spacious offbeat open hats on V2, subtle conga on V3, syncopated rim on V4.
+kick:  _ _ _ _  _ _ _ _  _ _ _ _  _ _ _ _
+snare: _ _ _ _  A _ _ _  _ _ _ _  A _ _ _
+hihat: _ _ A _  _ _ A _  _ _ A _  _ _ A _
+perc1: _ _ _ _  _ _ A _  _ _ _ _  _ N _ _
+perc2: _ _ _ _  _ _ _ _  _ _ N _  _ _ _ _
+perc3: _ _ _ _  _ _ _ _  _ _ _ _  _ _ _ _
+
+# Kit 2 (Pad 2): French Touch / Nu-Disco Pump
+[kit.2]
+name: French Touch Disco
+genre: Nu-Disco
+desc: Heavy pumping kick & clap, driving 8th-note hats on V2, low tom on V3, disco cowbell on V4, and tambourine on V5.
+kick:  A _ _ _  A _ _ _  A _ _ _  A _ _ _
+snare: _ _ _ _  A _ _ _  _ _ _ _  A _ _ _
+hihat: N _ A _  N _ A _  N _ A _  N _ A _
+perc1: _ _ _ _  _ _ _ _  _ _ _ _  _ _ _ N
+perc2: _ _ A _  _ _ _ _  _ _ A _  _ _ _ _
+perc3: _ _ _ _  N _ _ _  _ _ _ _  N _ _ _
+
+# Kit 3 (Pad 3): Deep House Sunset
+[kit.3]
+name: Deep House Sunset
+genre: Deep House
+desc: Warm kick with soft pickup, rim backbeat, airy offbeat open hats on V2, low conga tumbao on V3, and subtle chord stab on V4.
+kick:  A _ _ _  N _ _ _  A _ _ _  N _ _ g
+snare: _ _ _ _  A _ _ _  _ _ _ _  A _ _ _
+hihat: _ _ A _  _ _ A _  _ _ A _  _ _ A _
+perc1: _ _ _ _  _ _ A _  _ _ _ _  _ _ N _
+perc2: _ _ _ _  _ _ _ _  _ _ A _  _ _ _ _
+perc3: _ _ _ _  _ _ _ _  _ _ _ _  _ _ _ _
+
+# Kit 4 (Pad 4): Garage House Swung Shuffle
+[kit.4]
+name: Garage House Shuffle
+genre: Garage House
+desc: Swung kick, snappy snare with skip on 15, airy swung skipped hats on V2, low tom thump on V3, and rim tap on V4.
+kick:  A _ _ _  N _ _ _  A _ _ _  N _ _ _
+snare: _ _ _ _  A _ _ _  _ _ _ _  A _ N _
+hihat: N _ A _  _ g A _  N _ A _  _ g A _
+perc1: _ _ _ _  _ _ N _  _ _ _ _  _ _ _ _
+perc2: _ _ _ N  _ _ _ _  _ _ _ _  _ _ _ _
+perc3: _ _ _ _  _ _ _ _  _ _ _ _  _ _ _ _
+
+# Kit 5 (Pad 5): Afro-House (Keinemusik Style)
+[kit.5]
+name: Afro-House Keinemusik
+genre: Afro-House
+desc: Minimal sub-kick, deep woodblock on beat 3 (step 9), airy offbeat hats on V2, hypnotic low conga on V3, conga slap on V4, and seed shaker on V5.
+kick:  A _ _ _  N _ _ _  A _ _ _  N _ _ _
+snare: _ _ _ _  _ _ _ _  A _ _ _  _ _ _ _
+hihat: _ _ A _  _ _ A _  _ _ A _  _ _ A _
+perc1: A _ _ N  _ _ A _  _ _ N _  _ _ _ _
+perc2: _ _ _ _  _ _ _ A  _ _ _ _  _ A _ _
+perc3: _ g _ N  _ g _ N  _ g _ N  _ g _ N
+
+# Kit 6 (Pad 6): Electro-Cumbia Tropical Bounce
+[kit.6]
+name: Electro-Cumbia
+genre: Cumbia
+desc: Steady 4/4 pulse, rim backbeat, airy guiro scraper on V2, conga tumbao on V3, and campana cowbell on V4.
+kick:  A _ _ _  N _ _ _  A _ _ _  N _ _ _
+snare: _ _ _ _  A _ _ _  _ _ _ _  A _ _ _
+hihat: _ N _ A  _ N _ A  _ N _ A  _ N _ A
+perc1: _ _ _ _  _ _ N _  _ _ _ _  _ _ N _
+perc2: A _ _ _  _ _ A _  _ _ A _  _ _ _ _
+perc3: _ _ _ _  _ _ _ _  _ _ _ _  _ _ A _
+
+# Kit 7 (Pad 7): Dembow Latin Club
+[kit.7]
+name: Dembow Latin Club
+genre: Dembow
+desc: Heavy 4-on-the-floor kick, 3-3-2 Dembow snare pattern, airy offbeat hats on V2, sub drop on V3, and perc clack on V4.
+kick:  A _ _ _  A _ _ _  A _ _ _  A _ _ _
+snare: _ _ _ A  _ _ A _  _ _ _ A  _ _ A _
+hihat: _ _ A _  _ _ A _  _ _ A _  _ _ A _
+perc1: A _ _ _  _ _ _ _  _ _ _ _  _ _ _ _
+perc2: _ _ _ _  _ _ _ _  _ N _ _  _ _ _ _
+perc3: _ _ _ _  _ _ _ _  _ _ _ _  _ _ _ _
+
+# Kit 8 (Pad 8): Batucada Carnival Samba
+[kit.8]
+name: Batucada Carnival
+genre: Samba
+desc: Energetic surdo kick syncopations, caixa snare, driving 16th hats on V2, surdo cut on V3, agogo bells on V4, and repinique on V5.
+kick:  A _ _ N  _ _ A _  _ _ A _  _ N _ _
+snare: _ _ _ g  A _ _ g  _ _ _ g  A _ g _
+hihat: A g A g  A g A g  A g A g  A g A g
+perc1: _ _ _ _  A _ _ _  _ _ _ _  A _ _ _
+perc2: A _ N _  A _ _ A  _ N _ _  N _ A _
+perc3: _ g _ N  _ g _ N  _ g _ N  _ g _ N
+
+# Kit 9 (Pad 9): UK Garage / 2-Step
+[kit.9]
+name: UK Garage 2-Step
+genre: UKG
+desc: Iconic 2-step kick (steps 1 & 8), snappy snare on 5 & 13, airy skipped hats on V2, sub thump on V3, rim on V4, and ride ping on V5.
+kick:  A _ _ _  _ _ _ A  _ _ _ _  _ _ _ _
+snare: _ _ _ _  A _ _ _  _ _ _ _  A _ _ _
+hihat: N _ A _  _ g A _  N _ A _  _ g A _
+perc1: _ _ _ _  _ _ _ _  _ _ N _  _ _ _ _
+perc2: _ _ _ N  _ _ _ _  _ _ _ _  _ _ N _
+perc3: _ _ _ _  _ _ A _  _ _ _ _  _ _ _ _
+
+# Kit 10 (Pad 10): Detroit Electro 808
+[kit.10]
+name: Detroit Electro 808
+genre: Electro
+desc: Syncopated 808 kick, laser snare, driving 808 16th hats on V2, low tom on V3, and 808 cowbell on V4.
+kick:  A _ _ N  _ g _ _  A _ _ N  _ _ N _
+snare: _ _ _ _  A _ _ _  _ _ _ _  A _ _ _
+hihat: N g N A  N g N A  N g N A  N g N A
+perc1: _ _ _ _  _ _ A _  _ _ _ _  _ _ _ _
+perc2: A _ _ _  _ _ _ _  A _ _ _  _ _ _ _
+perc3: _ _ _ _  _ _ _ _  _ _ _ _  _ _ _ _
+
+# Kit 11 (Pad 11): Breakbeat Shuffle
+[kit.11]
+name: Breakbeat Shuffle
+genre: Breaks
+desc: Breakbeat kick, funky ghost snare pocket, airy swung hats on V2, low tom on V3, and rim tap on V4.
+kick:  A _ _ _  _ _ A _  _ _ A _  _ _ _ _
+snare: _ _ _ g  A _ _ g  _ g _ _  A _ _ g
+hihat: N _ A g  N _ A _  N _ A g  N _ A _
+perc1: _ _ _ _  _ _ _ _  N _ _ _  _ _ _ _
+perc2: _ _ _ N  _ _ _ _  _ _ _ _  _ _ _ _
+perc3: _ _ _ _  _ _ _ _  _ _ _ _  _ _ _ _
+
+# Kit 12 (Pad 12): Baile Funk / Miami Bounce
+[kit.12]
+name: Baile Funk Bounce
+genre: Bass
+desc: Favela kick drop, sharp snare on 5 & 13, airy offbeat hats on V2, sub hit on V3, and cowbell on V4.
+kick:  A _ _ N  _ _ N _  A _ _ N  _ _ _ _
+snare: _ _ _ _  A _ _ _  _ _ _ _  A _ _ _
+hihat: _ _ A _  _ _ A _  _ _ A _  _ _ A _
+perc1: A _ _ _  _ _ _ _  A _ _ _  _ _ _ _
+perc2: _ _ _ A  _ _ A _  _ _ _ A  _ _ A _
+perc3: _ _ _ _  _ _ _ _  _ _ _ _  _ _ _ _
+
+# Kit 13 (Pad 13): Berlin Peak-Time Techno
+[kit.13]
+name: Berlin Peak Techno
+genre: Techno
+desc: Pounding 4-on-the-floor kick, industrial clap, driving 16th hats on V2, sub tom on V3, metal anvil on V4, and ride cymbal on V5.
+kick:  A _ _ _  A _ _ _  A _ _ _  A _ _ _
+snare: _ _ _ _  A _ _ _  _ _ _ _  A _ _ _
+hihat: N g A g  N g A g  N g A g  N g A g
+perc1: _ _ _ A  _ _ _ _  _ A _ _  _ _ A _
+perc2: _ _ _ _  N _ _ _  _ _ _ _  N _ _ _
+perc3: _ _ N _  _ _ N _  _ _ N _  _ _ N _
+
+# Kit 14 (Pad 14): Dub Techno (Basic Channel style)
+[kit.14]
+name: Dub Techno Echo
+genre: Dub Techno
+desc: Deep four-on-the-floor kick, one-drop filtered clap on beat 3 (step 9), cavernous airy open hats on V2, reso-tom on V3, echoing dub chords on V4, and tape dust on V5.
+kick:  A _ _ _  N _ _ _  A _ _ _  N _ _ _
+snare: _ _ _ _  _ _ _ _  A _ _ _  _ _ _ _
+hihat: _ _ A _  _ _ _ _  _ _ A _  _ _ _ _
+perc1: _ _ _ _  A _ _ _  _ _ _ _  _ _ _ _
+perc2: _ _ A _  _ _ _ _  _ N _ _  _ _ _ _
+perc3: _ _ _ _  _ _ _ _  _ _ _ _  g _ _ _
+
+# Kit 15 (Pad 15): Romanian Microhouse
+[kit.15]
+name: Romanian Microhouse
+genre: Microhouse
+desc: Delicate sparse kick, micro-rim on 5 & 13, delicate airy micro-hats on V2, wood clicks on V3, organic pop on V4, and vinyl dust on V5.
+kick:  A _ _ _  N _ _ _  A _ _ _  N _ _ _
+snare: _ _ _ _  A _ _ _  _ _ _ _  A _ _ _
+hihat: _ _ A _  _ _ _ g  _ _ A _  _ _ _ _
+perc1: _ _ _ _  _ N _ _  _ _ _ _  _ N _ _
+perc2: _ _ _ _  _ _ A _  _ _ _ _  _ _ _ _
+perc3: g _ _ _  _ _ _ _  g _ _ _  _ _ _ _
+
+# Kit 16 (Pad 16): Driving Hardgroove Techno
+[kit.16]
+name: Driving Hardgroove
+genre: Hardgroove
+desc: Pounding 4/4 kick, tribal clap, relentless tribal 16th hats on V2, rolling low toms on V3, mid tom on V4, and high tom accents on V5.
+kick:  A _ _ _  A _ _ _  A _ _ _  A _ _ _
+snare: _ _ _ _  A _ _ _  _ _ _ _  A _ _ _
+hihat: A g A g  A g A g  A g A g  A g A g
+perc1: _ _ N _  _ _ N _  _ _ N _  _ _ N _
+perc2: _ _ _ _  A _ _ _  _ _ _ _  A _ _ _
+perc3: A _ _ _  _ _ A _  _ _ _ _  A _ _ _

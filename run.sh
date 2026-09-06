@@ -4,6 +4,7 @@ set -e
 
 echo "build..."
 go run contrib/palette.go
+go run contrib/patterns.go
 platformio run -s -e dev -t upload
 
 echo "watch..."

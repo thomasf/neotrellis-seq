@@ -13,6 +13,7 @@
 
 #include "Input.h"
 #include "MenuMode.h"
+#include "PatternPresets.h"
 #include "Sequencer.h"
 #include "SequencerMode.h"
 #include "UIMode.h"
@@ -212,6 +213,18 @@ void rewind_transport() {
 
 void open_menu() { mode_manager.switch_mode(&menu_mode); }
 
+void load_kit_preset(uint32_t kit_index) {
+  if (kit_index >= 16) {
+    return;
+  }
+  begin_edit();
+  for (uint32_t voice = 0; voice < VOICES; voice++) {
+    record_undo(voice);
+    PatternPresets::apply_kit_voice(voice, kit_index,
+                                    seq.voices[voice].pattern());
+  }
+}
+
 uint32_t random_below(uint32_t n) { return random(n); }
 
 // Step key indices (row major) of the keys whose ALL version is a board
@@ -270,10 +283,13 @@ bool apply_transform(uint32_t voice, uint32_t index) {
 }
 
 // apply_accent_transform applies the TRANSFORM + ACCENT + STEP action for
-// the step key at `index` to voice `voice`'s current pattern: accent every
-// (index + 1)-th step.
+// the step key at `index` to voice `voice`'s current pattern: loads the
+// corresponding pattern preset.
 bool apply_accent_transform(uint32_t voice, uint32_t index) {
-  seq.voices[voice].pattern()->accent_every(index + 1);
+  if (voice >= VOICES || index >= 16) {
+    return false;
+  }
+  PatternPresets::apply_preset(voice, seq.voices[voice].pattern(), index);
   return true;
 }
 

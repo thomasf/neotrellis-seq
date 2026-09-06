@@ -10,6 +10,7 @@
   h1 { font-size: 1.5rem; margin: 0 0 .3rem; }
   h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em;
        color: #6b6b66; margin: 2.5rem 0 .8rem; }
+  h3 { font-size: .95rem; font-weight: 700; color: #333330; margin: 1.8rem 0 .5rem; }
   .note { color: #6b6b66; }
   code, .k { font: 13px/1.4 ui-monospace, monospace; }
 
@@ -41,6 +42,54 @@
   th { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #6b6b66; }
   .sw { display: inline-block; width: .8rem; height: .8rem; border-radius: 3px;
         vertical-align: -1px; margin-right: .35rem; outline: 1px solid #0002; }
+
+  .vtag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 3px;
+    min-width: 44px;
+    text-align: center;
+    margin-right: 6px;
+    letter-spacing: 0.04em;
+    box-sizing: border-box;
+  }
+  .vtag.v0 { background: #2050e0; color: #ffffff; }
+  .vtag.v1 { background: #ad8920; color: #ffffff; }
+  .vtag.v2 { background: #20bcaf; color: #000000; }
+  .vtag.v3 { background: #489120; color: #ffffff; }
+  .vtag.v4 { background: #b030b0; color: #ffffff; }
+  .vtag.v5 { background: #808000; color: #ffffff; }
+
+  .kit-voices {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin: 2px 0;
+  }
+  .kit-v {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+  .kit-v code {
+    font: 12px/1.3 ui-monospace, monospace;
+    letter-spacing: 0.04em;
+  }
+  .genre-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #6b6b66;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 2px;
+  }
+  td.kit-pattern {
+    white-space: nowrap;
+    padding-right: 1.2rem;
+  }
 
   .print-legend { display: none; }
 
@@ -92,6 +141,15 @@
       border-bottom: 1pt solid #000000;
       padding-bottom: 1pt;
       letter-spacing: .04em;
+    }
+
+    h3 {
+      font-size: 7.8pt;
+      font-weight: 700;
+      margin: 4pt 0 1.5pt;
+      color: #000000 !important;
+      page-break-after: avoid;
+      break-after: avoid;
     }
 
     .screen-title {
@@ -296,6 +354,40 @@
     .legend-box.held-box { background: #000000 !important; border: 1.2pt solid #000000 !important; }
     .legend-box.voc-box { background: #f4f4f4 !important; border: 0.75pt solid #333333 !important; border-top: 2.5pt solid #000000 !important; }
     .legend-box.off-box { background: #ffffff !important; border: 0.75pt dashed #999999 !important; }
+
+    #page-kits {
+      page-break-inside: auto !important;
+      break-inside: auto !important;
+    }
+    #page-kits table {
+      page-break-inside: auto !important;
+      break-inside: auto !important;
+    }
+    #page-kits tr {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    .vtag {
+      font-size: 5.6pt !important;
+      padding: 0 2pt !important;
+      min-width: 25pt !important;
+      border: 0.6pt solid #333333 !important;
+      background: #f0f0f0 !important;
+      color: #000000 !important;
+      border-radius: 1.5pt !important;
+      margin-right: 3pt !important;
+    }
+    .kit-voices {
+      gap: 0.8pt !important;
+    }
+    .kit-v code {
+      font-size: 6.2pt !important;
+      line-height: 1.15 !important;
+    }
+    .genre-tag {
+      font-size: 6.2pt !important;
+      color: #444444 !important;
+    }
   }
 </style>
 </head>
@@ -457,7 +549,7 @@
   <tr><td class="k">STEP 11</td><td>Drift: moves one note one step left or right, chosen at random among the moves that land on a step where this voice is silent and no other voice sounds. A voice that sounds on every step blocks nothing, as with fill empty. The note keeps its velocity. Press repeatedly to let a groove drift while it keeps out of the other parts&rsquo; way; when no move fits, nothing changes. With ALL this pad is Declutter instead, see below.</td></tr>
   <tr><td class="k">STEP 12</td><td>Rule 30: advances the pattern one generation of the Rule 30 cellular automaton, a chaotic one-dimensional rule where each step&rsquo;s fate is decided by itself and its two neighbours, with the pattern read as a ring. The result is trimmed back to the number of notes the pattern had, keeping the steps where the fewest other voices sound and breaking ties at random, so the voice keeps its density and never falls silent. Steps that keep sounding keep their velocity. With ALL this pad is Life instead, see below.</td></tr>
   <tr><td class="k">STEP 13</td><td>Snap: every note moves one step toward its nearest downbeat (steps 1, 5, 9, 13), a note halfway between two toward the earlier one, and notes on a downbeat stay. When two notes meet the louder survives. Repeated presses quantise a smeared groove back onto the beats, the way back from Drift. With ALL this pad is Sync lengths instead, see below.</td></tr>
-  <tr><td class="k">ACCENT + STEP <i>n</i></td><td>Accents every <i>n</i>-th sounding step counting from step 1 and drops every other accent. STEP 4 accents the downbeats, STEP 2 the on-beats, STEP 1 every note. Silent steps are left alone.</td></tr>
+  <tr><td class="k">ACCENT + STEP <i>n</i></td><td>Loads pattern preset <i>n</i> (1&ndash;16), incorporating accents, full-velocity hits, and muted/ghost (half-velocity) steps. With ALL, applies preset <i>n</i> to all voices as one undo group.</td></tr>
   <tr><td class="k">POS</td><td>Rewind: resets the playback position of all voices to step 0 and arms them to fire on the next clock. Not a pattern edit, so undo leaves it alone.</td></tr>
   <tr><td class="k">VOICE <i>v</i></td><td>Swaps the selected pattern with voice <i>v</i>&rsquo;s current pattern.</td></tr>
   <tr><td class="k">VOICE <i>v</i>, selected</td><td>Moves voice <i>v</i>&rsquo;s MIDI note up 6 semitones, or back. Not a pattern edit, so undo leaves it alone.</td></tr>
@@ -542,7 +634,7 @@
   <tr><td class="k">STEP 8</td><td>Fill empty for every voice in turn. Voice 0 fills the gaps the other five leave, voice 1 then fills around voice 0&rsquo;s new pattern and the rest, and so on, so the result is a set of interlocking parts rather than six copies of the same fill.</td></tr>
   <tr><td class="k">STEP 11</td><td>Declutter: on every step where two or more voices sound, silences one of them, chosen at random. Each press thins the pile-ups by one voice, so a step with three voices takes two presses, and once no step has more than one voice the pad does nothing. Steps are compared as the grid shows them, each voice within its own length. The random choice means two presses from the same kit give different results.</td></tr>
   <tr><td class="k">STEP 12</td><td>Life: advances all six voices one generation of Conway&rsquo;s Game of Life, with voices as rows and steps as columns. A step survives with two or three sounding neighbours and keeps its velocity, an empty step with exactly three is born, everything else falls silent. Rows wrap at their own length, the first and last voice are neighbours, and every row is computed from the board as it was before the press. Life needs the whole board to stay alive, a single row against a frozen board dies or freezes within a press or two, which is why this pad runs Rule 30 without ALL.</td></tr>
-  <tr><td class="k">ACCENT + STEP <i>n</i></td><td>Accents every <i>n</i>-th sounding step of every voice&rsquo;s current pattern and drops every other accent, as under TRANSFORM + ACCENT.</td></tr>
+  <tr><td class="k">ACCENT + STEP <i>n</i></td><td>Loads pattern preset <i>n</i> (1&ndash;16) into every voice&rsquo;s current pattern as one undo group.</td></tr>
   <tr><td class="k">STEP 13</td><td>Sync lengths: sets every voice&rsquo;s current pattern length to the selected voice&rsquo;s. The steps are untouched. The way back from Odd meters.</td></tr>
   <tr><td class="k">LEN</td><td>Odd meters: deals the six odd lengths 5, 7, 9, 11, 13 and 15 to the six voices in random order, so every voice gets a different one and the parts drift against each other. The steps are untouched, so undo, or LEN + STEP 16, brings a pattern back whole. One undo group.</td></tr>
   <tr><td class="k">CLEAR</td><td>Dropout: silences half of the voices that still sound, rounded down but at least one, chosen at random. Six voices go to three, then two, then one, then none, so the kit breaks down in stages and always passes through a single voice before it falls silent. One undo per press brings it back. Each press is a fresh draw.</td></tr>
@@ -565,6 +657,397 @@
   Values live in <code>src/colors.h</code>, generated from <code>contrib/palette.go</code>.
   The step grid above is drawn in voice 0&rsquo;s hue; on the device it follows the selected voice.
 </p>
+</section>
+
+<section class="screen-page" id="page-kits">
+<h2 class="screen-title">Built-in Pattern Presets &amp; 6-Voice Kits</h2>
+<p class="note">
+  The sequencer contains 16 curated pattern presets for individual voices and 16 full 6-voice coordinated drum kits,
+  using visual velocity hit symbols: <strong>■</strong> Accent (velocity 127), <strong>●</strong> Normal (velocity 99),
+  <strong>○</strong> Ghost / Muted (velocity 50), and <strong>·</strong> Rest / Silence.
+</p>
+
+<h2>Voice Assignments</h2>
+<table>
+  <tr><th>Voice</th><th>Pad</th><th>Default MIDI Note</th><th>Role &amp; Instrument Type</th></tr>
+  <tr><td class="k">VOICE 0</td><td>14</td><td>36 (C1)</td><td><strong>Kick / Bass Drum:</strong> 4-on-the-floor anchors, syncopated drop kicks, sub-pulse ghost drives.</td></tr>
+  <tr><td class="k">VOICE 1</td><td>15</td><td>37 (C#1)</td><td><strong>Snare / Clap:</strong> Backbeats on steps 5 &amp; 13, ghost flams, syncopated rolls on 15&ndash;16.</td></tr>
+  <tr><td class="k">VOICE 2</td><td>22</td><td>38 (D1)</td><td><strong>Hi-Hat:</strong> Unified closed hats, ghost shuffles, and accented open hits on offbeats.</td></tr>
+  <tr><td class="k">VOICE 3</td><td>23</td><td>39 (D#1)</td><td><strong>Percussion 1 (Low/Mid):</strong> Low conga/tumbao, low toms, woodblock, sub-hits, and bass drops.</td></tr>
+  <tr><td class="k">VOICE 4</td><td>30</td><td>40 (E1)</td><td><strong>Percussion 2 (Mid/High):</strong> High conga slaps, mid toms, timbales, cowbells, rimshots, and chord stabs.</td></tr>
+  <tr><td class="k">VOICE 5</td><td>31</td><td>41 (F1)</td><td><strong>Percussion 3 (High/Texture):</strong> Shaker beds, tambourine, repinique, ride cymbals, clicks, and textures.</td></tr>
+</table>
+
+<!-- BEGIN_PATTERNS_PRESETS -->
+<h2>Single-Voice Pattern Presets (<code>TRANSFORM + ACCENT + STEP n</code>)</h2>
+<p class="note">
+  Applies preset <i>n</i> (1&ndash;16) to the active voice's current pattern as one undo step.
+  Each of the 6 voices has its own individual 16-pattern bank tailored to its specific role:
+  Voice 0 (Kick), Voice 1 (Snare/Clap), Voice 2 (Hi-Hat), Voice 3 (Low/Mid Percussion),
+  Voice 4 (Mid/High Percussion), and Voice 5 (High/Texture Percussion).
+</p>
+
+<h3>Voice 0: Kick / Bass Drum Presets</h3>
+<table>
+  <tr><th>Pad</th><th>Preset Name</th><th>Rhythm (16 Steps)</th></tr>
+  <tr><td class="k">STEP 1</td><td>Four on Floor</td><td><code>■ · · ·  ■ · · ·  ■ · · ·  ■ · · ·</code></td></tr>
+  <tr><td class="k">STEP 2</td><td>Four on Floor Pickup</td><td><code>■ · · ·  ● · · ·  ■ · · ·  ● · · ○</code></td></tr>
+  <tr><td class="k">STEP 3</td><td>Pumping 4/4 Drive</td><td><code>■ · · ○  ● · · ·  ■ · · ○  ● · · ·</code></td></tr>
+  <tr><td class="k">STEP 4</td><td>Berlin Rumble 4/4</td><td><code>■ · · ·  ■ · · ·  ■ · · ·  ■ · ● ·</code></td></tr>
+  <tr><td class="k">STEP 5</td><td>Dembow Reggaeton</td><td><code>■ · · ·  ■ · · ·  ■ · ● ·  ■ · · ·</code></td></tr>
+  <tr><td class="k">STEP 6</td><td>Tresillo 3-3-2</td><td><code>■ · · ●  · · ■ ·  ■ · · ●  · · ■ ·</code></td></tr>
+  <tr><td class="k">STEP 7</td><td>Afro-House Minimal</td><td><code>■ · · ·  · · ■ ·  ■ · · ·  ● · · ·</code></td></tr>
+  <tr><td class="k">STEP 8</td><td>Samba Surdo Bounce</td><td><code>■ · · ●  · · ■ ·  · · ■ ·  · ● · ·</code></td></tr>
+  <tr><td class="k">STEP 9</td><td>UK Garage 2-Step</td><td><code>■ · · ·  · · · ■  · · · ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 10</td><td>Electro 808 Sync</td><td><code>■ · · ●  · · · ·  ■ · · ●  · · ● ·</code></td></tr>
+  <tr><td class="k">STEP 11</td><td>Breakbeat Funk</td><td><code>■ · · ·  · · ■ ·  · · ■ ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 12</td><td>Baile Favela Drop</td><td><code>■ · · ●  · · ● ·  ■ · · ●  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 13</td><td>Offbeat Skip Kick</td><td><code>■ · · ·  ● · · ·  · · ■ ·  ● · · ·</code></td></tr>
+  <tr><td class="k">STEP 14</td><td>Dub Techno Deep</td><td><code>■ · · ·  · · · ·  ■ · · ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 15</td><td>Microhouse Minimal</td><td><code>■ · · ·  · · · ·  ● · · ·  · · · ○</code></td></tr>
+  <tr><td class="k">STEP 16</td><td>Dotted 8th Phasing</td><td><code>■ · · ●  · · ■ ·  · ● · ·  ■ · · ·</code></td></tr>
+</table>
+
+<h3>Voice 1: Snare / Clap Presets</h3>
+<table>
+  <tr><th>Pad</th><th>Preset Name</th><th>Rhythm (16 Steps)</th></tr>
+  <tr><td class="k">STEP 1</td><td>Classic Backbeat</td><td><code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></td></tr>
+  <tr><td class="k">STEP 2</td><td>Backbeat &amp; Flam</td><td><code>· · · ·  ■ · · ·  · · · ·  ■ · · ○</code></td></tr>
+  <tr><td class="k">STEP 3</td><td>Double Clap Pump</td><td><code>· · · ·  ■ · · ·  · · · ·  ■ ● · ·</code></td></tr>
+  <tr><td class="k">STEP 4</td><td>House Backbeat Roll</td><td><code>· · · ·  ■ · · ·  · · ○ ○  ■ · · ·</code></td></tr>
+  <tr><td class="k">STEP 5</td><td>Dembow Syncopation</td><td><code>· · · ■  · · ■ ·  · · · ■  · · ■ ·</code></td></tr>
+  <tr><td class="k">STEP 6</td><td>Tresillo Snare</td><td><code>· · · ■  · · ■ ·  · · · ■  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 7</td><td>Afro Woodblock Drop</td><td><code>· · · ·  · · · ·  ■ · · ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 8</td><td>Samba Caixa Roll</td><td><code>· · · ○  ■ · · ○  · · · ○  ■ · ○ ·</code></td></tr>
+  <tr><td class="k">STEP 9</td><td>UKG 2-Step Snare</td><td><code>· · · ·  ■ · · ·  · · · ·  ■ · ● ·</code></td></tr>
+  <tr><td class="k">STEP 10</td><td>Electro 808 Snare</td><td><code>· · · ·  ■ · · ○  · · · ·  ■ · · ·</code></td></tr>
+  <tr><td class="k">STEP 11</td><td>Breakbeat Ghost</td><td><code>· · · ·  ■ · · ○  · ○ · ·  ■ · · ○</code></td></tr>
+  <tr><td class="k">STEP 12</td><td>Baile Funk Snare</td><td><code>· · · ·  ■ · · ■  · · · ·  ■ · · ·</code></td></tr>
+  <tr><td class="k">STEP 13</td><td>Roll Down</td><td><code>■&rarr;○ decrescendo</code></td></tr>
+  <tr><td class="k">STEP 14</td><td>Roll Up</td><td><code>○&rarr;■ crescendo</code></td></tr>
+  <tr><td class="k">STEP 15</td><td>Roll Up-Down</td><td><code>○&rarr;■&rarr;○ swell</code></td></tr>
+  <tr><td class="k">STEP 16</td><td>Roll Down-Up</td><td><code>■&rarr;○&rarr;■ dip</code></td></tr>
+</table>
+
+<h3>Voice 2: Hi-Hat Presets</h3>
+<table>
+  <tr><th>Pad</th><th>Preset Name</th><th>Rhythm (16 Steps)</th></tr>
+  <tr><td class="k">STEP 1</td><td>Classic Offbeat Open</td><td><code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code></td></tr>
+  <tr><td class="k">STEP 2</td><td>Offbeat &amp; Pickup</td><td><code>· · ■ ·  · · ■ ·  · · ■ ·  · ○ ■ ·</code></td></tr>
+  <tr><td class="k">STEP 3</td><td>Straight 8th Notes</td><td><code>● · ■ ·  ● · ■ ·  ● · ■ ·  ● · ■ ·</code></td></tr>
+  <tr><td class="k">STEP 4</td><td>Minimal Dub Ticks</td><td><code>· · ■ ·  · · · ·  · · ■ ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 5</td><td>UKG Swung Skip</td><td><code>● · ■ ·  · ○ ■ ·  ● · ■ ·  · ○ ■ ·</code></td></tr>
+  <tr><td class="k">STEP 6</td><td>Breakbeat Swung 8ths</td><td><code>● · ■ ○  ● · ■ ·  ● · ■ ○  ● · ■ ·</code></td></tr>
+  <tr><td class="k">STEP 7</td><td>Cumbia Guiro Scrape</td><td><code>· ● · ■  · ● · ■  · ● · ■  · ● · ■</code></td></tr>
+  <tr><td class="k">STEP 8</td><td>Afro Feathered Hat</td><td><code>· · ■ ○  · · ■ ·  · · ■ ○  · · ■ ·</code></td></tr>
+  <tr><td class="k">STEP 9</td><td>Dotted 8th Phasing</td><td><code>■ · · ●  · · ■ ·  · ● · ·  ■ · · ·</code></td></tr>
+  <tr><td class="k">STEP 10</td><td>Microhouse Delicate</td><td><code>· · ■ ·  · · · ○  · · ■ ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 11</td><td>Downbeat Ticks</td><td><code>■ · · ·  ● · · ·  ■ · · ·  ● · · ·</code></td></tr>
+  <tr><td class="k">STEP 12</td><td>Half-Time Triplet</td><td><code>■ · · ●  · · ● ·  ■ · · ●  · · ● ·</code></td></tr>
+  <tr><td class="k">STEP 13</td><td>Chicago 909 Groove</td><td><code>● ○ ■ ○  ● ○ ■ ○  ● ○ ■ ○  ● ○ ■ ○</code></td></tr>
+  <tr><td class="k">STEP 14</td><td>Detroit Electro 16ths</td><td><code>● ○ ● ■  ● ○ ● ■  ● ○ ● ■  ● ○ ● ■</code></td></tr>
+  <tr><td class="k">STEP 15</td><td>Berlin Peak 16ths</td><td><code>■ ○ ● ○  ■ ○ ● ○  ■ ○ ● ○  ■ ○ ● ○</code></td></tr>
+  <tr><td class="k">STEP 16</td><td>Batucada Samba Roll</td><td><code>■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○</code></td></tr>
+</table>
+
+<h3>Voice 3: Percussion 1 Presets (Low/Mid)</h3>
+<table>
+  <tr><th>Pad</th><th>Preset Name</th><th>Rhythm (16 Steps)</th></tr>
+  <tr><td class="k">STEP 1</td><td>Low Conga Tumbao</td><td><code>· · · ·  · · ■ ·  · · · ·  · · ● ·</code></td></tr>
+  <tr><td class="k">STEP 2</td><td>Low Conga Bounce</td><td><code>· · · ·  · · ■ ·  · · · ·  · ● · ·</code></td></tr>
+  <tr><td class="k">STEP 3</td><td>Afro Low Tumbadora</td><td><code>■ · · ●  · · ■ ·  · · ● ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 4</td><td>Guaguanco Low Hit</td><td><code>· · ■ ·  · · · ●  · · ■ ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 5</td><td>Low Tom Downbeat</td><td><code>■ · · ·  · · · ·  ■ · · ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 6</td><td>Rolling Tribal Low</td><td><code>· · ● ·  · · ● ·  · · ● ·  · · ● ·</code></td></tr>
+  <tr><td class="k">STEP 7</td><td>808 Low Tom Sync</td><td><code>· · · ·  · · ■ ·  · · · ·  · · ■ ·</code></td></tr>
+  <tr><td class="k">STEP 8</td><td>Dub Reso-Tom</td><td><code>· · · ·  ■ · · ·  · · · ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 9</td><td>Afro Woodblock Beat 3</td><td><code>· · · ·  · · · ·  ■ · · ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 10</td><td>Woodblock Clack 3:2</td><td><code>■ · · ●  · · · ■  · · ● ·  ■ · · ·</code></td></tr>
+  <tr><td class="k">STEP 11</td><td>Sub Bass Drop 1</td><td><code>■ · · ·  · · · ·  · · · ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 12</td><td>Sub Bass 2-Step</td><td><code>■ · · ·  · · · ■  · · · ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 13</td><td>Cumbia Low Tumbao</td><td><code>· · · ·  · · ● ·  · · · ·  · · ● ·</code></td></tr>
+  <tr><td class="k">STEP 14</td><td>Breakbeat Low Tom</td><td><code>· · · ·  · · · ·  ● · · ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 15</td><td>Microhouse Low Wood</td><td><code>· · · ·  · ● · ·  · · · ·  · ● · ·</code></td></tr>
+  <tr><td class="k">STEP 16</td><td>Dotted 8th Low Pulse</td><td><code>■ · · ●  · · ■ ·  · ● · ·  ■ · · ·</code></td></tr>
+</table>
+
+<h3>Voice 4: Percussion 2 Presets (Mid/High)</h3>
+<table>
+  <tr><th>Pad</th><th>Preset Name</th><th>Rhythm (16 Steps)</th></tr>
+  <tr><td class="k">STEP 1</td><td>High Conga Slap</td><td><code>· · · ·  ■ · · ·  · · · ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 2</td><td>Afro Conga Slaps</td><td><code>· · · ·  · · · ■  · · · ·  · ■ · ·</code></td></tr>
+  <tr><td class="k">STEP 3</td><td>Rumba Clave 3:2</td><td><code>■ · · ●  · · · ■  · · ● ·  ■ · · ·</code></td></tr>
+  <tr><td class="k">STEP 4</td><td>Son Clave 3:2</td><td><code>■ · · ●  · · ■ ·  · · ● ·  ■ · · ·</code></td></tr>
+  <tr><td class="k">STEP 5</td><td>Syncopated Cowbell</td><td><code>· · ■ ·  · · ■ ·  · · ■ ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 6</td><td>Campana Cumbia Bell</td><td><code>■ · · ·  · · ■ ·  · · ■ ·  · · ■ ·</code></td></tr>
+  <tr><td class="k">STEP 7</td><td>808 Cowbell Sync</td><td><code>■ · · ·  · · · ·  ■ · · ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 8</td><td>Agogo Bell Mid/High</td><td><code>■ · ● ·  ■ · · ■  · ● · ·  ● · ■ ·</code></td></tr>
+  <tr><td class="k">STEP 9</td><td>House Rimshot Sync</td><td><code>· · · ·  · · · ·  · · ● ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 10</td><td>UKG Rim Counter-Skip</td><td><code>· · · ●  · · · ·  · · · ·  · · · ●</code></td></tr>
+  <tr><td class="k">STEP 11</td><td>Dembow Clack Accent</td><td><code>· · · ·  · · · ·  · ● · ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 12</td><td>Microhouse Org Pop</td><td><code>· · · ·  · · ■ ·  · · · ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 13</td><td>Dub Techno Stabs</td><td><code>· · ■ ·  · · · ·  · ● · ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 14</td><td>Mid Tom Response</td><td><code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></td></tr>
+  <tr><td class="k">STEP 15</td><td>Timbale End Roll</td><td><code>· · · ·  · · · ·  · · · ·  · ■ ● ■</code></td></tr>
+  <tr><td class="k">STEP 16</td><td>Industrial Metal Anvil</td><td><code>· · · ·  ● · · ·  · · · ·  ● · · ·</code></td></tr>
+</table>
+
+<h3>Voice 5: Percussion 3 Presets (High/Texture)</h3>
+<table>
+  <tr><th>Pad</th><th>Preset Name</th><th>Rhythm (16 Steps)</th></tr>
+  <tr><td class="k">STEP 1</td><td>Gentle 8th Shaker</td><td><code>· ○ · ●  · ○ · ●  · ○ · ●  · ○ · ●</code></td></tr>
+  <tr><td class="k">STEP 2</td><td>Minimal Shaker Touch</td><td><code>· · · ●  · · · ●  · · · ●  · · · ●</code></td></tr>
+  <tr><td class="k">STEP 3</td><td>Afro Seed Shaker</td><td><code>· ○ · ●  · ○ · ●  · ○ · ●  · ○ · ●</code></td></tr>
+  <tr><td class="k">STEP 4</td><td>Continuous 16th Shaker</td><td><code>○ ● ○ ●  ○ ● ○ ●  ○ ● ○ ●  ○ ● ○ ●</code></td></tr>
+  <tr><td class="k">STEP 5</td><td>Backbeat Tambourine</td><td><code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></td></tr>
+  <tr><td class="k">STEP 6</td><td>Offbeat Tambourine</td><td><code>· · ● ·  · · ● ·  · · ● ·  · · ● ·</code></td></tr>
+  <tr><td class="k">STEP 7</td><td>Samba Repinique</td><td><code>· ○ · ●  · ○ · ●  · ○ · ●  · ○ · ●</code></td></tr>
+  <tr><td class="k">STEP 8</td><td>Tamborim 16ths</td><td><code>■ ○ ● ○  ■ ○ ● ○  ■ ○ ● ○  ■ ○ ● ○</code></td></tr>
+  <tr><td class="k">STEP 9</td><td>Offbeat Ride Cymbal</td><td><code>· · ● ·  · · ● ·  · · ● ·  · · ● ·</code></td></tr>
+  <tr><td class="k">STEP 10</td><td>Downbeat Ride Ping</td><td><code>■ · · ·  · · · ·  ■ · · ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 11</td><td>Single Ride Accent</td><td><code>· · · ·  · · ■ ·  · · · ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 12</td><td>Ride Cymbal 8ths</td><td><code>● · ● ·  ● · ● ·  ● · ● ·  ● · ● ·</code></td></tr>
+  <tr><td class="k">STEP 13</td><td>Vinyl Dust &amp; Clicks</td><td><code>○ · · ·  · · · ·  ○ · · ·  · · · ·</code></td></tr>
+  <tr><td class="k">STEP 14</td><td>Tape Crackle Echo</td><td><code>· · · ·  · · · ·  · · · ·  ○ · · ·</code></td></tr>
+  <tr><td class="k">STEP 15</td><td>High Tom Accent Roll</td><td><code>■ · · ·  · · ■ ·  · · · ·  ■ · · ·</code></td></tr>
+  <tr><td class="k">STEP 16</td><td>Bongo Slap Flam</td><td><code>· · · ·  · · · ·  · · · ·  · · ● ■</code></td></tr>
+</table>
+<!-- END_PATTERNS_PRESETS -->
+
+<!-- BEGIN_PATTERNS_KITS -->
+<h2>Full 6-Voice Kits (<code>TRANSFORM + ALL + ACCENT + STEP n</code>)</h2>
+<p class="note">
+  Loads a coordinated 6-voice arrangement across the entire drum machine simultaneously, as a single undo step.
+  Each kit includes all 6 tracks formatted in 16-step columns.
+</p>
+<table>
+  <tr><th>Pad</th><th>Kit Name &amp; Genre</th><th>6-Voice Patterns (16 Steps)</th></tr>
+  <tr>
+    <td class="k">STEP 1</td>
+    <td><strong>Classic Chicago House</strong><br><span class="genre-tag">House</span></td>
+    <td class="kit-pattern">
+      <div class="kit-voices">
+        <div class="kit-v"><span class="vtag v0">KICK</span> <code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
+        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code></div>
+        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  · · ■ ·  · · · ·  · ● · ·</code></div>
+        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ·  · · · ·  · · ● ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 2</td>
+    <td><strong>French Touch Disco</strong><br><span class="genre-tag">Nu-Disco</span></td>
+    <td class="kit-pattern">
+      <div class="kit-voices">
+        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  ■ · · ·  ■ · · ·  ■ · · ·</code></div>
+        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
+        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>● · ■ ·  ● · ■ ·  ● · ■ ·  ● · ■ ·</code></div>
+        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  · · · ·  · · · ·  · · · ●</code></div>
+        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · ■ ·  · · · ·  · · ■ ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  ● · · ·  · · · ·  ● · · ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 3</td>
+    <td><strong>Deep House Sunset</strong><br><span class="genre-tag">Deep House</span></td>
+    <td class="kit-pattern">
+      <div class="kit-voices">
+        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ○</code></div>
+        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
+        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code></div>
+        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  · · ■ ·  · · · ·  · · ● ·</code></div>
+        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ·  · · · ·  · · ■ ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 4</td>
+    <td><strong>Garage House Shuffle</strong><br><span class="genre-tag">Garage House</span></td>
+    <td class="kit-pattern">
+      <div class="kit-voices">
+        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ·</code></div>
+        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · ● ·</code></div>
+        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>● · ■ ·  · ○ ■ ·  ● · ■ ·  · ○ ■ ·</code></div>
+        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  · · ● ·  · · · ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ●  · · · ·  · · · ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 5</td>
+    <td><strong>Afro-House Keinemusik</strong><br><span class="genre-tag">Afro-House</span></td>
+    <td class="kit-pattern">
+      <div class="kit-voices">
+        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ·</code></div>
+        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  · · · ·  ■ · · ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code></div>
+        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>■ · · ●  · · ■ ·  · · ● ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ·  · · · ■  · · · ·  · ■ · ·</code></div>
+        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· ○ · ●  · ○ · ●  · ○ · ●  · ○ · ●</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 6</td>
+    <td><strong>Electro-Cumbia</strong><br><span class="genre-tag">Cumbia</span></td>
+    <td class="kit-pattern">
+      <div class="kit-voices">
+        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ·</code></div>
+        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
+        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>· ● · ■  · ● · ■  · ● · ■  · ● · ■</code></div>
+        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  · · ● ·  · · · ·  · · ● ·</code></div>
+        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>■ · · ·  · · ■ ·  · · ■ ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  · · · ·  · · · ·  · · ■ ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 7</td>
+    <td><strong>Dembow Latin Club</strong><br><span class="genre-tag">Dembow</span></td>
+    <td class="kit-pattern">
+      <div class="kit-voices">
+        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  ■ · · ·  ■ · · ·  ■ · · ·</code></div>
+        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ■  · · ■ ·  · · · ■  · · ■ ·</code></div>
+        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code></div>
+        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>■ · · ·  · · · ·  · · · ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ·  · · · ·  · ● · ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 8</td>
+    <td><strong>Batucada Carnival</strong><br><span class="genre-tag">Samba</span></td>
+    <td class="kit-pattern">
+      <div class="kit-voices">
+        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ●  · · ■ ·  · · ■ ·  · ● · ·</code></div>
+        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ○  ■ · · ○  · · · ○  ■ · ○ ·</code></div>
+        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○</code></div>
+        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
+        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>■ · ● ·  ■ · · ■  · ● · ·  ● · ■ ·</code></div>
+        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· ○ · ●  · ○ · ●  · ○ · ●  · ○ · ●</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 9</td>
+    <td><strong>UK Garage 2-Step</strong><br><span class="genre-tag">UKG</span></td>
+    <td class="kit-pattern">
+      <div class="kit-voices">
+        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  · · · ■  · · · ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
+        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>● · ■ ·  · ○ ■ ·  ● · ■ ·  · ○ ■ ·</code></div>
+        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  · · · ·  · · ● ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ●  · · · ·  · · · ·  · · ● ·</code></div>
+        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  · · ■ ·  · · · ·  · · · ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 10</td>
+    <td><strong>Detroit Electro 808</strong><br><span class="genre-tag">Electro</span></td>
+    <td class="kit-pattern">
+      <div class="kit-voices">
+        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ●  · ○ · ·  ■ · · ●  · · ● ·</code></div>
+        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
+        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>● ○ ● ■  ● ○ ● ■  ● ○ ● ■  ● ○ ● ■</code></div>
+        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  · · ■ ·  · · · ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>■ · · ·  · · · ·  ■ · · ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 11</td>
+    <td><strong>Breakbeat Shuffle</strong><br><span class="genre-tag">Breaks</span></td>
+    <td class="kit-pattern">
+      <div class="kit-voices">
+        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  · · ■ ·  · · ■ ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ○  ■ · · ○  · ○ · ·  ■ · · ○</code></div>
+        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>● · ■ ○  ● · ■ ·  ● · ■ ○  ● · ■ ·</code></div>
+        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  · · · ·  ● · · ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ●  · · · ·  · · · ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 12</td>
+    <td><strong>Baile Funk Bounce</strong><br><span class="genre-tag">Bass</span></td>
+    <td class="kit-pattern">
+      <div class="kit-voices">
+        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ●  · · ● ·  ■ · · ●  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
+        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code></div>
+        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>■ · · ·  · · · ·  ■ · · ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ■  · · ■ ·  · · · ■  · · ■ ·</code></div>
+        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 13</td>
+    <td><strong>Berlin Peak Techno</strong><br><span class="genre-tag">Techno</span></td>
+    <td class="kit-pattern">
+      <div class="kit-voices">
+        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  ■ · · ·  ■ · · ·  ■ · · ·</code></div>
+        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
+        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>● ○ ■ ○  ● ○ ■ ○  ● ○ ■ ○  ● ○ ■ ○</code></div>
+        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ■  · · · ·  · ■ · ·  · · ■ ·</code></div>
+        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ·  ● · · ·  · · · ·  ● · · ·</code></div>
+        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · ● ·  · · ● ·  · · ● ·  · · ● ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 14</td>
+    <td><strong>Dub Techno Echo</strong><br><span class="genre-tag">Dub Techno</span></td>
+    <td class="kit-pattern">
+      <div class="kit-voices">
+        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ·</code></div>
+        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  · · · ·  ■ · · ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>· · ■ ·  · · · ·  · · ■ ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  ■ · · ·  · · · ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · ■ ·  · · · ·  · ● · ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  · · · ·  · · · ·  ○ · · ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 15</td>
+    <td><strong>Romanian Microhouse</strong><br><span class="genre-tag">Microhouse</span></td>
+    <td class="kit-pattern">
+      <div class="kit-voices">
+        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ·</code></div>
+        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
+        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>· · ■ ·  · · · ○  · · ■ ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  · ● · ·  · · · ·  · ● · ·</code></div>
+        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ·  · · ■ ·  · · · ·  · · · ·</code></div>
+        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>○ · · ·  · · · ·  ○ · · ·  · · · ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 16</td>
+    <td><strong>Driving Hardgroove</strong><br><span class="genre-tag">Hardgroove</span></td>
+    <td class="kit-pattern">
+      <div class="kit-voices">
+        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  ■ · · ·  ■ · · ·  ■ · · ·</code></div>
+        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
+        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○</code></div>
+        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · ● ·  · · ● ·  · · ● ·  · · ● ·</code></div>
+        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
+        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>■ · · ·  · · ■ ·  · · · ·  ■ · · ·</code></div>
+      </div>
+    </td>
+  </tr>
+</table>
+<!-- END_PATTERNS_KITS -->
 </section>
 
 </body>
