@@ -82,37 +82,6 @@ void show_pixels() {
 }
 
 Sequencer seq = Sequencer();
-uint32_t current_voice = 0;
-
-void setup_default_patterns() {
-
-  auto static const N = Step(100);
-  auto static const n = Step(60);
-  auto static const _ = Step(0);
-
-  auto const p1 = 15;
-
-  seq.voices[0].patterns[p1].steps = std::array<Step, 16>{
-      N, _, _, _, N, _, _, _, N, _, _, _, N, _, _, _,
-  };
-  seq.voices[1].patterns[p1].steps = std::array<Step, 16>{
-      _, _, _, _, N, _, _, _, _, _, _, _, N, _, _, _,
-  };
-
-  seq.voices[2].patterns[p1].steps = std::array<Step, 16>{
-      n, N, _, _, n, N, _, _, n, N, _, _, n, N, _, n,
-  };
-  seq.voices[3].patterns[p1].steps = std::array<Step, 16>{
-      _, _, n, _, _, _, N, _, _, _, n, _, _, _, N, n,
-  };
-
-  seq.voices[4].patterns[p1].steps = std::array<Step, 16>{
-      _, _, _, _, _, _, _, _, _, N, _, _, _, n, n, _,
-  };
-  seq.voices[5].patterns[p1].steps = std::array<Step, 16>{
-      _, _, n, _, _, N, _, _, n, _, n, n, _, _, _, _,
-  };
-};
 
 UndoBuffer undo_buffer;
 UndoBuffer redo_buffer; // what undo overwrote, most recent group last
@@ -181,7 +150,7 @@ void copy_pattern() { copy_buffer = Pattern(*seq.voice->pattern()); }
 
 void paste_single() {
   create_undo_step();
-  seq.voice->replace_pattern(Pattern(copy_buffer));
+  seq.voice->replace_pattern(copy_buffer);
 }
 
 void paste_all_slots() {
@@ -195,8 +164,8 @@ void paste_all_slots() {
 
 void clear_pattern() {
   create_undo_step();
-  for (int i = 0; i < 16; i++) {
-    seq.voice->pattern()->steps[i] = Step(0);
+  for (auto &step : seq.voice->pattern()->steps) {
+    step = Step(0);
   }
 }
 
@@ -214,8 +183,8 @@ void rewind_transport() {
   midi_flush();
   if (clock_running) {
     global_pos = 0;
-    for (int voice = 0; voice < VOICES; voice++) {
-      seq.voices[voice].seek(0);
+    for (auto &voice : seq.voices) {
+      voice.seek(0);
     }
   } else {
     locate(0);
@@ -243,9 +212,9 @@ uint32_t random_below(uint32_t n) { return random(n); }
 // STEP 11 is drift alone and declutter with ALL, STEP 12 rule 30 alone and
 // life with ALL, STEP 13 snap alone and sync lengths with ALL. See
 // transform_board.
-uint32_t static const KEY_DRIFT_INDEX = 10;
-uint32_t static const KEY_LIFE_INDEX = 11;
-uint32_t static const KEY_SNAP_INDEX = 12;
+constexpr uint32_t KEY_DRIFT_INDEX = 10;
+constexpr uint32_t KEY_LIFE_INDEX = 11;
+constexpr uint32_t KEY_SNAP_INDEX = 12;
 
 // apply_transform applies the TRANSFORM + STEP action for the step key at
 // `index` (0-15, row major) to voice `voice`'s current pattern and reports
@@ -261,33 +230,55 @@ uint32_t static const KEY_SNAP_INDEX = 12;
 //          unassigned
 bool apply_transform(uint32_t voice, uint32_t index) {
   Pattern *const p = seq.voices[voice].pattern();
-  if (index == 0) {
+  switch (index) {
+  // row 0: shifts
+  case 0:
     p->shift(-1);
-  } else if (index == 1) {
+    break;
+  case 1:
     p->shift(1);
-  } else if (index == 2) {
+    break;
+  case 2:
     p->shift(-4);
-  } else if (index == 3) {
+    break;
+  case 3:
     p->shift(4);
-  } else if (index == 4) {
+    break;
+
+  // row 1: deterministic reshapes
+  case 4:
     p->reverse();
-  } else if (index == 5) {
+    break;
+  case 5:
     p->invert();
-  } else if (index == 6) {
+    break;
+  case 6:
     p->euclid();
-  } else if (index == 7) {
+    break;
+  case 7:
     seq.fill_empty(voice, random_below);
-  } else if (index == 8) {
+    break;
+
+  // row 2: algorithms / generative
+  case 8:
     p->shuffle(random_below);
-  } else if (index == 9) {
+    break;
+  case 9:
     p->echo();
-  } else if (index == KEY_DRIFT_INDEX) {
+    break;
+  case KEY_DRIFT_INDEX:
     seq.drift(voice, random_below);
-  } else if (index == KEY_LIFE_INDEX) {
+    break;
+  case KEY_LIFE_INDEX:
     seq.rule30(voice, random_below);
-  } else if (index == KEY_SNAP_INDEX) {
+    break;
+
+  // row 3: snap
+  case KEY_SNAP_INDEX:
     p->snap();
-  } else {
+    break;
+
+  default:
     return false;
   }
   return true;
@@ -419,7 +410,6 @@ void setup() {
   /*   while(1); */
   /* } */
 
-  setup_default_patterns();
   mode_manager.switch_mode(&sequencer_mode);
 
   show_pixels();
@@ -488,8 +478,7 @@ void midi_note_off(uint8_t note, uint8_t velocity) {
 // run_step() calls it too, as a fallback for anything still sounding when a
 // step arrives without that lead-in tick, such as right after Start.
 void notes_off() {
-  for (int voice = 0; voice < VOICES; voice++) {
-    Voice &v = seq.voices[voice];
+  for (auto &v : seq.voices) {
     if (v.is_playing) {
       // The note that was sent, not the one the voice would send now: the
       // offset may have been toggled while it sounded.
@@ -504,7 +493,7 @@ bool is_voice_select_hl_period = false;
 // and sends its note ons in one USB transfer.
 void run_step() {
   notes_off();
-  for (int voice = 0; voice < VOICES; voice++) {
+  for (uint32_t voice = 0; voice < VOICES; voice++) {
     Voice &v = seq.voices[voice];
     Step const current_step = v.advance();
     if (current_step.vel > 0) {
@@ -524,7 +513,7 @@ void render_pixels() {
   noInterrupts();
   if (is_voice_select_hl_period && ppqn >= 2) {
     is_voice_select_hl_period = false;
-    for (int i = 0; i < VOICES; i++) {
+    for (uint32_t i = 0; i < VOICES; i++) {
       set_pixel(voice_index_to_key(i), voice_index_to_color(i));
     }
   }
@@ -589,8 +578,8 @@ void locate(uint32_t clocks) {
   uint32_t const into_step = clocks % CLOCK_DIVISION;
   uint32_t const next_step = into_step == 0 ? step : step + 1;
   global_pos = next_step;
-  for (int voice = 0; voice < VOICES; voice++) {
-    seq.voices[voice].seek(next_step);
+  for (auto &voice : seq.voices) {
+    voice.seek(next_step);
   }
   ppqn = (into_step + CLOCK_DIVISION - 1) % CLOCK_DIVISION;
 }
@@ -604,10 +593,10 @@ void on_midi_clock() {
     return;
   }
   ++ppqn;
-  if (ppqn == (uint32_t)CLOCK_DIVISION - 1) {
+  if (ppqn == CLOCK_DIVISION - 1) {
     notes_off();
     midi_flush();
-  } else if (ppqn >= (uint32_t)CLOCK_DIVISION) {
+  } else if (ppqn >= CLOCK_DIVISION) {
     ppqn = 0;
     global_pos++;
     run_step();

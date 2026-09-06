@@ -1,32 +1,14 @@
 #include "Sequencer.h"
 
-Step::Step() { vel = 0; };
-
-Step::Step(uint32_t value) { vel = value; };
-
-Step::Step(const Step &s) { vel = s.vel; };
-
-bool Step::operator==(const Step &s) const { return vel == s.vel; }
-
-Pattern::Pattern() { length = 16; };
-
-Pattern::Pattern(const Pattern &p) {
-  length = p.length;
-  steps = p.steps;
-};
-
-bool Pattern::operator==(const Pattern &p) const {
-  return length == p.length && steps == p.steps;
-}
-
-void Pattern::shift(int n) {
-  int const len = std::min<uint32_t>(length, steps.size());
+void Pattern::shift(int32_t n) {
+  int32_t const len =
+      static_cast<int32_t>(std::min<uint32_t>(length, steps.size()));
   if (len < 2) {
     return;
   }
   // Normalise to a left rotation by k in [0, len), which is what std::rotate
   // does: a right shift by n is a left shift by len - n.
-  int k = ((-n % len) + len) % len;
+  int32_t k = ((-n % len) + len) % len;
   if (k == 0) {
     return;
   }
@@ -170,15 +152,6 @@ void Pattern::rule30() {
   }
 }
 
-Voice::Voice() {
-  pos = 0;
-  pattern_idx = 0;
-  is_playing = false;
-  playing_note = 0;
-  note_offset = 0;
-  seek_pending = false;
-}
-
 Pattern *Voice::pattern() { return &patterns[pattern_idx]; }
 
 Step Voice::step(uint32_t idx) { return pattern()->steps[idx]; }
@@ -199,13 +172,7 @@ void Voice::seek(uint32_t step) {
   seek_pending = true;
 }
 
-void Voice::replace_pattern(const Pattern p) { patterns[pattern_idx] = p; }
-
-UndoBuffer::UndoBuffer() {
-  start = 0;
-  count = 0;
-  group_pending = true;
-}
+void Voice::replace_pattern(const Pattern &p) { patterns[pattern_idx] = p; }
 
 bool UndoBuffer::empty() const { return count == 0; }
 

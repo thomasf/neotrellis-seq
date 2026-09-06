@@ -1,20 +1,24 @@
 #ifndef UTILS_H
 #define UTILS_H
-#include <algorithm>
-#include <array>
+
+#include <Arduino.h>
 #include <cstdint>
-#include <delay.h>
-#include <vector>
+
+constexpr uint32_t INDEX_NOT_FOUND = UINT32_MAX;
 
 uint32_t index_of(const uint32_t a[], uint32_t size, uint32_t value);
 
 #ifdef DEBUG
 #define debug_print(msg, var)                                                  \
-  Serial.print(msg);                                                           \
-  Serial.print(": ");                                                          \
-  Serial.println(var);
+  do {                                                                         \
+    Serial.print(msg);                                                         \
+    Serial.print(": ");                                                        \
+    Serial.println(var);                                                       \
+  } while (0)
 #else
-#define debug_print(msg, var) ;
+#define debug_print(msg, var)                                                  \
+  do {                                                                         \
+  } while (0)
 #endif
 
-#endif
+#endif // UTILS_H

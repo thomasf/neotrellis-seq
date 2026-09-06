@@ -33,7 +33,7 @@ static constexpr size_t BINDING_COUNT =
     sizeof(SEQUENCER_BINDINGS) / sizeof(SEQUENCER_BINDINGS[0]);
 
 void SequencerMode::on_enter() {
-  for (int i = 0; i < VOICES; i++) {
+  for (uint32_t i = 0; i < VOICES; i++) {
     set_pixel(voice_index_to_key(i), voice_index_to_color(i));
   }
 
@@ -82,8 +82,8 @@ void SequencerMode::handle_step(const KeyContext &ctx) {
     seq.voice->pattern()->length = index + 1;
   } else if (ctx.has(Mod::POS)) {
     if (ctx.has(Mod::ALL)) {
-      for (int voice = 0; voice < VOICES; voice++) {
-        seq.voices[voice].seek(index);
+      for (auto &voice : seq.voices) {
+        voice.seek(index);
       }
     } else {
       seq.voice->seek(index);
@@ -93,8 +93,8 @@ void SequencerMode::handle_step(const KeyContext &ctx) {
     Step &step = seq.voice->pattern()->steps[index];
     step.vel = step.vel >= ACCENT_VELOCITY ? DEFAULT_VELOCITY : ACCENT_VELOCITY;
   } else if (ctx.has(Mod::ALL)) {
-    for (int voice = 0; voice < VOICES; voice++) {
-      seq.voices[voice].pattern_idx = index;
+    for (auto &voice : seq.voices) {
+      voice.pattern_idx = index;
     }
   } else if (ctx.any_voice_held()) {
     for (uint32_t voice = 0; voice < VOICES; voice++) {

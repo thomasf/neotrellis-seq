@@ -26,7 +26,7 @@ void MenuMode::on_enter() {
   set_pixel(KEY_CLEAR, COLOR_PACT);
 
   // Light up the category / page selector buttons (voice keys 0..5)
-  for (int i = 0; i < VOICES; i++) {
+  for (uint32_t i = 0; i < VOICES; i++) {
     set_pixel(voice_index_to_key(i), voice_index_to_color(i));
   }
 }

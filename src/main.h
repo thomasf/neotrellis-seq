@@ -29,10 +29,9 @@ void select_voice(uint32_t idx);
 // Setup & Initialization
 // -----------------------------------------------------------------------------
 
-void setup_default_patterns();
 void init_timer();
-uint32_t random_below(uint32_t n);
 void seed_random();
+uint32_t random_below(uint32_t n);
 
 // -----------------------------------------------------------------------------
 // Undo / Redo
