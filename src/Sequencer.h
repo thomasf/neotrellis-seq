@@ -78,6 +78,9 @@ public:
 // has velocity > 0.
 bool pattern_has_sounding_notes(const Pattern &p);
 
+// get_mutate_modifier returns which unused modifier is active for a 4-bar chunk
+PathModifier get_mutate_modifier(uint32_t bar4);
+
 // Voice is a collection of patterns
 class Voice {
 public:

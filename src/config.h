@@ -31,14 +31,22 @@ constexpr uint8_t ALT_NOTE_OFFSET = 6;
 // Playback Path Modifiers
 // =============================================================================
 // Path modifiers alter how a voice's playhead traverses its pattern steps in
-// real time.
+// real time without modifying pattern data.
 enum PathModifier : uint16_t {
-  PATH_NONE     = 0,
-  PATH_PINGPONG = 1 << 0, // forward and then backward
-  PATH_SPIRAL   = 1 << 1, // spiral (outside-in)
-  PATH_STUTTER  = 1 << 2, // micro-hesitation / stutter (0, 1, 1, 3)
-  PATH_PHASE    = 1 << 3, // phase slip / rotational drift (+1 step shift each cycle)
-  PATH_STRIDE   = PATH_PHASE, // backwards-compatible alias
+  PATH_NONE          = 0,
+  PATH_PINGPONG      = 1 << 0,  // forward and then backward
+  PATH_SPIRAL        = 1 << 1,  // spiral (outside-in)
+  PATH_STUTTER       = 1 << 2,  // micro-hesitation / stutter (0, 1, 1, 3)
+  PATH_PHASE         = 1 << 3,  // phase slip / rotational drift (+1 step shift each cycle)
+  PATH_WEAVE         = 1 << 4,  // local pendulum / weave ("two steps forward, one step back")
+  PATH_DRUNKEN       = 1 << 5,  // drunken walk with forward drift / human micro-hesitation
+  PATH_BEAT_PINGPONG = 1 << 6,  // quarter-note subdivided ping-pong (0, 1, 1, 0)
+  PATH_BROKEN_THIRDS = 1 << 7,  // broken thirds / knight's hop (+2, -1)
+  PATH_DOWNBEAT_LOCK = 1 << 8,  // downbeat lock with reversed weak beats (0, 3, 2, 1)
+  PATH_PAIR_SWAP     = 1 << 9,  // interleaved / pair-swapped off-beat syncopation (1, 0, 3, 2)
+  PATH_TURNAROUND    = 1 << 10, // bar-4 turnaround / auto-fill (last beat reverses)
+  PATH_PEDAL         = 1 << 11, // pedal-point / anchor bounce (0, 1, 0, 3)
+  PATH_MUTATE        = 1 << 12, // randomly switch between modifiers every 4 bars
 };
 
 // Choose which path modifiers are active in the firmware and mapped to Menu pads.
@@ -48,12 +56,27 @@ enum PathModifier : uint16_t {
 constexpr PathModifier ACTIVE_PATH_MODIFIERS[] = {
     PATH_PINGPONG, // Menu Step 5 (pad 4)
     PATH_SPIRAL,   // Menu Step 6 (pad 5)
-    PATH_STUTTER,  // Menu Step 7 (pad 6)
-    PATH_PHASE,    // Menu Step 8 (pad 7)
+    PATH_PHASE,    // Menu Step 7 (pad 6)
+    PATH_MUTATE,   // Menu Step 8 (pad 7)
 };
 constexpr uint32_t NUM_ACTIVE_PATH_MODIFIERS =
     sizeof(ACTIVE_PATH_MODIFIERS) / sizeof(ACTIVE_PATH_MODIFIERS[0]);
 constexpr uint32_t PATH_MODIFIER_FIRST_STEP = 4;
+
+// Modifiers that PATH_MUTATE (Step 8) switches between every 4 bars in random order:
+constexpr PathModifier MUTATE_PATH_MODIFIERS[] = {
+    PATH_STUTTER,
+    PATH_WEAVE,
+    PATH_DRUNKEN,
+    PATH_BEAT_PINGPONG,
+    PATH_BROKEN_THIRDS,
+    PATH_DOWNBEAT_LOCK,
+    PATH_PAIR_SWAP,
+    PATH_TURNAROUND,
+    PATH_PEDAL,
+};
+constexpr uint32_t NUM_MUTATE_PATH_MODIFIERS =
+    sizeof(MUTATE_PATH_MODIFIERS) / sizeof(MUTATE_PATH_MODIFIERS[0]);
 
 /* #define INTERNAL_CLOCK 1 */
 constexpr uint32_t BPM = 120; // tempo for internal clock mode

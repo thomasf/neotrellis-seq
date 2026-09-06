@@ -179,6 +179,28 @@ static uint32_t filter_perm(const uint8_t table[16], uint32_t idx,
   return idx % len;
 }
 
+PathModifier get_mutate_modifier(uint32_t bar4) {
+  if (NUM_MUTATE_PATH_MODIFIERS == 0) {
+    return PATH_NONE;
+  }
+  uint32_t const round = bar4 / NUM_MUTATE_PATH_MODIFIERS;
+  uint32_t const slot = bar4 % NUM_MUTATE_PATH_MODIFIERS;
+
+  std::array<uint8_t, NUM_MUTATE_PATH_MODIFIERS> perm{};
+  for (size_t i = 0; i < NUM_MUTATE_PATH_MODIFIERS; i++) {
+    perm[i] = static_cast<uint8_t>(i);
+  }
+
+  uint32_t seed = (round * 0x85ebca6bu) ^ 0x12345678u;
+  for (size_t i = NUM_MUTATE_PATH_MODIFIERS - 1; i > 0; i--) {
+    seed = seed * 1664525u + 1013904223u;
+    size_t const j = (seed >> 16) % (i + 1);
+    std::swap(perm[i], perm[j]);
+  }
+
+  return MUTATE_PATH_MODIFIERS[perm[slot]];
+}
+
 uint32_t Voice::cycle_length() const {
   uint32_t const len = pattern()->length;
   if (len <= 1) {
@@ -186,6 +208,16 @@ uint32_t Voice::cycle_length() const {
   }
   uint32_t const base_cycle =
       ((path_modifiers & PATH_PINGPONG) && len > 1) ? (2 * len - 2) : len;
+  if (path_modifiers & PATH_MUTATE) {
+    uint32_t c = 4 * len * NUM_MUTATE_PATH_MODIFIERS;
+    if (path_modifiers & PATH_PHASE) {
+      c *= len;
+    }
+    if (path_modifiers & PATH_PINGPONG) {
+      c *= (len - 1);
+    }
+    return c;
+  }
   return (path_modifiers & PATH_PHASE) ? (base_cycle * len) : base_cycle;
 }
 
@@ -194,24 +226,101 @@ uint32_t Voice::calculate_pos(uint32_t tick) const {
   if (len <= 1) {
     return 0;
   }
-  uint32_t const base_cycle =
-      ((path_modifiers & PATH_PINGPONG) && len > 1) ? (2 * len - 2) : len;
-  uint32_t const t = tick % base_cycle;
-  uint32_t u = (path_modifiers & PATH_PINGPONG) ? ((t < len) ? t : (base_cycle - t))
-                                                : t;
 
-  if (path_modifiers & PATH_PHASE) {
+  uint16_t mods = path_modifiers;
+  if (mods & PATH_MUTATE) {
+    uint32_t const bar4 = tick / (4 * len);
+    PathModifier const mutant = get_mutate_modifier(bar4);
+    mods = (mods & ~PATH_MUTATE) | mutant;
+  }
+
+  uint32_t const base_cycle =
+      ((mods & PATH_PINGPONG) && len > 1) ? (2 * len - 2) : len;
+  uint32_t const t = tick % base_cycle;
+  uint32_t u = (mods & PATH_PINGPONG) ? ((t < len) ? t : (base_cycle - t))
+                                      : t;
+
+  if (mods & PATH_PHASE) {
     uint32_t const shift = (tick / base_cycle) % len;
     u = (u + shift) % len;
   }
 
-  if (path_modifiers & PATH_STUTTER) {
+  if (mods & PATH_WEAVE) {
+    uint32_t const cell = u / 4;
+    static constexpr uint8_t CELL_OFF[4] = {0, 1, 2, 1};
+    u = (cell * 2 + CELL_OFF[u % 4]) % len;
+  }
+
+  if (mods & PATH_BROKEN_THIRDS) {
+    uint32_t const k = u / 2;
+    u = (u % 2 == 0) ? (k % len) : ((k + 2) % len);
+  }
+
+  if (mods & PATH_BEAT_PINGPONG) {
+    uint32_t const beat = (u / 4) * 4;
+    static constexpr uint8_t BEAT_PP[4] = {0, 1, 1, 0};
+    uint32_t const cand = beat + BEAT_PP[u % 4];
+    if (cand < len) {
+      u = cand;
+    }
+  }
+
+  if (mods & PATH_DOWNBEAT_LOCK) {
+    uint32_t const rem = u % 4;
+    if (rem == 1) {
+      if (u + 2 < len) {
+        u += 2;
+      }
+    } else if (rem == 3) {
+      u -= 2;
+    }
+  }
+
+  if (mods & PATH_PAIR_SWAP) {
+    if (u % 2 == 0) {
+      if (u + 1 < len) {
+        u += 1;
+      }
+    } else {
+      u -= 1;
+    }
+  }
+
+  if (mods & PATH_STUTTER) {
     if (u % 4 == 2) {
       u = u - 1;
     }
   }
 
-  if (path_modifiers & PATH_SPIRAL) {
+  if (mods & PATH_TURNAROUND) {
+    if (len >= 8 && u >= len - 4) {
+      uint32_t const offset = u - (len - 4);
+      u = (len - 1) - offset;
+    } else if (len >= 4 && len < 8 && u >= len - 2) {
+      uint32_t const offset = u - (len - 2);
+      u = (len - 1) - offset;
+    }
+  }
+
+  if (mods & PATH_PEDAL) {
+    if (u % 2 == 0) {
+      u = (u / 4) * 4;
+    }
+  }
+
+  if (mods & PATH_DRUNKEN) {
+    // Deterministic hash of tick for bounded random hesitation/anticipation (+-1 step)
+    uint32_t h = (tick ^ 0x9e3779b9u) * 0x85ebca6bu;
+    h ^= h >> 13;
+    uint32_t const roll = h % 100;
+    if (roll >= 60 && roll < 80) {
+      u = (u + len - 1) % len;
+    } else if (roll >= 80 && roll < 95) {
+      u = (u + 1) % len;
+    }
+  }
+
+  if (mods & PATH_SPIRAL) {
     u = filter_perm(SPIRAL_TABLE, u, len);
   }
 

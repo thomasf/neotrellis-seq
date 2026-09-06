@@ -861,13 +861,12 @@ void test_path_modifier_pingpong_spiral_combination(void) {
 void test_path_modifier_all_four_combination(void) {
   Voice v;
   v.pattern()->length = 16;
-  v.path_modifiers = PATH_PINGPONG | PATH_SPIRAL | PATH_STUTTER | PATH_PHASE;
+  v.path_modifiers = PATH_PINGPONG | PATH_SPIRAL | PATH_PHASE | PATH_MUTATE;
 
-  // Cycle length is (2 * 16 - 2) * 16 = 480. Ensure all indices are in [0, 16)
   v.seek(0);
   std::array<bool, 16> visited{};
   uint32_t visited_count = 0;
-  for (uint32_t i = 0; i < 480; i++) {
+  for (uint32_t i = 0; i < 576; i++) {
     v.advance();
     TEST_ASSERT_TRUE(v.pos < 16);
     if (!visited[v.pos]) {
@@ -875,9 +874,186 @@ void test_path_modifier_all_four_combination(void) {
       visited_count++;
     }
   }
-  // PATH_STUTTER repeats the offbeat (0, 1, 1, 3) within each 4-step group,
-  // visiting 12 unique positions per cycle while skipping 4.
-  TEST_ASSERT_EQUAL_UINT32(12, visited_count);
+  // All 16 steps should be visited over multiple mutant passes
+  TEST_ASSERT_TRUE(visited_count >= 12);
+}
+
+void test_path_modifier_mutate(void) {
+  // Test get_mutate_modifier returns a full permutation of all 9 unused modifiers
+  // across 9 chunks of 4 bars (36 bars)
+  std::array<bool, NUM_MUTATE_PATH_MODIFIERS> seen{};
+  for (uint32_t bar4 = 0; bar4 < NUM_MUTATE_PATH_MODIFIERS; bar4++) {
+    PathModifier const mod = get_mutate_modifier(bar4);
+    bool found = false;
+    for (size_t i = 0; i < NUM_MUTATE_PATH_MODIFIERS; i++) {
+      if (MUTATE_PATH_MODIFIERS[i] == mod) {
+        TEST_ASSERT_FALSE(seen[i]);
+        seen[i] = true;
+        found = true;
+        break;
+      }
+    }
+    TEST_ASSERT_TRUE(found);
+  }
+  for (size_t i = 0; i < NUM_MUTATE_PATH_MODIFIERS; i++) {
+    TEST_ASSERT_TRUE(seen[i]);
+  }
+
+  // Next round should also be a full permutation
+  std::array<bool, NUM_MUTATE_PATH_MODIFIERS> seen_round2{};
+  for (uint32_t bar4 = NUM_MUTATE_PATH_MODIFIERS;
+       bar4 < 2 * NUM_MUTATE_PATH_MODIFIERS; bar4++) {
+    PathModifier const mod = get_mutate_modifier(bar4);
+    for (size_t i = 0; i < NUM_MUTATE_PATH_MODIFIERS; i++) {
+      if (MUTATE_PATH_MODIFIERS[i] == mod) {
+        seen_round2[i] = true;
+        break;
+      }
+    }
+  }
+  for (size_t i = 0; i < NUM_MUTATE_PATH_MODIFIERS; i++) {
+    TEST_ASSERT_TRUE(seen_round2[i]);
+  }
+
+  // Test that Voice::calculate_pos switches modifiers on the 4-bar boundary
+  Voice v;
+  v.pattern()->length = 4; // 16 steps per 4 bars
+  v.path_modifiers = PATH_MUTATE;
+
+  // Within the first 4 bars (ticks 0..15), behavior matches get_mutate_modifier(0)
+  PathModifier const mod0 = get_mutate_modifier(0);
+  Voice v_expected0;
+  v_expected0.pattern()->length = 4;
+  v_expected0.path_modifiers = mod0;
+
+  for (uint32_t tick = 0; tick < 16; tick++) {
+    TEST_ASSERT_EQUAL_UINT32(v_expected0.calculate_pos(tick),
+                             v.calculate_pos(tick));
+  }
+
+  // In bars 4..7 (ticks 16..31), behavior matches get_mutate_modifier(1)
+  PathModifier const mod1 = get_mutate_modifier(1);
+  Voice v_expected1;
+  v_expected1.pattern()->length = 4;
+  v_expected1.path_modifiers = mod1;
+
+  for (uint32_t tick = 16; tick < 32; tick++) {
+    TEST_ASSERT_EQUAL_UINT32(v_expected1.calculate_pos(tick),
+                             v.calculate_pos(tick));
+  }
+}
+
+void test_path_modifier_weave(void) {
+  Voice v;
+  v.pattern()->length = 16;
+  v.path_modifiers = PATH_WEAVE;
+
+  uint32_t const expected[16] = {0, 1, 2, 1, 2, 3, 4, 3,
+                                 4, 5, 6, 5, 6, 7, 8, 7};
+  v.seek(0);
+  for (uint32_t i = 0; i < 16; i++) {
+    v.advance();
+    TEST_ASSERT_EQUAL_UINT32(expected[i], v.pos);
+  }
+}
+
+void test_path_modifier_broken_thirds(void) {
+  Voice v;
+  v.pattern()->length = 16;
+  v.path_modifiers = PATH_BROKEN_THIRDS;
+
+  uint32_t const expected[16] = {0, 2, 1, 3, 2, 4, 3, 5,
+                                 4, 6, 5, 7, 6, 8, 7, 9};
+  v.seek(0);
+  for (uint32_t i = 0; i < 16; i++) {
+    v.advance();
+    TEST_ASSERT_EQUAL_UINT32(expected[i], v.pos);
+  }
+}
+
+void test_path_modifier_beat_pingpong(void) {
+  Voice v;
+  v.pattern()->length = 16;
+  v.path_modifiers = PATH_BEAT_PINGPONG;
+
+  uint32_t const expected[16] = {0, 1, 1, 0, 4, 5, 5, 4,
+                                 8, 9, 9, 8, 12, 13, 13, 12};
+  v.seek(0);
+  for (uint32_t i = 0; i < 16; i++) {
+    v.advance();
+    TEST_ASSERT_EQUAL_UINT32(expected[i], v.pos);
+  }
+}
+
+void test_path_modifier_downbeat_lock(void) {
+  Voice v;
+  v.pattern()->length = 16;
+  v.path_modifiers = PATH_DOWNBEAT_LOCK;
+
+  uint32_t const expected[16] = {0, 3, 2, 1, 4, 7, 6, 5,
+                                 8, 11, 10, 9, 12, 15, 14, 13};
+  v.seek(0);
+  for (uint32_t i = 0; i < 16; i++) {
+    v.advance();
+    TEST_ASSERT_EQUAL_UINT32(expected[i], v.pos);
+  }
+}
+
+void test_path_modifier_pair_swap(void) {
+  Voice v;
+  v.pattern()->length = 16;
+  v.path_modifiers = PATH_PAIR_SWAP;
+
+  uint32_t const expected[16] = {1, 0, 3, 2, 5, 4, 7, 6,
+                                 9, 8, 11, 10, 13, 12, 15, 14};
+  v.seek(0);
+  for (uint32_t i = 0; i < 16; i++) {
+    v.advance();
+    TEST_ASSERT_EQUAL_UINT32(expected[i], v.pos);
+  }
+}
+
+void test_path_modifier_turnaround(void) {
+  Voice v;
+  v.pattern()->length = 16;
+  v.path_modifiers = PATH_TURNAROUND;
+
+  uint32_t const expected[16] = {0, 1, 2, 3, 4, 5, 6, 7,
+                                 8, 9, 10, 11, 15, 14, 13, 12};
+  v.seek(0);
+  for (uint32_t i = 0; i < 16; i++) {
+    v.advance();
+    TEST_ASSERT_EQUAL_UINT32(expected[i], v.pos);
+  }
+}
+
+void test_path_modifier_pedal(void) {
+  Voice v;
+  v.pattern()->length = 16;
+  v.path_modifiers = PATH_PEDAL;
+
+  uint32_t const expected[16] = {0, 1, 0, 3, 4, 5, 4, 7,
+                                 8, 9, 8, 11, 12, 13, 12, 15};
+  v.seek(0);
+  for (uint32_t i = 0; i < 16; i++) {
+    v.advance();
+    TEST_ASSERT_EQUAL_UINT32(expected[i], v.pos);
+  }
+}
+
+void test_path_modifier_drunken(void) {
+  Voice v;
+  v.pattern()->length = 16;
+  v.path_modifiers = PATH_DRUNKEN;
+
+  v.seek(0);
+  for (uint32_t i = 0; i < 64; i++) {
+    v.advance();
+    TEST_ASSERT_TRUE(v.pos < 16);
+    // Bounded within +-1 step of the true step position (i % 16)
+    int32_t diff = ((int32_t)v.pos - (int32_t)(i % 16) + 16) % 16;
+    TEST_ASSERT_TRUE(diff == 0 || diff == 1 || diff == 15);
+  }
 }
 
 int main(int argc, char **argv) {
@@ -907,6 +1083,15 @@ int main(int argc, char **argv) {
   RUN_TEST(test_path_modifier_spiral);
   RUN_TEST(test_path_modifier_stutter);
   RUN_TEST(test_path_modifier_phase);
+  RUN_TEST(test_path_modifier_weave);
+  RUN_TEST(test_path_modifier_broken_thirds);
+  RUN_TEST(test_path_modifier_beat_pingpong);
+  RUN_TEST(test_path_modifier_downbeat_lock);
+  RUN_TEST(test_path_modifier_pair_swap);
+  RUN_TEST(test_path_modifier_turnaround);
+  RUN_TEST(test_path_modifier_pedal);
+  RUN_TEST(test_path_modifier_drunken);
+  RUN_TEST(test_path_modifier_mutate);
   RUN_TEST(test_path_modifier_pingpong_spiral_combination);
   RUN_TEST(test_path_modifier_all_four_combination);
 

@@ -766,8 +766,8 @@
 
   <div class="green">PINGPONG <i>STEP 5</i></div>
   <div class="green">SPIRAL <i>STEP 6</i></div>
-  <div class="green">STUTTER <i>STEP 7</i></div>
-  <div class="green">PHASE <i>STEP 8</i></div>
+  <div class="green">PHASE <i>STEP 7</i></div>
+  <div class="green">MUTATE <i>STEP 8</i></div>
   <div class="off">&mdash; <i>CLEAR</i></div>
   <div class="off">&mdash; <i>UNDO</i></div>
   <div class="voc0">PAGE 0 <i>VOICE 0</i></div>
@@ -799,8 +799,8 @@
   <tr><td class="k">STEP 1 (Row 1)</td><td class="act-name">Toggle Voice Protect</td><td>Toggles Voice Protect for the selected voice page. Lights green (<code>COLOR_GREEN</code>) when active (protected), and red (<code>COLOR_RED</code>) when inactive (unprotected).</td></tr>
   <tr><td class="k">STEP 5 (Row 2)</td><td class="act-name">Ping-Pong Path</td><td>Toggles forward-then-backward playback. Lights green when active, red when inactive.</td></tr>
   <tr><td class="k">STEP 6 (Row 2)</td><td class="act-name">Spiral Path</td><td>Toggles outside-in spiral traversal. Lights green when active, red when inactive.</td></tr>
-  <tr><td class="k">STEP 7 (Row 2)</td><td class="act-name">Stutter Path</td><td>Toggles micro-hesitation / stutter playback (repeats step 2 of each 4-step beat: 0, 1, 1, 3). Lights green when active, red when inactive.</td></tr>
-  <tr><td class="k">STEP 8 (Row 2)</td><td class="act-name">Phase Slip Path</td><td>Toggles rotational phase slip (+1 step offset each cycle). Lights green when active, red when inactive.</td></tr>
+  <tr><td class="k">STEP 7 (Row 2)</td><td class="act-name">Phase Slip Path</td><td>Toggles rotational phase slip (+1 step offset each cycle). Lights green when active, red when inactive.</td></tr>
+  <tr><td class="k">STEP 8 (Row 2)</td><td class="act-name">Mutate Path</td><td>Randomly switches between all unused path modifiers every 4 bars (Stutter, Weave, Drunken, Beat Ping-Pong, Broken Thirds, Downbeat Lock, Pair Swap, Turnaround, Pedal). Lights green when active, red when inactive.</td></tr>
   <tr><td class="k">MENU</td><td class="act-name">Exit Menu</td><td>Exits Menu Mode and returns to the sequencer.</td></tr>
 </table>
 
@@ -830,9 +830,9 @@
 <ul>
   <li><strong>Ping-Pong (STEP 5)</strong>: Plays forward through the pattern, then bounces back in reverse without repeating the start and end steps (period is <code>2L - 2</code> steps for length <code>L &gt; 1</code>). For example, a 4-step pattern cycles <code>0 &rarr; 1 &rarr; 2 &rarr; 3 &rarr; 2 &rarr; 1</code>.</li>
   <li><strong>Spiral (STEP 6)</strong>: Scans the 4&times;4 step grid in an outside-in spiral: clockwise around the outer border (steps 0, 1, 2, 3, 7, 11, 15, 14, 13, 12, 8, 4), then through the inner core (5, 6, 10, 9). For shorter patterns, only steps within the pattern length are visited in spiral order.</li>
-  <li><strong>Stutter (STEP 7)</strong>: Introduces a syncopated micro-hesitation / flam stutter within each 4-step beat (<code>0, 1, 1, 3 | 4, 5, 5, 7...</code>). Steps intermittently repeat on the off-beat and leap ahead to catch up, giving the pattern a bouncy UK garage / hip-hop tape-drag pocket without losing the downbeat or the overall melody.</li>
-  <li><strong>Phase Slip (STEP 8)</strong>: Shifts the pattern starting offset forward by +1 step every time a full cycle completes (Steve Reich-style minimalist phasing). Preserves the melodic and rhythmic motif while continuously evolving its placement across the metric pulse.</li>
-  <li><strong>Combining Modifiers</strong>: Combining modifiers applies them deterministically in sequence (Ping-Pong &rarr; Phase &rarr; Stutter &rarr; Spiral). For instance, combining <strong>Ping-Pong + Spiral</strong> cycles inward through the spiral to the center and then spirals back out toward the edges. Combining all four yields complex, non-repetitive phrases that remain locked to the bar structure.</li>
+  <li><strong>Phase Slip (STEP 7)</strong>: Shifts the pattern starting offset forward by +1 step every time a full cycle completes (Steve Reich-style minimalist phasing). Preserves the melodic and rhythmic motif while continuously evolving its placement across the metric pulse.</li>
+  <li><strong>Mutate (STEP 8)</strong>: Automatically switches between all unused path modifiers every 4 bars in random order without back-to-back repeats (cycling through Stutter, Weave, Drunken, Beat Ping-Pong, Broken Thirds, Downbeat Lock, Pair Swap, Turnaround, and Pedal). Keeps long grooves constantly evolving with fresh organic rhythm.</li>
+  <li><strong>Combining Modifiers</strong>: Combining modifiers applies them deterministically in sequence (Ping-Pong &rarr; Phase &rarr; Active/Mutated Modifiers &rarr; Spiral). Combining all four yields complex, non-repetitive phrases that remain locked to the bar structure.</li>
 </ul>
 </section>
 
