@@ -41,10 +41,267 @@
   th { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #6b6b66; }
   .sw { display: inline-block; width: .8rem; height: .8rem; border-radius: 3px;
         vertical-align: -1px; margin-right: .35rem; outline: 1px solid #0002; }
+
+  .print-legend { display: none; }
+
+  /* Print Stylesheet optimized for Black & White Printers */
+  @media print {
+    @page {
+      size: portrait;
+      margin: 8mm 10mm;
+    }
+
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      background: #ffffff !important;
+      color: #000000 !important;
+      font-size: 7.8pt;
+      line-height: 1.26;
+      max-width: 100% !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .screen-page {
+      page-break-after: always;
+      break-after: page;
+      page-break-inside: avoid;
+      break-inside: avoid;
+      padding-top: 2pt;
+    }
+
+    .screen-page:last-of-type {
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    h1 {
+      font-size: 13pt;
+      margin: 0 0 2pt;
+      color: #000000 !important;
+    }
+
+    h2 {
+      font-size: 8.8pt;
+      margin: 5pt 0 2pt;
+      color: #000000 !important;
+      border-bottom: 1pt solid #000000;
+      padding-bottom: 1pt;
+      letter-spacing: .04em;
+    }
+
+    .screen-title {
+      font-size: 11pt !important;
+      font-weight: 700 !important;
+      margin: 0 0 2pt !important;
+      text-transform: none !important;
+      border-bottom: 1.5pt solid #000000 !important;
+      padding-bottom: 2pt !important;
+    }
+
+    .note {
+      color: #2b2b2b !important;
+      font-size: 7.2pt;
+      line-height: 1.22;
+      margin: 2pt 0 4pt;
+    }
+
+    code, .k {
+      font-size: 6.9pt;
+      color: #000000 !important;
+    }
+
+    .scroll {
+      overflow: visible !important;
+      width: 100% !important;
+      margin: 0 0 3pt 0 !important;
+    }
+
+    /* Print-optimized 8x4 Grid */
+    .grid {
+      display: grid !important;
+      grid-template-columns: repeat(8, 1fr) !important;
+      min-width: 0 !important;
+      width: 100% !important;
+      background: #ffffff !important;
+      border: 1.5pt solid #000000 !important;
+      border-radius: 3pt !important;
+      padding: 2.5pt !important;
+      gap: 2pt !important;
+      box-sizing: border-box !important;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .grid div {
+      border-radius: 2pt !important;
+      padding: 2pt 2.5pt !important;
+      min-height: 23pt !important;
+      font-size: 6.6pt !important;
+      font-weight: 700 !important;
+      line-height: 1.12 !important;
+      box-sizing: border-box !important;
+      border: 0.75pt solid #444444 !important;
+    }
+
+    .grid i {
+      font-size: 5.6pt !important;
+      line-height: 1.15 !important;
+      margin-top: 1.5pt !important;
+      opacity: 1 !important;
+    }
+
+    /* Black and White Pad Types */
+    .step {
+      background: #ffffff !important;
+      color: #000000 !important;
+      border: 0.75pt solid #555555 !important;
+    }
+    .step i {
+      color: #555555 !important;
+    }
+
+    .act {
+      background: #e4e4e4 !important;
+      color: #000000 !important;
+      border: 1pt solid #222222 !important;
+    }
+    .act i {
+      color: #333333 !important;
+    }
+
+    .mod {
+      background: #cccccc !important;
+      color: #000000 !important;
+      border: 1.2pt solid #000000 !important;
+    }
+    .mod i {
+      color: #111111 !important;
+    }
+
+    .ppos {
+      background: #eeeeee !important;
+      color: #000000 !important;
+      border: 1.5pt double #000000 !important;
+    }
+    .ppos i {
+      color: #333333 !important;
+    }
+
+    /* Held modifier: Inverted solid black with white text */
+    .held {
+      background: #000000 !important;
+      color: #ffffff !important;
+      border: 1.5pt solid #000000 !important;
+      outline: none !important;
+    }
+    .held i {
+      color: #dddddd !important;
+    }
+
+    /* Voice / Swap pads: light tone with distinct dark top bar */
+    .voc0, .voc1, .voc2, .voc3, .voc4, .voc5 {
+      background: #f4f4f4 !important;
+      color: #000000 !important;
+      border: 0.75pt solid #333333 !important;
+      border-top: 2.5pt solid #000000 !important;
+    }
+    .voc0 i, .voc1 i, .voc2 i, .voc3 i, .voc4 i, .voc5 i {
+      color: #222222 !important;
+      font-weight: 600 !important;
+    }
+
+    /* Unassigned / empty pads: light dashed box */
+    .off {
+      background: #ffffff !important;
+      color: #888888 !important;
+      border: 0.75pt dashed #999999 !important;
+    }
+    .off i {
+      color: #aaaaaa !important;
+    }
+
+    /* Tables in print */
+    table {
+      width: 100% !important;
+      font-size: 7.2pt !important;
+      margin: 2pt 0 4pt !important;
+      border-collapse: collapse !important;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    th {
+      font-size: 6.4pt !important;
+      color: #000000 !important;
+      border-bottom: 1.2pt solid #000000 !important;
+      padding: 1.2pt 2.5pt !important;
+    }
+
+    td {
+      color: #111111 !important;
+      border-bottom: 0.5pt solid #cccccc !important;
+      padding: 1.5pt 2.5pt !important;
+      line-height: 1.2 !important;
+    }
+
+    .k {
+      font-size: 6.8pt !important;
+      font-weight: 700 !important;
+      color: #000000 !important;
+      white-space: nowrap !important;
+    }
+
+    .sw {
+      border: 0.8pt solid #000000 !important;
+    }
+
+    /* Compact print legend */
+    .print-legend {
+      display: flex !important;
+      gap: 10pt;
+      font-size: 6.5pt;
+      color: #222222;
+      margin: 2pt 0 4pt;
+      padding: 2pt 4pt;
+      background: #fbfbfb;
+      border: 0.5pt solid #dddddd;
+      border-radius: 2pt;
+      align-items: center;
+      page-break-inside: avoid;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 3pt;
+    }
+
+    .legend-box {
+      display: inline-block;
+      width: 9pt;
+      height: 7pt;
+      border-radius: 1.5pt;
+      vertical-align: middle;
+      box-sizing: border-box;
+    }
+
+    .legend-box.step-box { background: #ffffff !important; border: 0.75pt solid #555555 !important; }
+    .legend-box.act-box { background: #e4e4e4 !important; border: 1pt solid #222222 !important; }
+    .legend-box.mod-box { background: #cccccc !important; border: 1.2pt solid #000000 !important; }
+    .legend-box.held-box { background: #000000 !important; border: 1.2pt solid #000000 !important; }
+    .legend-box.voc-box { background: #f4f4f4 !important; border: 0.75pt solid #333333 !important; border-top: 2.5pt solid #000000 !important; }
+    .legend-box.off-box { background: #ffffff !important; border: 0.75pt dashed #999999 !important; }
+  }
 </style>
 </head>
 <body>
 
+<section class="screen-page" id="page-pad-map">
 <h1>Trellis M4 pad map</h1>
 <p class="note">
   The 8&times;4 keypad as wired in <code>src/config.h</code>. Each cell shows its
@@ -91,6 +348,15 @@
 </div>
 </div>
 
+<div class="print-legend">
+  <span class="legend-item"><span class="legend-box step-box"></span> Step</span>
+  <span class="legend-item"><span class="legend-box act-box"></span> Action</span>
+  <span class="legend-item"><span class="legend-box mod-box"></span> Modifier</span>
+  <span class="legend-item"><span class="legend-box held-box"></span> Held</span>
+  <span class="legend-item"><span class="legend-box voc-box"></span> Voice</span>
+  <span class="legend-item"><span class="legend-box off-box"></span> Unassigned</span>
+</div>
+
 <h2>Presses</h2>
 <table>
   <tr><th>Pad</th><th>Action</th></tr>
@@ -115,8 +381,10 @@
   <tr><td class="k">TRANSFORM + &hellip;</td><td>Pattern transforms, see below.</td></tr>
   <tr><td class="k">TRANSFORM + ALL + &hellip;</td><td>The same transforms on every voice at once, see below.</td></tr>
 </table>
+</section>
 
-<h2>Transforms</h2>
+<section class="screen-page" id="page-transforms">
+<h2 class="screen-title">Transforms</h2>
 <p class="note">
   The pad map while TRANSFORM is held. Step pads apply an edit to the selected
   pattern, voice pads swap patterns between voices (the selected voice&rsquo;s
@@ -167,6 +435,15 @@
 </div>
 </div>
 
+<div class="print-legend">
+  <span class="legend-item"><span class="legend-box step-box"></span> Step</span>
+  <span class="legend-item"><span class="legend-box act-box"></span> Action</span>
+  <span class="legend-item"><span class="legend-box mod-box"></span> Modifier</span>
+  <span class="legend-item"><span class="legend-box held-box"></span> Held (TRANSFORM)</span>
+  <span class="legend-item"><span class="legend-box voc-box"></span> Voice Swap</span>
+  <span class="legend-item"><span class="legend-box off-box"></span> Unassigned</span>
+</div>
+
 <table>
   <tr><th>Pad</th><th>Effect</th></tr>
   <tr><td class="k">STEP 1, 2</td><td>Shifts the pattern left or right by 1 step, wrapping within its length.</td></tr>
@@ -194,8 +471,10 @@
   The rest of row four is free. Every
   transform is a single undo step, including swaps.
 </p>
+</section>
 
-<h2>Transforms on all voices</h2>
+<section class="screen-page" id="page-transforms-all">
+<h2 class="screen-title">Transforms on all voices</h2>
 <p class="note">
   The pad map while TRANSFORM and ALL are both held. Every step pad applies its
   transform to each voice&rsquo;s current pattern, as one undo group, so one
@@ -248,6 +527,15 @@
 </div>
 </div>
 
+<div class="print-legend">
+  <span class="legend-item"><span class="legend-box step-box"></span> Step</span>
+  <span class="legend-item"><span class="legend-box act-box"></span> Action</span>
+  <span class="legend-item"><span class="legend-box mod-box"></span> Modifier</span>
+  <span class="legend-item"><span class="legend-box held-box"></span> Held (TRANSFORM / ALL)</span>
+  <span class="legend-item"><span class="legend-box voc-box"></span> Voice Swap</span>
+  <span class="legend-item"><span class="legend-box off-box"></span> Unassigned</span>
+</div>
+
 <table>
   <tr><th>Pad</th><th>Effect</th></tr>
   <tr><td class="k">STEP 1&ndash;7, 9, 10</td><td>The transform of the same pad under TRANSFORM alone, applied to every voice&rsquo;s current pattern.</td></tr>
@@ -277,6 +565,7 @@
   Values live in <code>src/colors.h</code>, generated from <code>contrib/palette.go</code>.
   The step grid above is drawn in voice 0&rsquo;s hue; on the device it follows the selected voice.
 </p>
+</section>
 
 </body>
 </html>
