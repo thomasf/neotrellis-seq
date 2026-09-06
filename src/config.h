@@ -12,7 +12,7 @@ constexpr uint8_t DEFAULT_VELOCITY = 99;
 constexpr uint8_t ACCENT_VELOCITY = 127;
 // Velocity given to a ghost / muted step.
 constexpr uint8_t GHOST_VELOCITY = 50;
-// TRANSFORM + STEP 10 (echo) copies every note this many steps later at half
+// FN + STEP 10 (echo) copies every note this many steps later at half
 // its velocity. 2 is an eighth note at sixteenth-note steps.
 constexpr uint32_t ECHO_STEPS = 2;
 
@@ -23,7 +23,7 @@ constexpr uint32_t UNDO_LENGTH = 256;
 // Set the value of first note, C is a good choice. Lowest C is 0.
 // 36 is a good default. 48 is a high range. Set to 24 for a bass machine.
 constexpr uint8_t FIRST_MIDI_NOTE = 36;
-// TRANSFORM + the selected voice's pad moves that voice's note up by this many
+// FN + the selected voice's pad moves that voice's note up by this many
 // semitones, or back. 6 reaches the second bank of a 12 pad drum map.
 constexpr uint8_t ALT_NOTE_OFFSET = 6;
 
@@ -100,7 +100,7 @@ constexpr uint32_t KEY_PASTE = 5;
 constexpr uint32_t KEY_MENU = 6;
 constexpr uint32_t KEY_CLEAR = 12;
 constexpr uint32_t KEY_UNDO = 13;
-constexpr uint32_t KEY_TRANSFORM = 28;
+constexpr uint32_t KEY_FN = 28;
 constexpr uint32_t KEY_ACCENT = 20;
 
 constexpr uint32_t KEY_SEQ_POS_0 = 0;

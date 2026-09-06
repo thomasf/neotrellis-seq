@@ -9,18 +9,18 @@ SequencerMode sequencer_mode;
 
 static const KeyBinding SEQUENCER_BINDINGS[] = {
     // Chords (evaluated in order: specific modifier chords first)
-    {KEY_PATTERN_LEN, Mod::TRANSFORM | Mod::ALL, 0, polymeter_patterns},
-    {KEY_CLEAR, Mod::TRANSFORM | Mod::ALL, 0, dropout_patterns},
+    {KEY_PATTERN_LEN, Mod::FN | Mod::ALL, 0, polymeter_patterns},
+    {KEY_CLEAR, Mod::FN | Mod::ALL, 0, dropout_patterns},
     {KEY_CLEAR, Mod::ACCENT, 0, clear_accents},
 
-    // Symmetrical Rewind: POS + TRANSFORM in either order
-    {KEY_PATTERN_POS, Mod::TRANSFORM, 0, rewind_transport},
-    {KEY_TRANSFORM, Mod::POS, 0, rewind_transport},
+    // Symmetrical Rewind: POS + FN in either order
+    {KEY_PATTERN_POS, Mod::FN, 0, rewind_transport},
+    {KEY_FN, Mod::POS, 0, rewind_transport},
 
     // Edit actions
-    {KEY_UNDO, Mod::TRANSFORM, 0, redo},
+    {KEY_UNDO, Mod::FN, 0, redo},
     {KEY_UNDO, 0, 0, undo},
-    {KEY_PASTE, Mod::TRANSFORM, 0, paste_all_slots},
+    {KEY_PASTE, Mod::FN, 0, paste_all_slots},
     {KEY_PASTE, 0, 0, paste_single},
     {KEY_COPY, 0, 0, copy_pattern},
     {KEY_CLEAR, 0, 0, clear_pattern},
@@ -39,7 +39,7 @@ void SequencerMode::on_enter() {
 
   set_pixel(KEY_PATTERN_LEN, COLOR_PMOD);
   set_pixel(KEY_PATTERN_POS, COLOR_PMOD);
-  set_pixel(KEY_TRANSFORM, COLOR_PMOD);
+  set_pixel(KEY_FN, COLOR_PMOD);
   set_pixel(KEY_ACCENT, COLOR_PMOD);
 
   set_pixel(KEY_COPY, COLOR_PACT);
@@ -62,7 +62,7 @@ void SequencerMode::handle_release(const KeyContext &ctx) {
 void SequencerMode::handle_step(const KeyContext &ctx) {
   uint32_t index = ctx.step_index();
 
-  if (ctx.has(Mod::TRANSFORM)) {
+  if (ctx.has(Mod::FN)) {
     if (ctx.has(Mod::ACCENT) && ctx.has(Mod::ALL)) {
       load_kit_preset(index);
       return;
@@ -116,7 +116,7 @@ void SequencerMode::handle_step(const KeyContext &ctx) {
 
 void SequencerMode::handle_voice(const KeyContext &ctx) {
   uint32_t voice = ctx.voice_index();
-  if (ctx.has(Mod::TRANSFORM)) {
+  if (ctx.has(Mod::FN)) {
     if (voice == seq.voice_idx) {
       toggle_note_offset(voice);
     } else {

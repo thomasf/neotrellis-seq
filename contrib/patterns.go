@@ -401,7 +401,7 @@ struct Preset {
 
 // -----------------------------------------------------------------------------
 // Voice-Specific Pattern Presets (16 patterns each, mapped to STEP 1..16)
-// Triggered via: TRANSFORM + ACCENT + STEP n (for the selected voice)
+// Triggered via: FN + ACCENT + STEP n (for the selected voice)
 //
 // Voice 0: Kick / Bass Drum
 // Voice 1: Snare / Clap
@@ -517,7 +517,7 @@ inline void apply_preset(uint32_t voice, Pattern *p, uint32_t preset_index) {
 
 // -----------------------------------------------------------------------------
 // 16 Full 6-Voice Coordinated Kits
-// Triggered via: TRANSFORM + ALL + ACCENT + STEP n (for the entire kit)
+// Triggered via: FN + ALL + ACCENT + STEP n (for the entire kit)
 //
 // Voices:
 //   Voice 0: Kick / Bass Drum
@@ -681,7 +681,7 @@ func generatePresetsHTML(bank *PatternBank) string {
 	}
 
 	var sb strings.Builder
-	sb.WriteString(`<h2 class="presets-header">Single-Voice Pattern Presets (<code>TRANSFORM + ACCENT + STEP n</code>)</h2>
+	sb.WriteString(`<h2 class="presets-header">Single-Voice Pattern Presets (<code>FN + ACCENT + STEP n</code>)</h2>
 <p class="note">
   Applies preset <i>n</i> (1&ndash;16) to the active voice's current pattern as one undo step.
   Velocity symbols: <strong>■</strong> Accent (127), <strong>●</strong> Normal (99), <strong>○</strong> Ghost (50), <strong>·</strong> Rest.
@@ -710,7 +710,7 @@ func generatePresetsHTML(bank *PatternBank) string {
 
 func generateKitsHTML(bank *PatternBank) string {
 	var sb strings.Builder
-	sb.WriteString(`<h2 class="kits-header">Full 6-Voice Kits (<code>TRANSFORM + ALL + ACCENT + STEP n</code>)</h2>
+	sb.WriteString(`<h2 class="kits-header">Full 6-Voice Kits (<code>FN + ALL + ACCENT + STEP n</code>)</h2>
 <p class="note">
   Loads a coordinated 6-voice arrangement across the entire drum machine simultaneously, as a single undo step.
   Each kit includes all 6 tracks formatted in 16-step columns.
