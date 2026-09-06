@@ -56,14 +56,13 @@ void MenuMode::on_key(const KeyContext &ctx) {
     uint32_t option_index = ctx.step_index();
     if (option_index == 0) {
       seq.toggle_protected(current_page_);
-    } else if (option_index == 4) {
-      seq.toggle_path_modifier(current_page_, PATH_PINGPONG);
-    } else if (option_index == 5) {
-      seq.toggle_path_modifier(current_page_, PATH_SPIRAL);
-    } else if (option_index == 6) {
-      seq.toggle_path_modifier(current_page_, PATH_STUTTER);
-    } else if (option_index == 7) {
-      seq.toggle_path_modifier(current_page_, PATH_PHASE);
+      return;
+    }
+    if (option_index >= PATH_MODIFIER_FIRST_STEP &&
+        option_index < PATH_MODIFIER_FIRST_STEP + NUM_ACTIVE_PATH_MODIFIERS) {
+      uint32_t const mod_idx = option_index - PATH_MODIFIER_FIRST_STEP;
+      seq.toggle_path_modifier(current_page_, ACTIVE_PATH_MODIFIERS[mod_idx]);
+      return;
     }
     return;
   }
@@ -88,27 +87,25 @@ void MenuMode::render_leds() {
   bool const is_prot = seq.is_protected(current_page_);
   set_pixel(step_key[0], is_prot ? COLOR_GREEN : COLOR_RED);
 
-  // Row 0 steps 1..3: unassigned
-  for (uint32_t i = 1; i < 4; i++) {
+  // Steps before path modifiers: unassigned
+  for (uint32_t i = 1; i < PATH_MODIFIER_FIRST_STEP; i++) {
     set_pixel(step_key[i], COLOR_OFF);
   }
 
-  // Row 1 steps 4..7: Playback path modifiers
-  set_pixel(step_key[4], seq.has_path_modifier(current_page_, PATH_PINGPONG)
-                             ? COLOR_GREEN
-                             : COLOR_RED);
-  set_pixel(step_key[5], seq.has_path_modifier(current_page_, PATH_SPIRAL)
-                             ? COLOR_GREEN
-                             : COLOR_RED);
-  set_pixel(step_key[6], seq.has_path_modifier(current_page_, PATH_STUTTER)
-                             ? COLOR_GREEN
-                             : COLOR_RED);
-  set_pixel(step_key[7], seq.has_path_modifier(current_page_, PATH_PHASE)
-                             ? COLOR_GREEN
-                             : COLOR_RED);
+  // Active playback path modifiers
+  for (uint32_t i = 0;
+       i < NUM_ACTIVE_PATH_MODIFIERS && (PATH_MODIFIER_FIRST_STEP + i < 16);
+       i++) {
+    uint32_t const step_idx = PATH_MODIFIER_FIRST_STEP + i;
+    set_pixel(step_key[step_idx],
+              seq.has_path_modifier(current_page_, ACTIVE_PATH_MODIFIERS[i])
+                  ? COLOR_GREEN
+                  : COLOR_RED);
+  }
 
-  // Rows 2 and 3 (steps 8..15): unassigned
-  for (uint32_t i = 8; i < 16; i++) {
+  // Remaining steps after path modifiers: unassigned
+  for (uint32_t i = PATH_MODIFIER_FIRST_STEP + NUM_ACTIVE_PATH_MODIFIERS;
+       i < 16; i++) {
     set_pixel(step_key[i], COLOR_OFF);
   }
 }

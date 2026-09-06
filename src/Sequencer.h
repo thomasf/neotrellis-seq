@@ -78,15 +78,6 @@ public:
 // has velocity > 0.
 bool pattern_has_sounding_notes(const Pattern &p);
 
-enum PathModifier : uint8_t {
-  PATH_NONE = 0,
-  PATH_PINGPONG = 1 << 0, // forward and then backward
-  PATH_SPIRAL = 1 << 1,   // spiral (outside-in)
-  PATH_STUTTER = 1 << 2,  // micro-hesitation / stutter (0, 1, 1, 3)
-  PATH_PHASE = 1 << 3,    // phase slip / rotational drift (+1 step shift each cycle)
-  PATH_STRIDE = PATH_PHASE, // backwards-compatible alias
-};
-
 // Voice is a collection of patterns
 class Voice {
 public:
@@ -96,7 +87,7 @@ public:
   uint8_t note_offset = 0;                // semitones added to the base note
   uint32_t pattern_idx = 0;               // current pattern index
   bool is_protected = false;              // voice protect flag
-  uint8_t path_modifiers = PATH_NONE;     // active playback path modifiers
+  uint16_t path_modifiers = PATH_NONE;    // active playback path modifiers
   uint32_t play_head = 0;                 // progression step counter
   Pattern *pattern();                     // current pattern
   const Pattern *pattern() const;         // current pattern (const)
@@ -295,10 +286,10 @@ public:
       voices[idx].is_protected = !voices[idx].is_protected;
     }
   }
-  bool has_path_modifier(uint32_t idx, uint8_t mod) const {
+  bool has_path_modifier(uint32_t idx, uint16_t mod) const {
     return idx < VOICES && (voices[idx].path_modifiers & mod) != 0;
   }
-  void set_path_modifier(uint32_t idx, uint8_t mod, bool enable) {
+  void set_path_modifier(uint32_t idx, uint16_t mod, bool enable) {
     if (idx < VOICES) {
       if (enable) {
         voices[idx].path_modifiers |= mod;
@@ -307,7 +298,7 @@ public:
       }
     }
   }
-  void toggle_path_modifier(uint32_t idx, uint8_t mod) {
+  void toggle_path_modifier(uint32_t idx, uint16_t mod) {
     if (idx < VOICES) {
       voices[idx].path_modifiers ^= mod;
     }
