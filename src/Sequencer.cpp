@@ -153,6 +153,7 @@ void Pattern::rule30() {
 }
 
 Pattern *Voice::pattern() { return &patterns[pattern_idx]; }
+const Pattern *Voice::pattern() const { return &patterns[pattern_idx]; }
 
 Step Voice::step(uint32_t idx) { return pattern()->steps[idx]; }
 
@@ -511,55 +512,109 @@ void Sequencer::polymeter(uint32_t (*random_below)(uint32_t n)) {
 }
 
 // Board is every voice's current pattern as it was before a Life step.
-typedef std::array<Pattern, VOICES> Board;
+using Board = std::array<Pattern, VOICES>;
 
-// life_row writes the next Life generation of row `v` of `before` into
-// `target`, the pattern that row belongs to.
-static void life_row(Board const &before, Pattern &target, uint32_t v) {
-  uint32_t const len = std::min<uint32_t>(target.length, target.steps.size());
-  // alive reports whether row `row` sounds at column `col` of the row being
-  // computed. Both indices wrap: the column within `len`, then within the
-  // row's own length, as fill_empty reads them.
-  auto const alive = [&](uint32_t row, int col) -> bool {
-    Pattern const &p = before[row];
-    uint32_t const plen = std::min<uint32_t>(p.length, p.steps.size());
-    if (plen == 0) {
-      return false;
-    }
-    uint32_t const c = (uint32_t)(((col % (int)len) + (int)len) % (int)len);
-    return p.steps[c % plen].vel > 0;
-  };
-
+bool pattern_has_sounding_notes(const Pattern &p) {
+  uint32_t const len = std::min<uint32_t>(p.length, p.steps.size());
   for (uint32_t i = 0; i < len; i++) {
-    uint32_t neighbours = 0;
-    for (int dv = -1; dv <= 1; dv++) {
-      uint32_t const row = (v + VOICES + dv) % VOICES;
-      for (int di = -1; di <= 1; di++) {
-        if (dv == 0 && di == 0) {
-          continue;
+    if (p.steps[i].vel > 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool Pattern::has_sounding_notes() const {
+  return pattern_has_sounding_notes(*this);
+}
+
+void VirtualBoard::load(const std::array<Pattern, VOICES> &patterns) {
+  for (uint32_t tr = 0; tr < TILE_ROWS; tr++) {
+    for (uint32_t tc = 0; tc < TILE_COLS; tc++) {
+      uint32_t const v = tile_to_voice((int32_t)tr, (int32_t)tc);
+      Pattern const &p = patterns[v];
+      uint32_t const plen = std::min<uint32_t>(p.length, p.steps.size());
+
+      for (uint32_t sr = 0; sr < GRID_SIZE; sr++) {
+        for (uint32_t sc = 0; sc < GRID_SIZE; sc++) {
+          uint32_t const step_idx = sr * GRID_SIZE + sc;
+          Step const s = (step_idx < plen) ? p.steps[step_idx] : Step(0);
+          cells[tr * GRID_SIZE + sr][tc * GRID_SIZE + sc] = s;
         }
-        neighbours += alive(row, (int)i + di);
       }
     }
-    bool const live = before[v].steps[i].vel > 0;
-    if (live && (neighbours == 2 || neighbours == 3)) {
-      continue; // survives, velocity kept
+  }
+}
+
+void VirtualBoard::load(const std::array<Voice, VOICES> &voices) {
+  std::array<Pattern, VOICES> pats;
+  for (uint32_t v = 0; v < VOICES; v++) {
+    pats[v] = *voices[v].pattern();
+  }
+  load(pats);
+}
+
+void VirtualBoard::step_life(uint32_t generations) {
+  for (uint32_t g = 0; g < generations; g++) {
+    std::array<std::array<Step, VIRTUAL_COLS>, VIRTUAL_ROWS> next_cells = cells;
+    for (uint32_t r = 0; r < VIRTUAL_ROWS; r++) {
+      for (uint32_t c = 0; c < VIRTUAL_COLS; c++) {
+        uint32_t neighbours = 0;
+        for (int dr = -1; dr <= 1; dr++) {
+          for (int dc = -1; dc <= 1; dc++) {
+            if (dr == 0 && dc == 0) {
+              continue;
+            }
+            neighbours += (at((int32_t)r + dr, (int32_t)c + dc).vel > 0);
+          }
+        }
+        bool const live = cells[r][c].vel > 0;
+        if (live && (neighbours == 2 || neighbours == 3)) {
+          continue; // survives, velocity and accent kept
+        }
+        next_cells[r][c].vel =
+            (!live && neighbours == 3) ? DEFAULT_VELOCITY : 0;
+      }
     }
-    target.steps[i].vel = !live && neighbours == 3 ? DEFAULT_VELOCITY : 0;
+    cells = next_cells;
   }
 }
 
-static Board snapshot(std::array<Voice, VOICES> &voices) {
-  Board board;
-  for (uint32_t v = 0; v < VOICES; v++) {
-    board[v] = *voices[v].pattern();
+void VirtualBoard::extract_to_patterns(
+    std::array<Pattern, VOICES> &patterns) const {
+  for (uint32_t vr = 0; vr < CORE_ROWS; vr++) {
+    for (uint32_t vc = 0; vc < CORE_COLS; vc++) {
+      uint32_t const voice_idx =
+          (vr / GRID_SIZE) * VOICE_COLS + (vc / GRID_SIZE);
+      uint32_t const step_idx = (vr % GRID_SIZE) * GRID_SIZE + (vc % GRID_SIZE);
+      Pattern &p = patterns[voice_idx];
+      uint32_t const plen = std::min<uint32_t>(p.length, p.steps.size());
+      if (step_idx < plen) {
+        p.steps[step_idx] = get_viewport(vr, vc);
+      }
+    }
   }
-  return board;
 }
 
-void Sequencer::life() {
-  Board const before = snapshot(voices);
-  for (uint32_t v = 0; v < VOICES; v++) {
-    life_row(before, *voices[v].pattern(), v);
+void VirtualBoard::extract_to_voices(std::array<Voice, VOICES> &voices) const {
+  for (uint32_t vr = 0; vr < CORE_ROWS; vr++) {
+    for (uint32_t vc = 0; vc < CORE_COLS; vc++) {
+      uint32_t const voice_idx =
+          (vr / GRID_SIZE) * VOICE_COLS + (vc / GRID_SIZE);
+      uint32_t const step_idx = (vr % GRID_SIZE) * GRID_SIZE + (vc % GRID_SIZE);
+      Pattern &p = *voices[voice_idx].pattern();
+      uint32_t const plen = std::min<uint32_t>(p.length, p.steps.size());
+      if (step_idx < plen) {
+        p.steps[step_idx] = get_viewport(vr, vc);
+      }
+    }
   }
+}
+
+void Sequencer::life(int32_t pan_r, int32_t pan_c, uint32_t generations) {
+  VirtualBoard vb;
+  vb.load(voices);
+  vb.set_viewport(pan_r, pan_c);
+  vb.step_life(generations);
+  vb.extract_to_voices(voices);
 }

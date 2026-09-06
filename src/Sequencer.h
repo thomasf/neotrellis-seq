@@ -64,13 +64,19 @@ public:
   // right neighbour are silent, or if its left neighbour is silent and it or
   // its right neighbour sounds. A step that keeps sounding keeps its velocity,
   // a newborn one gets DEFAULT_VELOCITY. Rule 30 is chaotic and never empties
-  // a pattern that has a note, but it settles around half the steps sounding.
   void rule30();
+  // has_sounding_notes reports whether any step within the pattern length has
+  // velocity > 0.
+  bool has_sounding_notes() const;
   Pattern() = default;
   bool operator==(const Pattern &p) const {
     return length == p.length && steps == p.steps;
   }
 };
+
+// pattern_has_sounding_notes reports whether any step within the pattern length
+// has velocity > 0.
+bool pattern_has_sounding_notes(const Pattern &p);
 
 // Voice is a collection of patterns
 class Voice {
@@ -81,6 +87,7 @@ public:
   uint8_t note_offset = 0;                // semitones added to the base note
   uint32_t pattern_idx = 0;               // current pattern index
   Pattern *pattern();                     // current pattern
+  const Pattern *pattern() const;         // current pattern (const)
   void replace_pattern(const Pattern &p); // replace current pattern
   uint32_t pos = 0;                       // current position
   Step advance();                         // advance to next step (see seek)
@@ -134,6 +141,124 @@ private:
   uint32_t count = 0;        // number of entries currently in use
   bool group_pending = true; // the next push starts a new group
   void drop_oldest_group();
+};
+
+// VirtualBoard represents an expanded Game of Life board composed of the 6
+// voices arranged in a 2x3 grid of 4x4 step pads, wrapped toroidally with a
+// 1-tile halo into a 4x5 tile (16x20 cell) virtual board.
+//
+// Toroidal tile layout wrapping the center 2x3 core (V0..V5):
+//   X5 X3 X4 X5 X3   <- top halo (row above V0..V2 is V3..V5)
+//   X2 V0 V1 V2 X0   <- core row 0
+//   X5 V3 V4 V5 X3   <- core row 1
+//   X2 X0 X1 X2 X0   <- bottom halo (row below V3..V5 is V0..V2)
+//
+// In this virtual board:
+// - Conway's Game of Life evolves with 2D spatial locality matching the
+//   physical 4x4 button layout of the NeoTrellis M4 keypad.
+// - Panning (pan_r, pan_c) allows navigating the viewport over the virtual
+// board.
+class VirtualBoard {
+public:
+  static constexpr uint32_t VOICE_ROWS = 2;
+  static constexpr uint32_t VOICE_COLS = 3;
+  static constexpr uint32_t GRID_SIZE = 4; // 4x4 steps per voice pattern
+  static constexpr uint32_t CORE_ROWS = VOICE_ROWS * GRID_SIZE; // 8
+  static constexpr uint32_t CORE_COLS = VOICE_COLS * GRID_SIZE; // 12
+
+  // 1-tile halo around the 2x3 core: 4x5 tiles
+  static constexpr uint32_t TILE_ROWS = 4;
+  static constexpr uint32_t TILE_COLS = 5;
+  static constexpr uint32_t VIRTUAL_ROWS = TILE_ROWS * GRID_SIZE; // 16
+  static constexpr uint32_t VIRTUAL_COLS = TILE_COLS * GRID_SIZE; // 20
+
+  // Viewport offset in steps/cells
+  int32_t pan_r = 0;
+  int32_t pan_c = 0;
+
+  // The virtual board grid
+  std::array<std::array<Step, VIRTUAL_COLS>, VIRTUAL_ROWS> cells{};
+
+  VirtualBoard() = default;
+
+  // Coordinate mapping helpers
+  static constexpr uint32_t step_to_row(uint32_t step) {
+    return (step % 16) / GRID_SIZE;
+  }
+  static constexpr uint32_t step_to_col(uint32_t step) {
+    return (step % 16) % GRID_SIZE;
+  }
+  static constexpr uint32_t coord_to_step(uint32_t r, uint32_t c) {
+    return (r % GRID_SIZE) * GRID_SIZE + (c % GRID_SIZE);
+  }
+
+  // Maps tile (tr, tc) in 0..3 x 0..4 to voice index 0..5 on the 2x3 torus
+  static constexpr uint32_t tile_to_voice(int32_t tr, int32_t tc) {
+    int32_t const core_tr =
+        ((tr - 1) % (int32_t)VOICE_ROWS + (int32_t)VOICE_ROWS) %
+        (int32_t)VOICE_ROWS;
+    int32_t const core_tc =
+        ((tc - 1) % (int32_t)VOICE_COLS + (int32_t)VOICE_COLS) %
+        (int32_t)VOICE_COLS;
+    return (uint32_t)(core_tr * VOICE_COLS + core_tc);
+  }
+
+  // Load voices into the virtual board.
+  void load(const std::array<Voice, VOICES> &voices);
+
+  // Load from an array of patterns directly
+  void load(const std::array<Pattern, VOICES> &patterns);
+
+  // Access cell with toroidal wrapping on the 16x20 virtual board
+  Step at(int32_t r, int32_t c) const {
+    int32_t const wr = ((r % (int32_t)VIRTUAL_ROWS) + (int32_t)VIRTUAL_ROWS) %
+                       (int32_t)VIRTUAL_ROWS;
+    int32_t const wc = ((c % (int32_t)VIRTUAL_COLS) + (int32_t)VIRTUAL_COLS) %
+                       (int32_t)VIRTUAL_COLS;
+    return cells[wr][wc];
+  }
+
+  Step &at(int32_t r, int32_t c) {
+    int32_t const wr = ((r % (int32_t)VIRTUAL_ROWS) + (int32_t)VIRTUAL_ROWS) %
+                       (int32_t)VIRTUAL_ROWS;
+    int32_t const wc = ((c % (int32_t)VIRTUAL_COLS) + (int32_t)VIRTUAL_COLS) %
+                       (int32_t)VIRTUAL_COLS;
+    return cells[wr][wc];
+  }
+
+  // Pan the viewport by (dr, dc)
+  void pan(int32_t dr, int32_t dc) {
+    pan_r += dr;
+    pan_c += dc;
+  }
+
+  void pan_tiles(int32_t dtr, int32_t dtc) {
+    pan_r += dtr * (int32_t)GRID_SIZE;
+    pan_c += dtc * (int32_t)GRID_SIZE;
+  }
+
+  void set_viewport(int32_t r, int32_t c) {
+    pan_r = r;
+    pan_c = c;
+  }
+
+  void reset_viewport() {
+    pan_r = 0;
+    pan_c = 0;
+  }
+
+  // Read cell relative to viewport: vr in [0..7], vc in [0..11]
+  Step get_viewport(uint32_t vr, uint32_t vc) const {
+    return at((int32_t)GRID_SIZE + pan_r + (int32_t)vr,
+              (int32_t)GRID_SIZE + pan_c + (int32_t)vc);
+  }
+
+  // Advance the virtual board by generations of Conway's Game of Life
+  void step_life(uint32_t generations = 1);
+
+  // Extract viewport (or center core if pan == 0) back into voices or patterns
+  void extract_to_voices(std::array<Voice, VOICES> &voices) const;
+  void extract_to_patterns(std::array<Pattern, VOICES> &patterns) const;
 };
 
 // Sequencer is the main data type
@@ -191,18 +316,13 @@ public:
   // back whole. random_below(n) must return a uniform value in [0, n).
   void polymeter(uint32_t (*random_below)(uint32_t n));
   // life advances every voice's current pattern one generation of Conway's
-  // Game of Life, with the voices as rows and the steps as columns. A cell is
-  // alive when its step sounds. Each row is read as a ring of its own length,
-  // the way it plays: the neighbour to the left of step 0 is the row's last
-  // step, and a row of another length is read wrapped at the columns of the
-  // row being computed, as in fill_empty. The rows wrap too, so the first and
-  // last voice are neighbours. A cell survives with two or three live
-  // neighbours and keeps its velocity, so accents travel; a dead cell with
-  // exactly three is born at DEFAULT_VELOCITY; any other cell dies. Steps past
-  // a pattern's length are left alone. Every row is computed from the board
-  // as it was before the call. Only the whole board evolves: a single row
-  // against a frozen board dies or freezes within a press or two.
-  void life();
+  // Game of Life on an expanded 2x3 virtual board of 4x4 voice grids with
+  // toroidal halo wrapping. A cell is alive when its step sounds. Each cell
+  // survives with two or three live neighbours and keeps its velocity, so
+  // accents travel; a dead cell with exactly three is born at DEFAULT_VELOCITY;
+  // any other cell dies. Steps past a pattern's length are left alone.
+  // Optional parameters allow viewport panning and multi-generation stepping.
+  void life(int32_t pan_r = 0, int32_t pan_c = 0, uint32_t generations = 1);
   Sequencer();
 };
 
