@@ -89,6 +89,7 @@ public:
   uint8_t playing_note = 0;               // the note is_playing refers to
   uint8_t note_offset = 0;                // semitones added to the base note
   uint32_t pattern_idx = 0;               // current pattern index
+  uint32_t voice_idx = 0;                 // index of this voice (0..VOICES-1)
   bool is_protected = false;              // voice protect flag
   uint16_t path_modifiers = PATH_NONE;    // active playback path modifiers
   uint32_t play_head = 0;                 // progression step counter

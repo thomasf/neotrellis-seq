@@ -833,6 +833,17 @@ void test_path_modifier_phase(void) {
   // Wrap to start
   v.advance();
   TEST_ASSERT_EQUAL_UINT32(0, v.pos);
+
+  // Test that voices 0..5 start at offsets 0, 2, 4, 6, 8, 10...
+  Sequencer seq;
+  for (uint32_t i = 0; i < VOICES; i++) {
+    TEST_ASSERT_EQUAL_UINT32(i, seq.voices[i].voice_idx);
+    seq.voices[i].pattern()->length = 16;
+    seq.voices[i].path_modifiers = PATH_PHASE;
+    seq.voices[i].seek(0);
+    // Initial position should be (i * 2) % 16
+    TEST_ASSERT_EQUAL_UINT32((i * 2) % 16, seq.voices[i].pos);
+  }
 }
 
 void test_path_modifier_pingpong_spiral_combination(void) {

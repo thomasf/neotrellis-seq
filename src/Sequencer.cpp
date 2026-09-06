@@ -241,7 +241,7 @@ uint32_t Voice::calculate_pos(uint32_t tick) const {
                                       : t;
 
   if (mods & PATH_PHASE) {
-    uint32_t const shift = (tick / base_cycle) % len;
+    uint32_t const shift = (voice_idx * 2 + (tick / base_cycle)) % len;
     u = (u + shift) % len;
   }
 
@@ -398,6 +398,9 @@ void UndoBuffer::drop_oldest_group() {
 Sequencer::Sequencer() {
   voice_idx = 0;
   voice = &voices[0];
+  for (uint32_t i = 0; i < VOICES; i++) {
+    voices[i].voice_idx = i;
+  }
 }
 // sounds_like reports whether `a` and `b` sound on the same steps within
 // `len`, ignoring velocity.
