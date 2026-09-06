@@ -205,10 +205,21 @@ void clear_accents() {
   seq.voice->pattern()->clear_accents();
 }
 
+// rewind_transport resets all playheads to step 0. If the transport is
+// running, clock phase (ppqn) is preserved so the sequencer stays locked to the
+// external MIDI clock grid and fires step 0 on the next step boundary. When
+// stopped, locate(0) arms step 0 to fire on the very first clock after Start.
 void rewind_transport() {
   notes_off();
   midi_flush();
-  locate(0);
+  if (clock_running) {
+    global_pos = 0;
+    for (int voice = 0; voice < VOICES; voice++) {
+      seq.voices[voice].seek(0);
+    }
+  } else {
+    locate(0);
+  }
 }
 
 void open_menu() { mode_manager.switch_mode(&menu_mode); }

@@ -70,6 +70,8 @@ extern uint32_t seq_color_bg;
 extern uint32_t seq_color_accent;
 extern bool is_voice_select_hl_period;
 extern uint32_t ppqn;
+extern bool clock_running;
+extern uint32_t global_pos;
 
 // -----------------------------------------------------------------------------
 // Transforms
