@@ -1,3 +1,5 @@
+#include "main.h"
+
 #include <Adafruit_ADXL343.h>
 #include <Adafruit_NeoTrellisM4.h>
 #include <Adafruit_Sensor.h>
@@ -74,7 +76,6 @@ void show_pixels() {
 
 Sequencer seq = Sequencer();
 uint32_t current_voice = 0;
-void init_timer();
 
 void setup_default_patterns() {
 
@@ -233,11 +234,6 @@ bool apply_accent_transform(uint32_t voice, uint32_t index) {
   seq.voices[voice].pattern()->accent_every(index + 1);
   return true;
 }
-
-// Transform is one of the apply_* functions above: it applies the action for
-// step key `index` to a voice's current pattern and reports whether that key
-// is assigned.
-typedef bool (*Transform)(uint32_t voice, uint32_t index);
 
 // seed_random reseeds the stock generator, which is deterministic from boot,
 // from the time of the key press, which is as random as the player.
@@ -495,8 +491,6 @@ void render_pixels() {
   }
   interrupts();
 }
-
-void locate(uint32_t clocks);
 
 // handle_keys drains the keypad event queue and applies the edits.
 void handle_keys() {
