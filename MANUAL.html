@@ -820,17 +820,14 @@
   <tr><td class="k">UNDO</td><td class="act-name">Redo</td><td>Redoes the last undone edit. Subsequent new edits clear redo history.</td></tr>
   <tr><td class="k">PASTE</td><td class="act-name">Paste All Slots</td><td>Overwrites all 16 pattern slots of the selected voice with the paste buffer.</td></tr>
 </table>
-<p class="note">
-  Every edit is a single undo step, including voice swaps.
-</p>
 </section>
 
 <section class="screen-page" id="page-fn-all">
 <h2 class="screen-title">Function Key on all voices (FN + ALL)</h2>
 <p class="note">
   The pad map while FN and ALL are both held. Applies transforms across all six
-  voices simultaneously as a single undo group. Voices with Voice Protect enabled are
-  shielded from all-voice transforms and retain their existing patterns and lengths.
+  voices simultaneously. Voices with Voice Protect enabled are shielded from
+  all-voice transforms and retain their existing patterns and lengths.
   Evaluates voices in order, enabling generative interlocking variations across all drum tracks.
 </p>
 
@@ -889,11 +886,14 @@
   <tr><td class="k">STEP 8</td><td class="act-name">Interlocking Fill</td><td>Fill empty for each voice in sequence, creating complementary polyrhythmic parts.</td></tr>
   <tr><td class="k">STEP 11</td><td class="act-name">Declutter</td><td>Silences one randomly chosen voice on steps where two or more voices collide (never silences protected voices).</td></tr>
   <tr><td class="k">STEP 12</td><td class="act-name">Life</td><td>Advances Conway&rsquo;s Game of Life across voices on the virtual board (protected voices do not change).</td></tr>
-  <tr><td class="k">ACCENT + STEP <i>n</i></td><td class="act-name">Load Kit Preset</td><td>Loads pattern preset <i>n</i> (1&ndash;16) across all unprotected voices as one undo group.</td></tr>
+  <tr><td class="k">ACCENT + STEP <i>n</i></td><td class="act-name">Load Kit Preset</td><td>Loads pattern preset <i>n</i> (1&ndash;16) across all unprotected voices.</td></tr>
   <tr><td class="k">STEP 13</td><td class="act-name">Sync Lengths</td><td>Sets unprotected voice loop lengths to match the selected voice&rsquo;s current pattern length.</td></tr>
   <tr><td class="k">LEN</td><td class="act-name">Odd Meters</td><td>Assigns odd lengths (5, 7, 9, 11, 13, 15) randomly across unprotected voices without altering step data.</td></tr>
   <tr><td class="k">CLEAR</td><td class="act-name">Dropout</td><td>Silences half of currently sounding unprotected voices at random (minimum 1 voice per press).</td></tr>
-  <tr><td class="k">VOICE <i>v</i>, UNDO, PASTE</td><td class="act-name">Voice Actions</td><td>Swap with voice <i>v</i>, redo, or paste into all 16 slots of selected voice.</td></tr>
+  <tr><td class="k">VOICE <i>v</i></td><td class="act-name">Swap Pattern</td><td>Swaps selected pattern with voice <i>v</i>&rsquo;s current pattern.</td></tr>
+  <tr><td class="k">VOICE <i>v</i>, selected</td><td class="act-name">Transpose (+6)</td><td>Transposes voice <i>v</i>&rsquo;s MIDI note up 6 semitones, or back.</td></tr>
+  <tr><td class="k">UNDO</td><td class="act-name">Redo</td><td>Redoes the last undone edit. Subsequent new edits clear redo history.</td></tr>
+  <tr><td class="k">PASTE</td><td class="act-name">Paste All Slots</td><td>Overwrites all 16 pattern slots of the selected voice with the paste buffer.</td></tr>
 </table>
 </section>
 
@@ -985,7 +985,7 @@
   <li><strong>Ping-Pong (STEP 5)</strong>: Plays forward through the pattern, then bounces back in reverse without repeating the start and end steps (period is <code>2L - 2</code> steps for length <code>L &gt; 1</code>). For example, a 4-step pattern cycles <code>0 &rarr; 1 &rarr; 2 &rarr; 3 &rarr; 2 &rarr; 1</code>.</li>
   <li><strong>Spiral (STEP 6)</strong>: Scans the 4&times;4 step grid in an outside-in spiral: clockwise around the outer border (steps 0, 1, 2, 3, 7, 11, 15, 14, 13, 12, 8, 4), then through the inner core (5, 6, 10, 9). For shorter patterns, only steps within the pattern length are visited in spiral order.</li>
   <li><strong>Phase Slip (STEP 7)</strong>: Shifts the pattern starting offset forward by +1 step every time a full cycle completes (Steve Reich-style minimalist phasing). Preserves the melodic and rhythmic motif while continuously evolving its placement across the metric pulse. Each voice starts staggered at steps 0, 2, 4, 6, 8, 10... (Voice 0 at step 0, Voice 1 at step 2, Voice 2 at step 4, etc.) so all voices play in an interlocking phase canon.</li>
-  <li><strong>Mutate (STEP 8)</strong>: Automatically switches between all unused path modifiers every 4 bars in random order without back-to-back repeats (cycling through Stutter, Weave, Drunken, Beat Ping-Pong, Broken Thirds, Downbeat Lock, Pair Swap, Turnaround, and Pedal). Keeps long grooves constantly evolving with fresh organic rhythm.</li>
+  <li><strong>Mutate (STEP 8)</strong>: Automatically switches between all unused path modifiers every 4 bars in random order without back-to-back repeats (cycling through Stutter, Weave, Drunken, Beat Ping-Pong, Broken Thirds, Downbeat Lock, Pair Swap, Turnaround, and Pedal).</li>
   <li><strong>Combining Modifiers</strong>: Combining modifiers applies them deterministically in sequence (Ping-Pong &rarr; Phase &rarr; Active/Mutated Modifiers &rarr; Spiral). Combining all four yields complex, non-repetitive phrases that remain locked to the bar structure.</li>
 </ul>
 </section>
@@ -995,7 +995,7 @@
 <!-- BEGIN_PATTERNS_PRESETS -->
 <h2 class="presets-header">Single-Voice Pattern Presets (<code>FN + ACCENT + STEP n</code>)</h2>
 <p class="note">
-  Applies preset <i>n</i> (1&ndash;16) to the active voice's current pattern as one undo step.
+  Applies preset <i>n</i> (1&ndash;16) to the active voice's current pattern.
   Velocity symbols: <strong>■</strong> Accent (127), <strong>●</strong> Normal (99), <strong>○</strong> Ghost (50), <strong>·</strong> Rest.
 </p>
 
@@ -1129,7 +1129,7 @@
 <!-- BEGIN_PATTERNS_KITS -->
 <h2 class="kits-header">Full 6-Voice Kits (<code>FN + ALL + ACCENT + STEP n</code>)</h2>
 <p class="note">
-  Loads a coordinated 6-voice arrangement across the entire drum machine simultaneously, as a single undo step.
+  Loads a coordinated 6-voice arrangement across the entire drum machine simultaneously.
   Each kit includes all 6 tracks formatted in 16-step columns.
 </p>
 <table class="kits-table">

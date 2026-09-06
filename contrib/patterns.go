@@ -683,7 +683,7 @@ func generatePresetsHTML(bank *PatternBank) string {
 	var sb strings.Builder
 	sb.WriteString(`<h2 class="presets-header">Single-Voice Pattern Presets (<code>FN + ACCENT + STEP n</code>)</h2>
 <p class="note">
-  Applies preset <i>n</i> (1&ndash;16) to the active voice's current pattern as one undo step.
+  Applies preset <i>n</i> (1&ndash;16) to the active voice's current pattern.
   Velocity symbols: <strong>■</strong> Accent (127), <strong>●</strong> Normal (99), <strong>○</strong> Ghost (50), <strong>·</strong> Rest.
 </p>`)
 
@@ -712,7 +712,7 @@ func generateKitsHTML(bank *PatternBank) string {
 	var sb strings.Builder
 	sb.WriteString(`<h2 class="kits-header">Full 6-Voice Kits (<code>FN + ALL + ACCENT + STEP n</code>)</h2>
 <p class="note">
-  Loads a coordinated 6-voice arrangement across the entire drum machine simultaneously, as a single undo step.
+  Loads a coordinated 6-voice arrangement across the entire drum machine simultaneously.
   Each kit includes all 6 tracks formatted in 16-step columns.
 </p>
 <table class="kits-table">
