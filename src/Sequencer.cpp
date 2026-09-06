@@ -425,7 +425,7 @@ void Sequencer::rule30(uint32_t voice, uint32_t (*random_below)(uint32_t n)) {
   }
 }
 
-void Sequencer::mutate(uint32_t voice, uint32_t (*random_below)(uint32_t n)) {
+void Sequencer::drift(uint32_t voice, uint32_t (*random_below)(uint32_t n)) {
   if (voice >= VOICES) {
     return;
   }

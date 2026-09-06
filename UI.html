@@ -149,7 +149,7 @@
 
   <div class="step">SHUFFLE <i>STEP 9</i></div>
   <div class="step">ECHO <i>STEP 10</i></div>
-  <div class="step">MUTATE <i>STEP 11</i></div>
+  <div class="step">DRIFT <i>STEP 11</i></div>
   <div class="step">RULE 30 <i>STEP 12</i></div>
   <div class="mod">ACCENT &hellip; <i>ACCENT</i></div>
   <div class="off">&mdash; <i>POS</i></div>
@@ -177,9 +177,9 @@
   <tr><td class="k">STEP 8</td><td>Fill empty: replaces the pattern with notes on every step where no other voice sounds. Busy voices count for less, so a hi-hat on every step does not block anything. If there is no free step, it places as many notes as the sparsest other voice has on steps drawn at random from the least crowded ones, so each press gives a different fill. It never copies another voice outright.</td></tr>
   <tr><td class="k">STEP 9</td><td>Shuffles the steps into a random order.</td></tr>
   <tr><td class="k">STEP 10</td><td>Echo: every note gets a copy two steps later at half its velocity, wrapping at the pattern length. A copy never replaces a louder step, so the original notes and accents stay. Press again and the echoes echo, one more repeat per press, each half as loud.</td></tr>
-  <tr><td class="k">STEP 11</td><td>Mutate: moves one note one step left or right, chosen at random among the moves that land on a step where this voice is silent and no other voice sounds. A voice that sounds on every step blocks nothing, as with fill empty. The note keeps its velocity. Press repeatedly to let a groove drift while it keeps out of the other parts&rsquo; way; when no move fits, nothing changes. With ALL this pad is Declutter instead, see below.</td></tr>
+  <tr><td class="k">STEP 11</td><td>Drift: moves one note one step left or right, chosen at random among the moves that land on a step where this voice is silent and no other voice sounds. A voice that sounds on every step blocks nothing, as with fill empty. The note keeps its velocity. Press repeatedly to let a groove drift while it keeps out of the other parts&rsquo; way; when no move fits, nothing changes. With ALL this pad is Declutter instead, see below.</td></tr>
   <tr><td class="k">STEP 12</td><td>Rule 30: advances the pattern one generation of the Rule 30 cellular automaton, a chaotic one-dimensional rule where each step&rsquo;s fate is decided by itself and its two neighbours, with the pattern read as a ring. The result is trimmed back to the number of notes the pattern had, keeping the steps where the fewest other voices sound and breaking ties at random, so the voice keeps its density and never falls silent. Steps that keep sounding keep their velocity. With ALL this pad is Life instead, see below.</td></tr>
-  <tr><td class="k">STEP 13</td><td>Snap: every note moves one step toward its nearest downbeat (steps 1, 5, 9, 13), a note halfway between two toward the earlier one, and notes on a downbeat stay. When two notes meet the louder survives. Repeated presses quantise a smeared groove back onto the beats, the way back from Mutate. With ALL this pad is Sync lengths instead, see below.</td></tr>
+  <tr><td class="k">STEP 13</td><td>Snap: every note moves one step toward its nearest downbeat (steps 1, 5, 9, 13), a note halfway between two toward the earlier one, and notes on a downbeat stay. When two notes meet the louder survives. Repeated presses quantise a smeared groove back onto the beats, the way back from Drift. With ALL this pad is Sync lengths instead, see below.</td></tr>
   <tr><td class="k">ACCENT + STEP <i>n</i></td><td>Accents every <i>n</i>-th sounding step counting from step 1 and drops every other accent. STEP 4 accents the downbeats, STEP 2 the on-beats, STEP 1 every note. Silent steps are left alone.</td></tr>
   <tr><td class="k">VOICE <i>v</i></td><td>Swaps the selected pattern with voice <i>v</i>&rsquo;s current pattern.</td></tr>
   <tr><td class="k">VOICE <i>v</i>, selected</td><td>Moves voice <i>v</i>&rsquo;s MIDI note up 6 semitones, or back. Not a pattern edit, so undo leaves it alone.</td></tr>
@@ -189,7 +189,7 @@
 <p class="note">
   Row one shifts, by one step on the first pair of pads and by four on the
   second, left then right. Row two holds the deterministic reshapes and
-  row three shuffle, echo, mutate and rule 30, and row four starts with snap.
+  row three shuffle, echo, drift and rule 30, and row four starts with snap.
   The rest of row four is free. Every
   transform is a single undo step, including swaps.
 </p>
@@ -200,7 +200,7 @@
   transform to each voice&rsquo;s current pattern, as one undo group, so one
   press of UNDO brings all six back. The transforms run voice by voice in
   voice order, which matters for the ones that read the other voices: fill
-  empty, mutate and rule 30 each see the voices before them already changed.
+  empty, drift and rule 30 each see the voices before them already changed.
   Declutter, Life and Sync lengths are the exceptions, they act on the whole
   board at once.
   LEN deals odd lengths to the voices and CLEAR silences some of them. The

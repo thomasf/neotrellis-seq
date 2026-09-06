@@ -173,10 +173,10 @@ uint32_t random_below(uint32_t n) { return random(n); }
 
 // Step key indices (row major) of the keys whose ALL version is a board
 // transform rather than the single-voice transform applied to each voice:
-// STEP 11 is mutate alone and declutter with ALL, STEP 12 rule 30 alone and
+// STEP 11 is drift alone and declutter with ALL, STEP 12 rule 30 alone and
 // life with ALL, STEP 13 snap alone and sync lengths with ALL. See
 // transform_board.
-uint32_t static const KEY_MUTATE_INDEX = 10;
+uint32_t static const KEY_DRIFT_INDEX = 10;
 uint32_t static const KEY_LIFE_INDEX = 11;
 uint32_t static const KEY_SNAP_INDEX = 12;
 
@@ -187,7 +187,7 @@ uint32_t static const KEY_SNAP_INDEX = 12;
 //   row 0: shift left by 1, right by 1, left by 4, right by 4
 //   row 1: deterministic reshapes: reverse, invert, euclid, fill empty (which
 //          is random only when no step is free)
-//   row 2: shuffle, echo, mutate, rule 30 with the note count locked. With
+//   row 2: shuffle, echo, drift, rule 30 with the note count locked. With
 //          ALL the last two are declutter and life instead, see
 //          transform_board.
 //   row 3: snap (sync lengths with ALL, see transform_board), the rest
@@ -214,8 +214,8 @@ bool apply_transform(uint32_t voice, uint32_t index) {
     p->shuffle(random_below);
   } else if (index == 9) {
     p->echo();
-  } else if (index == KEY_MUTATE_INDEX) {
-    seq.mutate(voice, random_below);
+  } else if (index == KEY_DRIFT_INDEX) {
+    seq.drift(voice, random_below);
   } else if (index == KEY_LIFE_INDEX) {
     seq.rule30(voice, random_below);
   } else if (index == KEY_SNAP_INDEX) {
@@ -276,7 +276,7 @@ void transform_all_patterns(Transform transform, uint32_t index) {
 // board, declutter picks among the voices sounding on a step, and sync
 // lengths copies the selected voice's length to the rest.
 bool transform_board(uint32_t index) {
-  if (index != KEY_MUTATE_INDEX && index != KEY_LIFE_INDEX &&
+  if (index != KEY_DRIFT_INDEX && index != KEY_LIFE_INDEX &&
       index != KEY_SNAP_INDEX) {
     return false;
   }
@@ -285,7 +285,7 @@ bool transform_board(uint32_t index) {
   for (uint32_t voice = 0; voice < VOICES; voice++) {
     record_undo(voice);
   }
-  if (index == KEY_MUTATE_INDEX) {
+  if (index == KEY_DRIFT_INDEX) {
     seq.declutter(random_below);
   } else if (index == KEY_LIFE_INDEX) {
     seq.life();
