@@ -496,6 +496,8 @@ void render_pixels() {
   interrupts();
 }
 
+void locate(uint32_t clocks);
+
 // handle_keys drains the keypad event queue and applies the edits.
 void handle_keys() {
   while (trellis.available()) {
@@ -517,6 +519,11 @@ void handle_keys() {
           create_undo_step();
           seq.voice->pattern()->length = index + 1;
         };
+      } else if ((key == KEY_PATTERN_POS && trellis.isPressed(KEY_TRANSFORM)) ||
+                 (key == KEY_TRANSFORM && trellis.isPressed(KEY_PATTERN_POS))) {
+        notes_off();
+        midi_flush();
+        locate(0);
       } else if (trellis.isPressed(KEY_PATTERN_POS) && is_numpad_key(key)) {
         uint32_t index = index_of(step_key, 16, key);
         if (trellis.isPressed(KEY_VOICE_SELECT_ALL)) {

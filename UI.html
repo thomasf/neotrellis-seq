@@ -152,7 +152,7 @@
   <div class="step">DRIFT <i>STEP 11</i></div>
   <div class="step">RULE 30 <i>STEP 12</i></div>
   <div class="mod">ACCENT &hellip; <i>ACCENT</i></div>
-  <div class="off">&mdash; <i>POS</i></div>
+  <div class="act">REWIND <i>POS</i></div>
   <div class="voc2">SWAP 2 <i>VOICE 2</i></div>
   <div class="voc3">SWAP 3 <i>VOICE 3</i></div>
 
@@ -181,6 +181,7 @@
   <tr><td class="k">STEP 12</td><td>Rule 30: advances the pattern one generation of the Rule 30 cellular automaton, a chaotic one-dimensional rule where each step&rsquo;s fate is decided by itself and its two neighbours, with the pattern read as a ring. The result is trimmed back to the number of notes the pattern had, keeping the steps where the fewest other voices sound and breaking ties at random, so the voice keeps its density and never falls silent. Steps that keep sounding keep their velocity. With ALL this pad is Life instead, see below.</td></tr>
   <tr><td class="k">STEP 13</td><td>Snap: every note moves one step toward its nearest downbeat (steps 1, 5, 9, 13), a note halfway between two toward the earlier one, and notes on a downbeat stay. When two notes meet the louder survives. Repeated presses quantise a smeared groove back onto the beats, the way back from Drift. With ALL this pad is Sync lengths instead, see below.</td></tr>
   <tr><td class="k">ACCENT + STEP <i>n</i></td><td>Accents every <i>n</i>-th sounding step counting from step 1 and drops every other accent. STEP 4 accents the downbeats, STEP 2 the on-beats, STEP 1 every note. Silent steps are left alone.</td></tr>
+  <tr><td class="k">POS</td><td>Rewind: resets the playback position of all voices to step 0 and arms them to fire on the next clock. Not a pattern edit, so undo leaves it alone.</td></tr>
   <tr><td class="k">VOICE <i>v</i></td><td>Swaps the selected pattern with voice <i>v</i>&rsquo;s current pattern.</td></tr>
   <tr><td class="k">VOICE <i>v</i>, selected</td><td>Moves voice <i>v</i>&rsquo;s MIDI note up 6 semitones, or back. Not a pattern edit, so undo leaves it alone.</td></tr>
   <tr><td class="k">UNDO</td><td>Redoes the last undone edit. Any new edit after an undo discards what could have been redone.</td></tr>
@@ -232,7 +233,7 @@
   <div class="step">DECLUTTER <i>STEP 11</i></div>
   <div class="step">LIFE <i>STEP 12</i></div>
   <div class="mod">ACCENT &hellip; <i>ACCENT</i></div>
-  <div class="off">&mdash; <i>POS</i></div>
+  <div class="act">REWIND <i>POS</i></div>
   <div class="voc2">SWAP 2 <i>VOICE 2</i></div>
   <div class="voc3">SWAP 3 <i>VOICE 3</i></div>
 
