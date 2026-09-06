@@ -44,6 +44,7 @@ int static const KEY_PATTERN_LEN = 29;
 int static const KEY_PATTERN_POS = 21;
 int static const KEY_COPY = 4;
 int static const KEY_PASTE = 5;
+int static const KEY_MENU = 6;
 int static const KEY_CLEAR = 12;
 int static const KEY_UNDO = 13;
 int static const KEY_TRANSFORM = 28;

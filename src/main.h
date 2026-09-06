@@ -47,6 +47,30 @@ void undo();
 void redo();
 
 // -----------------------------------------------------------------------------
+// Pattern & Transport Actions
+// -----------------------------------------------------------------------------
+
+void copy_pattern();
+void paste_single();
+void paste_all_slots();
+void clear_pattern();
+void clear_accents();
+void rewind_transport();
+void open_menu();
+
+// -----------------------------------------------------------------------------
+// Global State Externs
+// -----------------------------------------------------------------------------
+
+extern Sequencer seq;
+extern Pattern copy_buffer;
+extern uint32_t seq_color_set;
+extern uint32_t seq_color_bg;
+extern uint32_t seq_color_accent;
+extern bool is_voice_select_hl_period;
+extern uint32_t ppqn;
+
+// -----------------------------------------------------------------------------
 // Transforms
 // -----------------------------------------------------------------------------
 

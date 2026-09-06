@@ -11,11 +11,17 @@
 #include <cstdint>
 #include <delay.h>
 
+#include "Input.h"
+#include "MenuMode.h"
 #include "Sequencer.h"
+#include "SequencerMode.h"
+#include "UIMode.h"
 #include "colors.h"
 #include "config.h"
 #include "constants.h"
 #include "utils.h"
+
+ModeManager mode_manager;
 
 Adafruit_ADXL343 accel = Adafruit_ADXL343(123, &Wire1);
 
@@ -169,6 +175,42 @@ void undo() { move_group(undo_buffer, redo_buffer); }
 void redo() { move_group(redo_buffer, undo_buffer); }
 
 Pattern copy_buffer = Pattern(); // for copy/paste
+
+void copy_pattern() { copy_buffer = Pattern(*seq.voice->pattern()); }
+
+void paste_single() {
+  create_undo_step();
+  seq.voice->replace_pattern(Pattern(copy_buffer));
+}
+
+void paste_all_slots() {
+  begin_edit();
+  Voice &v = *seq.voice;
+  for (uint32_t slot = 0; slot < v.patterns.size(); slot++) {
+    record_before(seq.voice_idx, slot, v.patterns[slot]);
+    v.patterns[slot] = Pattern(copy_buffer);
+  }
+}
+
+void clear_pattern() {
+  create_undo_step();
+  for (int i = 0; i < 16; i++) {
+    seq.voice->pattern()->steps[i] = Step(0);
+  }
+}
+
+void clear_accents() {
+  create_undo_step();
+  seq.voice->pattern()->clear_accents();
+}
+
+void rewind_transport() {
+  notes_off();
+  midi_flush();
+  locate(0);
+}
+
+void open_menu() { mode_manager.switch_mode(&menu_mode); }
 
 uint32_t random_below(uint32_t n) { return random(n); }
 
@@ -350,23 +392,8 @@ void setup() {
   /*   while(1); */
   /* } */
 
-  for (int i = 0; i < VOICES; i++) {
-    set_pixel(voice_index_to_key(i), voice_index_to_color(i));
-  }
-
-  set_pixel(KEY_PATTERN_LEN, COLOR_PMOD);
-  set_pixel(KEY_PATTERN_POS, COLOR_PMOD);
-  set_pixel(KEY_TRANSFORM, COLOR_PMOD);
-  set_pixel(KEY_ACCENT, COLOR_PMOD);
-
-  set_pixel(KEY_COPY, COLOR_PACT);
-  set_pixel(KEY_PASTE, COLOR_PACT);
-  set_pixel(KEY_CLEAR, COLOR_PACT);
-  set_pixel(KEY_UNDO, COLOR_PACT);
-
-  set_pixel(KEY_VOICE_SELECT_ALL, COLOR_PPOS);
-
   setup_default_patterns();
+  mode_manager.switch_mode(&sequencer_mode);
 
   show_pixels();
 #ifdef INTERNAL_CLOCK
@@ -492,176 +519,30 @@ void render_pixels() {
   interrupts();
 }
 
-// handle_keys drains the keypad event queue and applies the edits.
+uint32_t held_keys_mask = 0;
+
+// handle_keys drains the keypad event queue and dispatches via the active
+// UIMode.
 void handle_keys() {
   while (trellis.available()) {
     keypadEvent e = trellis.read();
-    int key = e.bit.KEY;
+    uint8_t key = e.bit.KEY;
+    bool pressed = (e.bit.EVENT == KEY_JUST_PRESSED);
+
     debug_print("key", key);
-
-    if (e.bit.EVENT == KEY_JUST_PRESSED) {
+    if (pressed) {
       debug_print("key_pressed", key);
-      noInterrupts();
-
-      if (key == KEY_PATTERN_LEN && trellis.isPressed(KEY_TRANSFORM) &&
-          trellis.isPressed(KEY_VOICE_SELECT_ALL)) {
-        polymeter_patterns();
-      } else if (trellis.isPressed(KEY_PATTERN_LEN)) {
-        if (is_numpad_key(key)) {
-          uint32_t index = index_of(step_key, 16, key);
-
-          create_undo_step();
-          seq.voice->pattern()->length = index + 1;
-        };
-      } else if ((key == KEY_PATTERN_POS && trellis.isPressed(KEY_TRANSFORM)) ||
-                 (key == KEY_TRANSFORM && trellis.isPressed(KEY_PATTERN_POS))) {
-        notes_off();
-        midi_flush();
-        locate(0);
-      } else if (trellis.isPressed(KEY_PATTERN_POS) && is_numpad_key(key)) {
-        uint32_t index = index_of(step_key, 16, key);
-        if (trellis.isPressed(KEY_VOICE_SELECT_ALL)) {
-          for (int voice = 0; voice < VOICES; voice++) {
-            seq.voices[voice].seek(index);
-          }
-        } else {
-          seq.voice->seek(index);
-        };
-
-      } else if (trellis.isPressed(KEY_TRANSFORM) &&
-                 voice_key_to_index(key) < VOICES) {
-        uint32_t const voice = voice_key_to_index(key);
-        if (voice == seq.voice_idx) {
-          toggle_note_offset(voice);
-        } else {
-          swap_pattern(voice);
-        }
-
-      } else {
-
-        if (voice_key_to_index(key) < VOICES) {
-          select_voice(voice_key_to_index(key));
-
-        } else if (key == KEY_UNDO) {
-          if (trellis.isPressed(KEY_TRANSFORM)) {
-            redo();
-          } else {
-            undo();
-          }
-
-        } else if (key == KEY_COPY) {
-          copy_buffer = Pattern(*seq.voice->pattern());
-
-        } else if (key == KEY_PASTE) {
-          if (trellis.isPressed(KEY_TRANSFORM)) {
-            // Paste into all 16 pattern slots of the selected voice as one
-            // undo group.
-            begin_edit();
-            Voice &v = *seq.voice;
-            for (uint32_t slot = 0; slot < v.patterns.size(); slot++) {
-              record_before(seq.voice_idx, slot, v.patterns[slot]);
-              v.patterns[slot] = Pattern(copy_buffer);
-            }
-          } else {
-            create_undo_step();
-            seq.voice->replace_pattern(Pattern(copy_buffer));
-          }
-
-        } else if (key == KEY_CLEAR && trellis.isPressed(KEY_TRANSFORM) &&
-                   trellis.isPressed(KEY_VOICE_SELECT_ALL)) {
-          dropout_patterns();
-
-        } else if (key == KEY_CLEAR) {
-          create_undo_step();
-          if (trellis.isPressed(KEY_ACCENT)) {
-            seq.voice->pattern()->clear_accents();
-          } else {
-            for (int i = 0; i < 16; i++) {
-              seq.voice->pattern()->steps[i] = Step(0);
-            }
-          }
-        } else if (is_numpad_key(key)) {
-
-          uint32_t index = index_of(step_key, 16, key);
-          debug_print("index", index);
-
-          if (trellis.isPressed(KEY_TRANSFORM)) {
-            Transform const transform = trellis.isPressed(KEY_ACCENT)
-                                            ? apply_accent_transform
-                                            : apply_transform;
-            if (trellis.isPressed(KEY_VOICE_SELECT_ALL)) {
-              if (trellis.isPressed(KEY_ACCENT) || !transform_board(index)) {
-                transform_all_patterns(transform, index);
-              }
-            } else {
-              transform_pattern(transform, index);
-            }
-
-          } else if (trellis.isPressed(KEY_ACCENT)) {
-            // Accent moves a step between loud and normal and switches a
-            // silent one on loud; it never switches a step off.
-            create_undo_step();
-            Step &step = seq.voice->pattern()->steps[index];
-            step.vel = step.vel >= ACCENT_VELOCITY ? DEFAULT_VELOCITY
-                                                   : ACCENT_VELOCITY;
-
-          } else if (trellis.isPressed(KEY_VOICE_SELECT_ALL)) {
-            for (int voice = 0; voice < VOICES; voice++) {
-              seq.voices[voice].pattern_idx = index;
-            }
-
-          } else {
-            bool voice_select_modifier_held = false;
-            for (uint32_t voice = 0; voice < VOICES; voice++) {
-              if (!trellis.isPressed(voice_index_to_key(voice))) {
-                continue;
-              }
-              voice_select_modifier_held = true;
-              seq.voices[voice].pattern_idx = index;
-            }
-
-            if (!voice_select_modifier_held) {
-              create_undo_step();
-              if (seq.voice->pattern()->steps[index].vel == 0) {
-                seq.voice->pattern()->steps[index].vel = DEFAULT_VELOCITY;
-              } else {
-                seq.voice->pattern()->steps[index].vel = 0;
-              }
-            }
-          }
-
-        } else {
-          // set_pixel(key, COLOR_PPOS);
-        }
-      }
-      interrupts();
-    } else if (e.bit.EVENT == KEY_JUST_RELEASED) {
+      held_keys_mask |= (1UL << key);
+    } else {
       debug_print("key_released", key);
-      noInterrupts();
-
-      if (key == KEY_VOICE_SELECT_0) {
-        set_pixel(key, COLOR_VOC0);
-
-      } else if (key == KEY_VOICE_SELECT_1) {
-        set_pixel(key, COLOR_VOC1);
-
-      } else if (key == KEY_VOICE_SELECT_2) {
-        set_pixel(key, COLOR_VOC2);
-
-      } else if (key == KEY_VOICE_SELECT_3) {
-        set_pixel(key, COLOR_VOC3);
-
-      } else if (key == KEY_VOICE_SELECT_4) {
-        set_pixel(key, COLOR_VOC4);
-
-      } else if (key == KEY_VOICE_SELECT_5) {
-        set_pixel(key, COLOR_VOC5);
-
-      } else {
-        // set_pixel(key, COLOR_OFF);
-      }
-      interrupts();
+      held_keys_mask &= ~(1UL << key);
     }
+
+    KeyContext ctx{key, pressed, held_keys_mask & ~(1UL << key)};
+
+    noInterrupts();
+    mode_manager.handle_key(ctx);
+    interrupts();
   }
 }
 
@@ -877,6 +758,6 @@ void loop() {
   trellis.tick();
   handle_keys();
 
-  render_pixels();
+  mode_manager.render();
   show_pixels();
 }
