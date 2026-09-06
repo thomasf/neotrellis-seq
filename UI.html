@@ -141,6 +141,8 @@
       border-bottom: 1pt solid #000000;
       padding-bottom: 1pt;
       letter-spacing: .04em;
+      page-break-after: avoid;
+      break-after: avoid;
     }
 
     h3 {
@@ -359,11 +361,19 @@
       page-break-inside: auto !important;
       break-inside: auto !important;
     }
-    #page-kits table {
-      page-break-inside: auto !important;
-      break-inside: auto !important;
+    #page-kits table,
+    .pattern-table {
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
-    #page-kits tr {
+    #page-kits table.kits-table,
+    #page-kits table:has(.kit-pattern) {
+      page-break-inside: auto;
+      break-inside: auto;
+    }
+    #page-kits tr,
+    .kit-pattern,
+    .kit-voices {
       page-break-inside: avoid !important;
       break-inside: avoid !important;
     }
@@ -688,7 +698,7 @@
 </p>
 
 <h3>Voice 0: Kick / Bass Drum Presets</h3>
-<table>
+<table class="pattern-table">
   <tr><th>Pad</th><th>Preset Name</th><th>Rhythm (16 Steps)</th></tr>
   <tr><td class="k">STEP 1</td><td>Four on Floor</td><td><code>■ · · ·  ■ · · ·  ■ · · ·  ■ · · ·</code></td></tr>
   <tr><td class="k">STEP 2</td><td>Four on Floor Pickup</td><td><code>■ · · ·  ● · · ·  ■ · · ·  ● · · ○</code></td></tr>
@@ -709,7 +719,7 @@
 </table>
 
 <h3>Voice 1: Snare / Clap Presets</h3>
-<table>
+<table class="pattern-table">
   <tr><th>Pad</th><th>Preset Name</th><th>Rhythm (16 Steps)</th></tr>
   <tr><td class="k">STEP 1</td><td>Classic Backbeat</td><td><code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></td></tr>
   <tr><td class="k">STEP 2</td><td>Backbeat &amp; Flam</td><td><code>· · · ·  ■ · · ·  · · · ·  ■ · · ○</code></td></tr>
@@ -730,7 +740,7 @@
 </table>
 
 <h3>Voice 2: Hi-Hat Presets</h3>
-<table>
+<table class="pattern-table">
   <tr><th>Pad</th><th>Preset Name</th><th>Rhythm (16 Steps)</th></tr>
   <tr><td class="k">STEP 1</td><td>Classic Offbeat Open</td><td><code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code></td></tr>
   <tr><td class="k">STEP 2</td><td>Offbeat &amp; Pickup</td><td><code>· · ■ ·  · · ■ ·  · · ■ ·  · ○ ■ ·</code></td></tr>
@@ -751,7 +761,7 @@
 </table>
 
 <h3>Voice 3: Percussion 1 Presets (Low/Mid)</h3>
-<table>
+<table class="pattern-table">
   <tr><th>Pad</th><th>Preset Name</th><th>Rhythm (16 Steps)</th></tr>
   <tr><td class="k">STEP 1</td><td>Low Conga Tumbao</td><td><code>· · · ·  · · ■ ·  · · · ·  · · ● ·</code></td></tr>
   <tr><td class="k">STEP 2</td><td>Low Conga Bounce</td><td><code>· · · ·  · · ■ ·  · · · ·  · ● · ·</code></td></tr>
@@ -772,7 +782,7 @@
 </table>
 
 <h3>Voice 4: Percussion 2 Presets (Mid/High)</h3>
-<table>
+<table class="pattern-table">
   <tr><th>Pad</th><th>Preset Name</th><th>Rhythm (16 Steps)</th></tr>
   <tr><td class="k">STEP 1</td><td>High Conga Slap</td><td><code>· · · ·  ■ · · ·  · · · ·  · · · ·</code></td></tr>
   <tr><td class="k">STEP 2</td><td>Afro Conga Slaps</td><td><code>· · · ·  · · · ■  · · · ·  · ■ · ·</code></td></tr>
@@ -793,7 +803,7 @@
 </table>
 
 <h3>Voice 5: Percussion 3 Presets (High/Texture)</h3>
-<table>
+<table class="pattern-table">
   <tr><th>Pad</th><th>Preset Name</th><th>Rhythm (16 Steps)</th></tr>
   <tr><td class="k">STEP 1</td><td>Gentle 8th Shaker</td><td><code>· ○ · ●  · ○ · ●  · ○ · ●  · ○ · ●</code></td></tr>
   <tr><td class="k">STEP 2</td><td>Minimal Shaker Touch</td><td><code>· · · ●  · · · ●  · · · ●  · · · ●</code></td></tr>
@@ -820,7 +830,7 @@
   Loads a coordinated 6-voice arrangement across the entire drum machine simultaneously, as a single undo step.
   Each kit includes all 6 tracks formatted in 16-step columns.
 </p>
-<table>
+<table class="kits-table">
   <tr><th>Pad</th><th>Kit Name &amp; Genre</th><th>6-Voice Patterns (16 Steps)</th></tr>
   <tr>
     <td class="k">STEP 1</td>

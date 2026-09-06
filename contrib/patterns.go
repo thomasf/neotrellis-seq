@@ -691,7 +691,7 @@ func generatePresetsHTML(bank *PatternBank) string {
 
 	for v := 0; v < 6; v++ {
 		sb.WriteString(fmt.Sprintf("\n\n<h3>%s</h3>\n", voiceTitles[v]))
-		sb.WriteString(`<table>
+		sb.WriteString(`<table class="pattern-table">
   <tr><th>Pad</th><th>Preset Name</th><th>Rhythm (16 Steps)</th></tr>
 `)
 		for _, preset := range bank.Voices[v] {
@@ -717,7 +717,7 @@ func generateKitsHTML(bank *PatternBank) string {
   Loads a coordinated 6-voice arrangement across the entire drum machine simultaneously, as a single undo step.
   Each kit includes all 6 tracks formatted in 16-step columns.
 </p>
-<table>
+<table class="kits-table">
   <tr><th>Pad</th><th>Kit Name &amp; Genre</th><th>6-Voice Patterns (16 Steps)</th></tr>
 `)
 
