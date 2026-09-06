@@ -1,5 +1,6 @@
 # midi drum sequencer for adafruit neotrellis m4
 
+📖 **[Online User Manual & Pad Map](https://thomasf.github.io/neotrellis-seq/)**
 
 **This is an work in progress, documents might currently reflect current, planned or scrapped features**
 
@@ -90,6 +91,19 @@ required on the target machine.
 
 Alternatively, with the toolchain available, `platformio run -t upload` uploads
 the release build over USB directly.
+
+## Documentation
+
+The full user manual, interactive pad map, pattern presets, and kit reference are available online at:
+**[https://thomasf.github.io/neotrellis-seq/](https://thomasf.github.io/neotrellis-seq/)**
+
+Key sections:
+- [Hardware Pad Map & Key Combinations](https://thomasf.github.io/neotrellis-seq/#page-pad-map)
+- [Algorithmic Transforms](https://thomasf.github.io/neotrellis-seq/#page-transforms)
+- [Settings & Playback Path Modifiers](https://thomasf.github.io/neotrellis-seq/#page-menu)
+- [Pattern Presets & Kits Reference](https://thomasf.github.io/neotrellis-seq/#page-kits)
+
+The manual is also available locally in [`MANUAL.html`](MANUAL.html) (designed for web browsing and formatted for black-and-white printing).
 
 
 ## Other scripts

@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Trellis M4 Pad Map</title>
+<title>Trellis M4 MIDI Drum Sequencer — User Manual</title>
+<meta name="description" content="Standalone 6-voice polyphonic USB-MIDI step sequencer for Adafruit NeoTrellis M4 — user manual, pad map, rhythm presets, and kit reference.">
 <style>
+  html { scroll-behavior: smooth; }
   body { background: #f6f6f4; color: #1b1b1a; font: 15px/1.55 system-ui, sans-serif;
          margin: 0 auto; max-width: 60rem; padding: 2rem 1.5rem 4rem; }
   h1 { font-size: 1.5rem; margin: 0 0 .3rem; }
@@ -14,6 +16,106 @@
   .note { color: #6b6b66; }
   code, .k { font: 13px/1.4 ui-monospace, monospace; }
   .act-name { font-weight: 600; white-space: nowrap; color: #111; }
+  a { color: #1a56db; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .screen-page { scroll-margin-top: 3.6rem; }
+
+  /* Site navigation bar */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(246, 246, 244, 0.94);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid #dcdcd6;
+    margin: -2rem -1.5rem 2rem;
+    padding: 0.6rem 1.5rem;
+  }
+  .top-nav-inner {
+    max-width: 60rem;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+  }
+  .top-nav-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #111;
+    letter-spacing: -0.01em;
+  }
+  .top-nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.75rem;
+    font-size: 0.85rem;
+  }
+  .top-nav-links a {
+    color: #4b4b46;
+    font-weight: 500;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    transition: color 0.15s, background-color 0.15s;
+  }
+  .top-nav-links a:hover {
+    color: #111;
+    background: #e8e8e2;
+    text-decoration: none;
+  }
+  .top-nav-links a.nav-gh {
+    color: #1a56db;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .top-nav-links a.nav-gh:hover {
+    background: #e1ebff;
+  }
+
+  /* GitHub project links on front page */
+  .project-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: 1.2rem 0 1.5rem;
+  }
+  .btn-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 0.85rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 6px;
+    border: 1px solid #d0d0c8;
+    background: #ffffff;
+    color: #1b1b1a;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .btn-link:hover {
+    background: #f0f0ec;
+    border-color: #b0b0a8;
+    text-decoration: none;
+  }
+  .btn-link.primary {
+    background: #1b1b1a;
+    color: #ffffff;
+    border-color: #1b1b1a;
+  }
+  .btn-link.primary:hover {
+    background: #333330;
+    border-color: #333330;
+  }
+  .btn-link svg {
+    flex-shrink: 0;
+  }
+  .print-only, .print-repo-url { display: none; }
 
   /* The pad grid: 8 columns x 4 rows, in hardware order. */
   .grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: .4rem;
@@ -110,7 +212,7 @@
         color: #555555;
       }
       @bottom-left {
-        content: "Trellis M4 Sequencer";
+        content: "Trellis M4 Sequencer · https://github.com/thomasf/neotrellis-seq";
         font-family: system-ui, -apple-system, sans-serif;
         font-size: 8.5pt;
         font-weight: 500;
@@ -121,6 +223,23 @@
     * {
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
+    }
+
+    .top-nav, .project-bar, .no-print {
+      display: none !important;
+    }
+
+    .print-repo-url {
+      display: block !important;
+      font-size: 9pt !important;
+      color: #333333 !important;
+      margin: 1pt 0 3pt !important;
+      font-family: ui-monospace, monospace !important;
+    }
+
+    a {
+      color: inherit !important;
+      text-decoration: none !important;
     }
 
     body {
@@ -449,17 +568,52 @@
 </head>
 <body>
 
+<nav class="top-nav" aria-label="Documentation navigation">
+  <div class="top-nav-inner">
+    <div class="top-nav-title">Trellis M4 Sequencer</div>
+    <div class="top-nav-links">
+      <a href="#page-front">Overview</a>
+      <a href="#page-pad-map">Pad Map</a>
+      <a href="#page-transforms">Transforms</a>
+      <a href="#page-transforms-all">Transforms (All)</a>
+      <a href="#page-menu">Menu</a>
+      <a href="#page-kits">Presets &amp; Kits</a>
+      <a href="https://github.com/thomasf/neotrellis-seq" class="nav-gh" target="_blank" rel="noopener">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</nav>
+
 <section class="screen-page" id="page-front">
 <h1>Trellis M4 MIDI Drum Sequencer</h1>
+<p class="print-repo-url">Repository: https://github.com/thomasf/neotrellis-seq</p>
 <p class="note">
   Standalone 6-voice polyphonic USB-MIDI step sequencer for the Adafruit NeoTrellis M4
   (SAMD51 Cortex-M4 at 120&thinsp;MHz, 8&times;4 RGB elastomeric keypad). Features polyrhythmic track
   lengths, 4-level velocity dynamics, generative algorithmic transforms, and 256-step undo/redo.
 </p>
 
+<div class="project-bar">
+  <a class="btn-link primary" href="https://github.com/thomasf/neotrellis-seq" target="_blank" rel="noopener">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+    GitHub Repository
+  </a>
+  <a class="btn-link" href="https://github.com/thomasf/neotrellis-seq/raw/master/neotrellis-seq.uf2" download>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>
+    Download Firmware (UF2)
+  </a>
+  <a class="btn-link" href="https://github.com/thomasf/neotrellis-seq/issues" target="_blank" rel="noopener">
+    Issues &amp; Discussions
+  </a>
+</div>
+
 <h2>Specifications &amp; Architecture</h2>
 <table>
   <tr><th>Feature</th><th>Description</th></tr>
+  <tr><td class="k">Repository</td><td><a href="https://github.com/thomasf/neotrellis-seq" target="_blank" rel="noopener">https://github.com/thomasf/neotrellis-seq</a></td></tr>
+  <tr class="no-print"><td class="k">Firmware</td><td><a href="https://github.com/thomasf/neotrellis-seq/raw/master/neotrellis-seq.uf2">neotrellis-seq.uf2</a> &mdash; prebuilt UF2 image (SAMD51 drag-and-drop flash)</td></tr>
   <tr><td class="k">Voices</td><td>6 independent drum channels (Voice 0&ndash;5), default MIDI notes 36&ndash;41 (C1&ndash;F1) on Channel 1.</td></tr>
   <tr><td class="k">Pattern Memory</td><td>16 pattern slots per voice (96 total), switchable on the fly without interrupting playback.</td></tr>
   <tr><td class="k">Track Length</td><td>Independent length per voice (1&ndash;16 steps) for evolving polyrhythms and phase meters.</td></tr>
