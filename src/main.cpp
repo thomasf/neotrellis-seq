@@ -500,23 +500,32 @@ void notes_off() {
   }
 }
 
+volatile uint8_t voice_flash_mask = 0;
 bool is_voice_select_hl_period = false;
+
+bool is_voice_flashing(uint32_t voice) {
+  if (voice >= VOICES) {
+    return false;
+  }
+  return (voice_flash_mask & (1U << voice)) != 0;
+}
+
 // run_step moves every voice to its next step (or the step it was seeked to)
 // and sends its note ons in one USB transfer.
 void run_step() {
   notes_off();
+  voice_flash_mask = 0;
   for (uint32_t voice = 0; voice < VOICES; voice++) {
     Voice &v = seq.voices[voice];
     Step const current_step = v.advance();
     if (current_step.vel > 0) {
       v.playing_note = FIRST_MIDI_NOTE + voice + v.note_offset;
       midi_note_on(v.playing_note, current_step.vel);
-      uint32_t const flash_color = v.is_protected ? COLOR_RED : COLOR_PPOS;
-      set_pixel(voice_index_to_key(voice), flash_color);
       v.is_playing = true;
-      is_voice_select_hl_period = true;
+      voice_flash_mask |= (1U << voice);
     }
   }
+  is_voice_select_hl_period = (voice_flash_mask != 0);
   midi_flush();
 }
 
@@ -524,9 +533,12 @@ void run_step() {
 // Nothing in here talks to MIDI, so it only needs to run at the UI frame rate.
 void render_pixels() {
   noInterrupts();
-  if (is_voice_select_hl_period && ppqn >= 2) {
-    is_voice_select_hl_period = false;
-    for (uint32_t i = 0; i < VOICES; i++) {
+  for (uint32_t i = 0; i < VOICES; i++) {
+    if (is_voice_flashing(i)) {
+      uint32_t const flash_color =
+          seq.voices[i].is_protected ? COLOR_RED : COLOR_PPOS;
+      set_pixel(voice_index_to_key(i), flash_color);
+    } else {
       set_pixel(voice_index_to_key(i), voice_index_to_color(i));
     }
   }
@@ -595,6 +607,8 @@ void locate(uint32_t clocks) {
     voice.seek(next_step);
   }
   ppqn = (into_step + CLOCK_DIVISION - 1) % CLOCK_DIVISION;
+  voice_flash_mask = 0;
+  is_voice_select_hl_period = false;
 }
 
 // The note offs go out on the clock before the step, so a step's worth of
@@ -606,6 +620,10 @@ void on_midi_clock() {
     return;
   }
   ++ppqn;
+  if (ppqn >= 2) {
+    voice_flash_mask = 0;
+    is_voice_select_hl_period = false;
+  }
   if (ppqn == CLOCK_DIVISION - 1) {
     notes_off();
     midi_flush();
@@ -629,6 +647,8 @@ void on_midi_continue() { clock_running = true; }
 
 void on_midi_stop() {
   clock_running = false;
+  voice_flash_mask = 0;
+  is_voice_select_hl_period = false;
   notes_off();
   midi_flush();
 }

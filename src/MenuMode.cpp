@@ -74,9 +74,12 @@ void MenuMode::render_leds() {
   set_pixel(KEY_CLEAR, COLOR_OFF);
 
   // Highlight the currently active menu page button
+  // Flashes in sync with the music: inverted (turns LED off instead of white)
   for (uint32_t i = 0; i < VOICES; i++) {
     uint32_t key = voice_index_to_key(i);
-    if (i == current_page_) {
+    if (is_voice_flashing(i)) {
+      set_pixel(key, COLOR_OFF);
+    } else if (i == current_page_) {
       set_pixel(key, COLOR_PPOS);
     } else {
       set_pixel(key, voice_index_to_color(i));

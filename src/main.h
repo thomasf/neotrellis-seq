@@ -24,6 +24,7 @@ void fill_pixels(uint32_t color);
 void show_pixels();
 void render_pixels();
 void select_voice(uint32_t idx);
+bool is_voice_flashing(uint32_t voice);
 
 // -----------------------------------------------------------------------------
 // Setup & Initialization
@@ -68,6 +69,7 @@ extern uint32_t seq_color_set;
 extern uint32_t seq_color_bg;
 extern uint32_t seq_color_accent;
 extern bool is_voice_select_hl_period;
+extern volatile uint8_t voice_flash_mask;
 extern uint32_t ppqn;
 extern bool clock_running;
 extern uint32_t global_pos;
