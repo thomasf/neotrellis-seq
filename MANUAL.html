@@ -591,7 +591,7 @@
 <p class="print-repo-url">Repository: https://github.com/thomasf/neotrellis-seq</p>
 <p class="note">
   Standalone 6-voice polyphonic USB-MIDI step sequencer for the Adafruit NeoTrellis M4
-  (SAMD51 Cortex-M4 at 120&thinsp;MHz, 8&times;4 RGB elastomeric keypad). Features polyrhythmic track
+  (SAMD51 Cortex-M4 at 120&thinsp;MHz, 8&times;4 RGB elastomeric keypad). Features polymetric track
   lengths, 4-level velocity dynamics, generative algorithmic transforms, and 256-step undo/redo.
 </p>
 
@@ -616,7 +616,7 @@
   <tr class="no-print"><td class="k">Firmware</td><td><a href="https://github.com/thomasf/neotrellis-seq/raw/master/neotrellis-seq.uf2">neotrellis-seq.uf2</a> &mdash; prebuilt UF2 image (SAMD51 drag-and-drop flash)</td></tr>
   <tr><td class="k">Voices</td><td>6 independent drum channels (Voice 0&ndash;5), default MIDI notes 36&ndash;41 (C1&ndash;F1) on Channel 1.</td></tr>
   <tr><td class="k">Pattern Memory</td><td>16 pattern slots per voice (96 total), switchable on the fly without interrupting playback.</td></tr>
-  <tr><td class="k">Track Length</td><td>Independent length per voice (1&ndash;16 steps) for evolving polyrhythms and phase meters.</td></tr>
+  <tr><td class="k">Track Length</td><td>Independent length per voice (1&ndash;16 steps) for evolving polymeters and phase meters.</td></tr>
   <tr><td class="k">Velocities</td><td>4 expressive levels: Accent (127), Normal (99), Ghost / Muted (50), and Rest / Silence (0).</td></tr>
   <tr><td class="k">Undo / Redo</td><td>256 edits deep across all voices. Swaps and all-voice transforms undo/redo in a single press.</td></tr>
   <tr><td class="k">Transforms</td><td>Algorithmic generators: Euclidean, Game of Life, Rule 30, Shift, Echo, Invert, Drift, Declutter, Fill Empty.</td></tr>
@@ -883,7 +883,7 @@
 <table>
   <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
   <tr><td class="k">STEP 1&ndash;7, 9, 10</td><td class="act-name">Transform All</td><td>Applies corresponding single-voice transform to all unprotected voices simultaneously.</td></tr>
-  <tr><td class="k">STEP 8</td><td class="act-name">Interlocking Fill</td><td>Fill empty for each voice in sequence, creating complementary polyrhythmic parts.</td></tr>
+  <tr><td class="k">STEP 8</td><td class="act-name">Interlocking Fill</td><td>Fill empty for each voice in sequence, creating complementary interlocking parts.</td></tr>
   <tr><td class="k">STEP 11</td><td class="act-name">Declutter</td><td>Silences one randomly chosen voice on steps where two or more voices collide (never silences protected voices).</td></tr>
   <tr><td class="k">STEP 12</td><td class="act-name">Life</td><td>Advances Conway&rsquo;s Game of Life across voices on the virtual board (protected voices do not change).</td></tr>
   <tr><td class="k">ACCENT + STEP <i>n</i></td><td class="act-name">Load Kit Preset</td><td>Loads pattern preset <i>n</i> (1&ndash;16) across all unprotected voices.</td></tr>

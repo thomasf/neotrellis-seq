@@ -88,7 +88,7 @@ A _ _ _  _ _ A _  _ _ A _  _ _ _ _
 12: Baile Favela Drop | Favela tamborzão syncopated kick punch
 A _ _ N  _ _ N _  A _ _ N  _ _ _ _
 
-# Row 3 (Pads 13-16): Minimal, Broken Beat & Polyrhythms
+# Row 3 (Pads 13-16): Minimal & Broken Beat
 13: Offbeat Skip Kick | Skipping beat 3 for broken beat and house tension
 A _ _ _  N _ _ _  _ _ A _  N _ _ _
 
@@ -98,7 +98,7 @@ A _ _ _  _ _ _ _  A _ _ _  _ _ _ _
 15: Microhouse Minimal | Delicate micro-kick with subtle end-bar tick
 A _ _ _  _ _ _ _  N _ _ _  _ _ _ g
 
-16: Dotted 8th Phasing | Polyrhythmic 3-against-4 kick phasing
+16: Dotted 8th Phasing | 3-against-4 kick phasing
 A _ _ N  _ _ A _  _ N _ _  A _ _ _
 
 
@@ -195,8 +195,8 @@ _ N _ A  _ N _ A  _ N _ A  _ N _ A
 8: Afro Feathered Hat | Afro-House open offbeats with subtle ghost touches
 _ _ A g  _ _ A _  _ _ A g  _ _ A _
 
-# Row 2 (Pads 9-12): Polyrhythms, Skips & Micro-Grooves
-9: Dotted 8th Phasing | Hypnotic 3-against-4 polyrhythmic open hats
+# Row 2 (Pads 9-12): Skips & Micro-Grooves
+9: Dotted 8th Phasing | Hypnotic 3-against-4 open hats
 A _ _ N  _ _ A _  _ N _ _  A _ _ _
 
 10: Microhouse Delicate | Whispering micro-ticks with vast breathing space
@@ -266,7 +266,7 @@ A _ _ _  _ _ _ _  _ _ _ _  _ _ _ _
 12: Sub Bass 2-Step | UK Garage sub pocket hits on steps 1 & 8
 A _ _ _  _ _ _ A  _ _ _ _  _ _ _ _
 
-# Row 3 (Pads 13-16): Polyrhythms, Cumbia & Breaks
+# Row 3 (Pads 13-16): Cumbia & Breaks
 13: Cumbia Low Tumbao | Syncopated low cumbia pulse on steps 7 & 15
 _ _ _ _  _ _ N _  _ _ _ _  _ _ N _
 
