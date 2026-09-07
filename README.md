@@ -20,11 +20,13 @@ PlatformIO downloads them on the first build.
 
 The sequencer is a USB-MIDI device that follows the host's transport. By default,
 it maps its 6 voices directly onto the 16-pad Ableton Drum Rack layout in the
-General MIDI C1–D#2 range (notes 36–51 on `MIDI_CHANNEL`). Each voice features a
-primary note and a musically matched alternate note (`FN + VOICE`), such as
-Kick/Rimshot, Snare/Clap, Closed/Open Hi-Hat, Floor Toms, Rack Toms, and Crash/Ride Cymbals.
+General MIDI C1–D#2 range (notes 36–51 on `MIDI_CHANNEL`):
+Kick (36/C1), Snare (38/D1), Closed Hi-Hat (42/F#1), Low Floor Tom (41/F1),
+Low Tom (45/A1), and Crash Cymbal (49/C#2). MIDI notes can be interactively
+reassigned or swapped across all 16 drum rack pads in Menu Mode (`Hold VOICE + tap step`).
+In Function mode (`FN`), holding `FN + VOICE` swaps pattern sequences between voices.
 
-A legacy sequential note mode (+6 semitone shift) is also supported by selecting
+A legacy sequential note mode (notes 36–41) is also supported by selecting
 `Default = Consecutive` in `pkg/midimap/midimap.go` and running the generator.
 
 The note offs go out one clock before the next step and the

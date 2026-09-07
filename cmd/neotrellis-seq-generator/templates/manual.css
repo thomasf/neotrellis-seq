@@ -4,6 +4,19 @@
   h1 { font-size: 1.5rem; margin: 0 0 .3rem; }
   h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em;
        color: #6b6b66; margin: 2.5rem 0 .8rem; }
+  .screen-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #111;
+    text-transform: none;
+    letter-spacing: -0.01em;
+    margin: 2.5rem 0 0.6rem;
+    border-bottom: 1px solid #dcdcd6;
+    padding-bottom: 0.35rem;
+  }
+  .screen-title code {
+    font-size: 1.05rem;
+  }
   h3 { font-size: .95rem; font-weight: 700; color: #333330; margin: 1.8rem 0 .5rem; }
   .note { color: #6b6b66; }
   code, .k { font: 13px/1.4 ui-monospace, monospace; }
@@ -45,6 +58,7 @@
     align-items: center;
     gap: 0.25rem 0.75rem;
     font-size: 0.85rem;
+    width: 100%;
   }
   .top-nav-links a {
     color: #4b4b46;
@@ -59,6 +73,7 @@
     text-decoration: none;
   }
   .top-nav-links a.nav-gh {
+    margin-left: auto;
     color: #1a56db;
     font-weight: 600;
     display: inline-flex;
