@@ -146,8 +146,6 @@
   table { border-collapse: collapse; width: 100%; font-size: .9rem; }
   th, td { text-align: left; padding: .4rem .7rem .4rem 0; border-bottom: 1px solid #dcdcd6; }
   th { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #6b6b66; }
-  .sw { display: inline-block; width: .8rem; height: .8rem; border-radius: 3px;
-        vertical-align: -1px; margin-right: .35rem; outline: 1px solid #0002; }
 
   .vtag {
     display: inline-block;
@@ -456,12 +454,6 @@
       white-space: nowrap !important;
     }
 
-    .sw {
-      border: 0.8pt solid #000000 !important;
-      width: 9pt !important;
-      height: 9pt !important;
-    }
-
     /* Compact print legend */
     .print-legend {
       display: flex !important;
@@ -622,23 +614,6 @@
   <tr><td class="k">Transforms</td><td>Algorithmic generators: Euclidean, Game of Life, Rule 30, Shift, Echo, Invert, Drift, Declutter, Fill Empty.</td></tr>
   <tr><td class="k">MIDI Transport</td><td>Class-compliant USB-MIDI following host clock (24 PPQN), start, stop, continue, and SPP.</td></tr>
 </table>
-
-<h2>Colours &amp; Visual Feedback</h2>
-<table>
-  <tr><th>Constant</th><th>Used for</th></tr>
-  <tr><td class="k"><span class="sw" style="background:#000"></span>COLOR_OFF</td><td>Unassigned pads, and steps past the pattern length</td></tr>
-  <tr><td class="k"><span class="sw" style="background:#2050e0"></span>COLOR_VOC<i>n</i></td><td>Voice select pads, one hue per voice (Voice 0&ndash;5)</td></tr>
-  <tr><td class="k"><span class="sw" style="background:#6174ff"></span>COLOR_VOC<i>n</i>_SET</td><td>Steps with a note, in the selected voice&rsquo;s hue</td></tr>
-  <tr><td class="k"><span class="sw" style="background:#000a7f"></span>COLOR_VOC<i>n</i>_UNSET</td><td>Empty steps within pattern length, dimmed in the selected voice&rsquo;s hue</td></tr>
-  <tr><td class="k"><span class="sw" style="background:#b2b6ff"></span>COLOR_VOC<i>n</i>_ACCENT</td><td>Accented steps (velocity 127), a lighter shade of the selected voice&rsquo;s hue</td></tr>
-  <tr><td class="k"><span class="sw" style="background:#8080b0"></span>COLOR_PACT</td><td>Copy, paste, clear, undo</td></tr>
-  <tr><td class="k"><span class="sw" style="background:#808b80"></span>COLOR_PMOD</td><td>Length, position, fn, accent</td></tr>
-  <tr><td class="k"><span class="sw" style="background:#d0d0d0"></span>COLOR_PPOS</td><td>Play head, voices firing this step, and the ALL pad</td></tr>
-</table>
-<p class="note">
-  Values live in <code>src/colors.h</code>, generated from <code>contrib/palette.go</code>.
-  The step grids on subsequent pages are drawn in voice 0&rsquo;s hue; on the device they follow the selected voice.
-</p>
 
 <h2>Default Voice Assignments</h2>
 <p class="note">
