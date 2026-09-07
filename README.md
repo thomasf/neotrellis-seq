@@ -66,6 +66,16 @@ Note that `run.sh` rewrites the tracked file `src/colors.h` on every iteration.
 Edit the themes in `contrib/palette.go`, never `src/colors.h` directly.
 Similarly, edit rhythm presets and kits in `patterns.txt`, never `src/PatternPresets.h` directly (`go run contrib/patterns.go` updates both `src/PatternPresets.h` and `MANUAL.html`).
 
+### Development Synth & MIDI Clock Companion
+
+To test the sequencer with real audio and visual feedback while developing, run
+in a separate terminal (linux only):
+
+
+```sh
+go run ./cmd/synth/
+```
+
 
 ## Building and installing a release
 
