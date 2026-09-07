@@ -1,0 +1,36 @@
+<!-- BEGIN_MIDI_MAPPINGS -->
+<h2 class="screen-title">Ableton Drum Rack &amp; General MIDI Mapping (4&times;4)</h2>
+<p class="note">
+  Voices map to the 16-pad Ableton Drum Rack layout covering General MIDI <strong>C1&ndash;D#2</strong> (notes 36&ndash;51).
+  Hold any voice pad in Menu Mode to reassign or swap its note on the step grid.
+</p>
+
+<div class="drum-rack-wrap">
+<div class="drum-rack-grid">
+{{- range $i, $row := .Rows }}
+  <!-- {{ $row.RowName }} ({{ $row.PadsDesc }}) -->
+  {{- range $pad := $row.Pads }}
+  <div class="{{ $pad.CssClass }}">
+    <div class="pad-meta"><span>Pad {{ $pad.PadNumber }}</span><span>{{ $pad.NoteStr }}</span></div>
+    <div class="pad-name">{{ $pad.Name }}</div>
+    <div class="pad-voice"><span class="drum-rack-tag">{{ safeHTML $pad.VoiceTag }}</span><span class="pad-mode-badge">{{ $pad.ModeBadge }}</span></div>
+  </div>
+  {{- end }}
+{{ if ne $row.RowName "Row 1" }}
+{{ end }}
+{{- end }}
+</div>
+</div>
+
+<p class="note" style="margin-top: 0.2rem; margin-bottom: 1.2rem;">
+  <strong>Legend:</strong> Colored pad = Default voice assignment.
+  Dark background = Available pads in the standard 16-pad Ableton Drum Rack block (assignable via Voice Menu).
+</p>
+
+<table>
+  <tr><th>Voice</th><th>Hardware Pad</th><th>Default MIDI Note</th><th>Preset Role &amp; Character</th></tr>
+  {{- range .Voices }}
+  <tr><td class="k"><span class="vtag v{{ .VoiceIndex }}">VOICE {{ .VoiceIndex }}</span></td><td>{{ .HardwarePad }}</td><td><strong>{{ .PrimaryNote }} ({{ midiNoteName .PrimaryNote }})</strong> &mdash; {{ .PrimaryFullName }}</td><td><strong>{{ escapeHTML .RoleSummary }}:</strong> {{ escapeHTML .RoleDesc }}</td></tr>
+  {{- end }}
+</table>
+<!-- END_MIDI_MAPPINGS -->

@@ -1,0 +1,23 @@
+<!-- BEGIN_PATTERNS_KITS -->
+<h2 class="kits-header">Full 6-Voice Kits (<code>FN + ALL + ACCENT + STEP n</code>)</h2>
+<p class="note">
+  Loads a coordinated 6-voice arrangement across the entire drum machine simultaneously.
+  Each kit includes all 6 tracks formatted in 16-step columns.
+</p>
+<table class="kits-table">
+  <tr><th>Pad</th><th>Kit Name &amp; Genre</th><th>6-Voice Patterns (16 Steps)</th></tr>
+  {{- range .Kits }}
+  <tr>
+    <td class="k">STEP {{ .Pad }}</td>
+    <td><strong>{{ .Name }}</strong><br><span class="genre-tag">{{ .Genre }}</span></td>
+    <td class="kit-pattern">
+      <div class="kit-voices">
+        {{- range .Voices }}
+        <div class="kit-v"><span class="vtag v{{ .VoiceIndex }}">{{ .VoiceLabel }}</span> <code>{{ .Rhythm }}</code></div>
+        {{- end }}
+      </div>
+    </td>
+  </tr>
+  {{- end }}
+</table>
+<!-- END_PATTERNS_KITS -->

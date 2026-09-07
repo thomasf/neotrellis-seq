@@ -69,9 +69,7 @@ public:
   // velocity > 0.
   bool has_sounding_notes() const;
   Pattern() = default;
-  bool operator==(const Pattern &p) const {
-    return length == p.length && steps == p.steps;
-  }
+  bool operator==(const Pattern &p) const { return length == p.length && steps == p.steps; }
 };
 
 // pattern_has_sounding_notes reports whether any step within the pattern length
@@ -87,7 +85,7 @@ public:
   std::array<Pattern, 16> patterns;
   bool is_playing = false;                // a note is currently being played
   uint8_t playing_note = 0;               // the note is_playing refers to
-  uint8_t note_offset = 0;                // semitones added to the base note
+  uint8_t midi_note = 0;                  // assigned base MIDI note (36..51)
   uint32_t pattern_idx = 0;               // current pattern index
   uint32_t voice_idx = 0;                 // index of this voice (0..VOICES-1)
   bool is_protected = false;              // voice protect flag
@@ -171,7 +169,7 @@ class VirtualBoard {
 public:
   static constexpr uint32_t VOICE_ROWS = 2;
   static constexpr uint32_t VOICE_COLS = 3;
-  static constexpr uint32_t GRID_SIZE = 4; // 4x4 steps per voice pattern
+  static constexpr uint32_t GRID_SIZE = 4;                      // 4x4 steps per voice pattern
   static constexpr uint32_t CORE_ROWS = VOICE_ROWS * GRID_SIZE; // 8
   static constexpr uint32_t CORE_COLS = VOICE_COLS * GRID_SIZE; // 12
 
@@ -191,12 +189,8 @@ public:
   VirtualBoard() = default;
 
   // Coordinate mapping helpers
-  static constexpr uint32_t step_to_row(uint32_t step) {
-    return (step % 16) / GRID_SIZE;
-  }
-  static constexpr uint32_t step_to_col(uint32_t step) {
-    return (step % 16) % GRID_SIZE;
-  }
+  static constexpr uint32_t step_to_row(uint32_t step) { return (step % 16) / GRID_SIZE; }
+  static constexpr uint32_t step_to_col(uint32_t step) { return (step % 16) % GRID_SIZE; }
   static constexpr uint32_t coord_to_step(uint32_t r, uint32_t c) {
     return (r % GRID_SIZE) * GRID_SIZE + (c % GRID_SIZE);
   }
@@ -204,11 +198,9 @@ public:
   // Maps tile (tr, tc) in 0..3 x 0..4 to voice index 0..5 on the 2x3 torus
   static constexpr uint32_t tile_to_voice(int32_t tr, int32_t tc) {
     int32_t const core_tr =
-        ((tr - 1) % (int32_t)VOICE_ROWS + (int32_t)VOICE_ROWS) %
-        (int32_t)VOICE_ROWS;
+        ((tr - 1) % (int32_t)VOICE_ROWS + (int32_t)VOICE_ROWS) % (int32_t)VOICE_ROWS;
     int32_t const core_tc =
-        ((tc - 1) % (int32_t)VOICE_COLS + (int32_t)VOICE_COLS) %
-        (int32_t)VOICE_COLS;
+        ((tc - 1) % (int32_t)VOICE_COLS + (int32_t)VOICE_COLS) % (int32_t)VOICE_COLS;
     return (uint32_t)(core_tr * VOICE_COLS + core_tc);
   }
 
@@ -220,18 +212,18 @@ public:
 
   // Access cell with toroidal wrapping on the 16x20 virtual board
   Step at(int32_t r, int32_t c) const {
-    int32_t const wr = ((r % (int32_t)VIRTUAL_ROWS) + (int32_t)VIRTUAL_ROWS) %
-                       (int32_t)VIRTUAL_ROWS;
-    int32_t const wc = ((c % (int32_t)VIRTUAL_COLS) + (int32_t)VIRTUAL_COLS) %
-                       (int32_t)VIRTUAL_COLS;
+    int32_t const wr =
+        ((r % (int32_t)VIRTUAL_ROWS) + (int32_t)VIRTUAL_ROWS) % (int32_t)VIRTUAL_ROWS;
+    int32_t const wc =
+        ((c % (int32_t)VIRTUAL_COLS) + (int32_t)VIRTUAL_COLS) % (int32_t)VIRTUAL_COLS;
     return cells[wr][wc];
   }
 
   Step &at(int32_t r, int32_t c) {
-    int32_t const wr = ((r % (int32_t)VIRTUAL_ROWS) + (int32_t)VIRTUAL_ROWS) %
-                       (int32_t)VIRTUAL_ROWS;
-    int32_t const wc = ((c % (int32_t)VIRTUAL_COLS) + (int32_t)VIRTUAL_COLS) %
-                       (int32_t)VIRTUAL_COLS;
+    int32_t const wr =
+        ((r % (int32_t)VIRTUAL_ROWS) + (int32_t)VIRTUAL_ROWS) % (int32_t)VIRTUAL_ROWS;
+    int32_t const wc =
+        ((c % (int32_t)VIRTUAL_COLS) + (int32_t)VIRTUAL_COLS) % (int32_t)VIRTUAL_COLS;
     return cells[wr][wc];
   }
 
@@ -258,8 +250,7 @@ public:
 
   // Read cell relative to viewport: vr in [0..7], vc in [0..11]
   Step get_viewport(uint32_t vr, uint32_t vc) const {
-    return at((int32_t)GRID_SIZE + pan_r + (int32_t)vr,
-              (int32_t)GRID_SIZE + pan_c + (int32_t)vc);
+    return at((int32_t)GRID_SIZE + pan_r + (int32_t)vr, (int32_t)GRID_SIZE + pan_c + (int32_t)vc);
   }
 
   // Advance the virtual board by generations of Conway's Game of Life
@@ -277,9 +268,7 @@ public:
   Voice *voice;                     // current voice
   uint32_t voice_idx;               // current voice index
   void set_voice(uint32_t idx);     // set the currenlty active voice by index
-  bool is_protected(uint32_t idx) const {
-    return idx < VOICES && voices[idx].is_protected;
-  }
+  bool is_protected(uint32_t idx) const { return idx < VOICES && voices[idx].is_protected; }
   void set_protected(uint32_t idx, bool protect) {
     if (idx < VOICES) {
       voices[idx].is_protected = protect;
@@ -307,6 +296,10 @@ public:
       voices[idx].path_modifiers ^= mod;
     }
   }
+  // set_or_swap_note sets voice `voice`'s base MIDI note to `new_note` (36..51).
+  // If another voice already uses `new_note`, the two voices swap their notes.
+  void set_or_swap_note(uint32_t voice, uint8_t new_note);
+
   // fill_empty rewrites voice `voice`'s current pattern to play in the gaps the
   // other voices leave: every step within its length where no other voice
   // sounds gets a note, the rest are cleared. Busy voices count for less: a

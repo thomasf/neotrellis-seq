@@ -38,7 +38,7 @@ func main() {
 		if player != nil {
 			fmt.Printf("Audio backend: %s\n", player.Backend())
 		}
-		time.Sleep(250*time.Millisecond)
+		time.Sleep(250 * time.Millisecond)
 		fmt.Println("Running sound check on Go drum synthesizer voices (individual voice saturation)...")
 		testNotes := []int{36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47}
 		for _, note := range testNotes {

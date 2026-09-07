@@ -1,4 +1,5 @@
 #include "SequencerMode.h"
+#include "FnMode.h"
 #include "MenuMode.h"
 #include "colors.h"
 #include "config.h"
@@ -8,29 +9,18 @@
 SequencerMode sequencer_mode;
 
 static const KeyBinding SEQUENCER_BINDINGS[] = {
-    // Chords (evaluated in order: specific modifier chords first)
-    {KEY_PATTERN_LEN, Mod::FN | Mod::ALL, 0, polymeter_patterns},
-    {KEY_CLEAR, Mod::FN | Mod::ALL, 0, dropout_patterns},
-    {KEY_CLEAR, Mod::ACCENT, 0, clear_accents},
-
-    // Symmetrical Rewind: POS + FN in either order
-    {KEY_PATTERN_POS, Mod::FN, 0, rewind_transport},
-    {KEY_FN, Mod::POS, 0, rewind_transport},
-
     // Edit actions
-    {KEY_UNDO, Mod::FN, 0, redo},
-    {KEY_UNDO, 0, 0, undo},
-    {KEY_PASTE, Mod::FN, 0, paste_all_slots},
-    {KEY_PASTE, 0, 0, paste_single},
-    {KEY_COPY, 0, 0, copy_pattern},
+    {KEY_CLEAR, Mod::ACCENT, 0, clear_accents},
     {KEY_CLEAR, 0, 0, clear_pattern},
+    {KEY_COPY, 0, 0, copy_pattern},
+    {KEY_PASTE, 0, 0, paste_single},
+    {KEY_UNDO, 0, 0, undo},
 
     // Modal Menu
     {KEY_MENU, 0, 0, open_menu},
 };
 
-static constexpr size_t BINDING_COUNT =
-    sizeof(SEQUENCER_BINDINGS) / sizeof(SEQUENCER_BINDINGS[0]);
+static constexpr size_t BINDING_COUNT = sizeof(SEQUENCER_BINDINGS) / sizeof(SEQUENCER_BINDINGS[0]);
 
 void SequencerMode::on_enter() {
   for (uint32_t i = 0; i < VOICES; i++) {
@@ -62,22 +52,7 @@ void SequencerMode::handle_release(const KeyContext &ctx) {
 void SequencerMode::handle_step(const KeyContext &ctx) {
   uint32_t index = ctx.step_index();
 
-  if (ctx.has(Mod::FN)) {
-    if (ctx.has(Mod::ACCENT) && ctx.has(Mod::ALL)) {
-      load_kit_preset(index);
-      return;
-    }
-
-    Transform const transform =
-        ctx.has(Mod::ACCENT) ? apply_accent_transform : apply_transform;
-    if (ctx.has(Mod::ALL)) {
-      if (!transform_board(index)) {
-        transform_all_patterns(transform, index);
-      }
-    } else {
-      transform_pattern(transform, index);
-    }
-  } else if (ctx.has(Mod::LEN)) {
+  if (ctx.has(Mod::LEN)) {
     create_undo_step();
     seq.voice->pattern()->length = index + 1;
   } else if (ctx.has(Mod::POS)) {
@@ -116,18 +91,24 @@ void SequencerMode::handle_step(const KeyContext &ctx) {
 
 void SequencerMode::handle_voice(const KeyContext &ctx) {
   uint32_t voice = ctx.voice_index();
-  if (ctx.has(Mod::FN)) {
-    if (voice == seq.voice_idx) {
-      toggle_note_offset(voice);
-    } else {
-      swap_pattern(voice);
-    }
-  } else {
-    select_voice(voice);
-  }
+  select_voice(voice);
 }
 
 void SequencerMode::on_key(const KeyContext &ctx) {
+  if (ctx.key == KEY_FN) {
+    if (ctx.pressed) {
+      if (ctx.has(Mod::POS)) {
+        rewind_transport();
+      }
+      if (ctx.has(Mod::ALL)) {
+        mode_manager.push_mode(&fn_all_mode);
+      } else {
+        mode_manager.push_mode(&fn_mode);
+      }
+    }
+    return;
+  }
+
   if (!ctx.pressed) {
     handle_release(ctx);
     return;

@@ -11,10 +11,13 @@ public:
   void render_leds() override;
 
   uint32_t active_page() const { return current_page_; }
-  void set_page(uint32_t page) { current_page_ = (page < VOICES) ? page : 0; }
+  void set_page(uint32_t page);
 
 private:
   uint32_t current_page_ = 0;
+  static constexpr uint32_t VOICE_HOLD_THRESHOLD_MS = 200;
+  uint32_t voice_press_time_ = 0;
+  uint32_t pending_voice_ = VOICES;
 };
 
 extern MenuMode menu_mode;

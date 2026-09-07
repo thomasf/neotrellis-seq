@@ -73,6 +73,7 @@ extern volatile uint8_t voice_flash_mask;
 extern uint32_t ppqn;
 extern bool clock_running;
 extern uint32_t global_pos;
+extern uint32_t held_keys_mask;
 
 // -----------------------------------------------------------------------------
 // Transforms
@@ -86,7 +87,7 @@ bool transform_board(uint32_t index);
 void dropout_patterns();
 void polymeter_patterns();
 void swap_pattern(uint32_t other);
-void toggle_note_offset(uint32_t voice);
+uint8_t get_voice_midi_note(uint32_t voice);
 
 // -----------------------------------------------------------------------------
 // MIDI & Clock Engine
@@ -113,6 +114,7 @@ void service_clock();
 // -----------------------------------------------------------------------------
 
 void handle_keys();
+uint32_t get_held_voice();
 void setup();
 void loop();
 

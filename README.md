@@ -8,7 +8,7 @@
 ## Requirements
 
 - [PlatformIO Core](https://docs.platformio.org/en/latest/core/installation/) — builds and uploads the firmware
-- [Go](https://go.dev/dl/) — regenerates the colour palette (`src/colors.h`) and pattern presets (`src/PatternPresets.h`, `MANUAL.html`)
+- [Go](https://go.dev/dl/) — regenerates MIDI note mappings (`src/midimap.h`), colour palette (`src/colors.h`), and pattern presets (`src/PatternPresets.h`, `MANUAL.html`)
 - [watchexec](https://github.com/watchexec/watchexec) — for the auto-rebuild loop in `dev.sh`
 - `clang-format` — for `fmt.sh`
 
@@ -18,9 +18,16 @@ PlatformIO downloads them on the first build.
 
 ## MIDI
 
-The sequencer is a USB-MIDI device that follows the host's transport. It sends
-one note per voice on `MIDI_CHANNEL`, starting at `FIRST_MIDI_NOTE` (both in
-`src/config.h`). The note offs go out one clock before the next step and the
+The sequencer is a USB-MIDI device that follows the host's transport. By default,
+it maps its 6 voices directly onto the 16-pad Ableton Drum Rack layout in the
+General MIDI C1–D#2 range (notes 36–51 on `MIDI_CHANNEL`). Each voice features a
+primary note and a musically matched alternate note (`FN + VOICE`), such as
+Kick/Rimshot, Snare/Clap, Closed/Open Hi-Hat, Floor Toms, Rack Toms, and Crash/Ride Cymbals.
+
+A legacy sequential note mode (+6 semitone shift) is also supported by selecting
+`Default = Consecutive` in `pkg/midimap/midimap.go` and running the generator.
+
+The note offs go out one clock before the next step and the
 note ons of that step follow in a single USB transfer, so the two never
 arrive together.
 
@@ -62,9 +69,9 @@ It watches `.cpp`, `.h`, `.ini`, `.go` and `.txt` files and re-runs `run.sh` on 
 | `DEBUG` | Enables `debug_print()` output on the serial port. **`setup()` blocks until a serial monitor is attached**, so a `DEBUG` build will not start on its own — this is why `run.sh` opens the monitor straight after uploading. |
 | `INTERNAL_CLOCK` | Runs the sequencer from its own clock at `BPM` (see `src/config.h`) instead of following external MIDI clock, so you can work without a clock source attached. |
 
-Note that `run.sh` rewrites the tracked file `src/colors.h` on every iteration.
-Edit the themes in `contrib/palette.go`, never `src/colors.h` directly.
-Similarly, edit rhythm presets and kits in `patterns.txt`, never `src/PatternPresets.h` directly (`go run contrib/patterns.go` updates both `src/PatternPresets.h` and `MANUAL.html`).
+Note that `run.sh` runs the generator tool (`cmd/neotrellis-seq-generator`).
+Edit the themes in `cmd/neotrellis-seq-generator/palette.go`, never `src/colors.h` directly.
+Similarly, edit rhythm presets and kits in `patterns.txt`, never `src/PatternPresets.h` directly (`go run ./cmd/neotrellis-seq-generator` updates `src/PatternPresets.h`, `src/midimap.h`, `src/colors.h`, and `MANUAL.html`).
 
 ### Development Synth & MIDI Clock Companion
 

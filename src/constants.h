@@ -20,8 +20,7 @@ inline constexpr uint32_t VOICE_UNSET_COLORS[VOICES] = {
 };
 
 inline constexpr uint32_t VOICE_SET_COLORS[VOICES] = {
-    COLOR_VOC0_SET, COLOR_VOC1_SET, COLOR_VOC2_SET,
-    COLOR_VOC3_SET, COLOR_VOC4_SET, COLOR_VOC5_SET,
+    COLOR_VOC0_SET, COLOR_VOC1_SET, COLOR_VOC2_SET, COLOR_VOC3_SET, COLOR_VOC4_SET, COLOR_VOC5_SET,
 };
 
 inline constexpr uint32_t VOICE_ACCENT_COLORS[VOICES] = {
@@ -55,9 +54,7 @@ constexpr uint32_t voice_key_to_color(uint32_t key) {
   return idx < VOICES ? VOICE_COLORS[idx] : COLOR_OFF;
 }
 
-constexpr uint32_t voice_index_to_key(uint32_t idx) {
-  return idx < VOICES ? VOICE_KEYS[idx] : 0;
-}
+constexpr uint32_t voice_index_to_key(uint32_t idx) { return idx < VOICES ? VOICE_KEYS[idx] : 0; }
 
 constexpr uint32_t voice_index_to_color(uint32_t idx) {
   return idx < VOICES ? VOICE_COLORS[idx] : COLOR_OFF;

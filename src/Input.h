@@ -4,7 +4,9 @@
 #include "config.h"
 #include "constants.h"
 #include "utils.h"
+#ifdef ARDUINO
 #include <Arduino.h>
+#endif
 #include <cstddef>
 #include <cstdint>
 
@@ -24,8 +26,7 @@ static constexpr uint32_t VOICE_3 = (1UL << KEY_VOICE_SELECT_3);
 static constexpr uint32_t VOICE_4 = (1UL << KEY_VOICE_SELECT_4);
 static constexpr uint32_t VOICE_5 = (1UL << KEY_VOICE_SELECT_5);
 
-static constexpr uint32_t ALL_VOICES =
-    VOICE_0 | VOICE_1 | VOICE_2 | VOICE_3 | VOICE_4 | VOICE_5;
+static constexpr uint32_t ALL_VOICES = VOICE_0 | VOICE_1 | VOICE_2 | VOICE_3 | VOICE_4 | VOICE_5;
 } // namespace Mod
 
 struct KeyContext {
@@ -62,15 +63,13 @@ struct KeyBinding {
   ActionHandler handler;   // Function called when matched
 };
 
-inline bool dispatch_binding(const KeyBinding *table, size_t count,
-                             const KeyContext &ctx) {
+inline bool dispatch_binding(const KeyBinding *table, size_t count, const KeyContext &ctx) {
   if (!ctx.pressed)
     return false;
 
   for (size_t i = 0; i < count; ++i) {
     const auto &b = table[i];
-    if (b.trigger_key == ctx.key &&
-        (ctx.held_mask & b.required_mods) == b.required_mods &&
+    if (b.trigger_key == ctx.key && (ctx.held_mask & b.required_mods) == b.required_mods &&
         (ctx.held_mask & b.forbidden_mods) == 0) {
       b.handler();
       return true;

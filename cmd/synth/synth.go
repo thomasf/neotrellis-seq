@@ -325,10 +325,20 @@ func (s *DrumSynth) NoteOn(note, velocity int) {
 
 	data, ok := s.samples[note]
 	if !ok {
-		baseNote := 36 + (note % 12)
-		data = s.samples[baseNote]
-		if data == nil {
-			data = s.samples[36]
+		// Map GM / Ableton notes above 47 to appropriate drum synth samples
+		switch note {
+		case 49: // Crash Cymbal
+			data = s.samples[47] // Zap / metallic transient
+		case 50: // High Tom
+			data = s.samples[45] // High Tom
+		case 51: // Ride Cymbal
+			data = s.samples[44] // Pedal / Open Hat
+		default:
+			baseNote := 36 + (note % 12)
+			data = s.samples[baseNote]
+			if data == nil {
+				data = s.samples[36]
+			}
 		}
 	}
 
@@ -338,16 +348,14 @@ func (s *DrumSynth) NoteOn(note, velocity int) {
 	switch note {
 	case 36, 42:
 		panL, panR = 0.7, 0.7 // Kicks (centered)
-	case 37, 43:
-		panL, panR = 0.75, 0.65 // Snare / Clap
-	case 38, 44:
+	case 37, 38, 40, 43:
+		panL, panR = 0.75, 0.65 // Snare / Clap / Rim
+	case 44, 46:
 		panL, panR = 0.5, 0.8 // Hi-Hats
-	case 39, 45:
+	case 39, 41, 45, 47, 48, 50:
 		panL, panR = 0.8, 0.5 // Toms
-	case 40, 46:
-		panL, panR = 0.55, 0.8 // Perc 2 / Cowbell
-	case 41, 47:
-		panL, panR = 0.8, 0.6 // Perc 3 / Zap
+	case 49, 51:
+		panL, panR = 0.6, 0.85 // Cymbals / Ride / Crash
 	}
 
 	s.mu.Lock()

@@ -6,6 +6,7 @@
 #include "PatternPresets.h"
 #include "Sequencer.cpp"
 #include "Sequencer.h"
+#include "UIMode.h"
 #include "config.h"
 
 void setUp(void) {
@@ -1067,6 +1068,131 @@ void test_path_modifier_drunken(void) {
   }
 }
 
+void test_voice_midi_note_initialization(void) {
+  Sequencer s;
+  for (uint32_t i = 0; i < VOICES; i++) {
+    TEST_ASSERT_EQUAL_UINT8(ACTIVE_VOICE_MAP[i].base, s.voices[i].midi_note);
+  }
+}
+
+void test_voice_midi_note_assign_unassigned(void) {
+  Sequencer s;
+  // Step 4 is note 40 (Electric Snare), not assigned by default
+  uint8_t const note_40 = 40;
+  s.set_or_swap_note(0, note_40);
+  TEST_ASSERT_EQUAL_UINT8(note_40, s.voices[0].midi_note);
+
+  // Check that all other voices are unchanged
+  for (uint32_t i = 1; i < VOICES; i++) {
+    TEST_ASSERT_EQUAL_UINT8(ACTIVE_VOICE_MAP[i].base, s.voices[i].midi_note);
+  }
+}
+
+void test_voice_midi_note_swap(void) {
+  Sequencer s;
+  uint8_t const v0_orig_note = s.voices[0].midi_note;
+  uint8_t const v1_orig_note = s.voices[1].midi_note;
+
+  // Voice 0 selects Voice 1's note -> they swap
+  s.set_or_swap_note(0, v1_orig_note);
+
+  TEST_ASSERT_EQUAL_UINT8(v1_orig_note, s.voices[0].midi_note);
+  TEST_ASSERT_EQUAL_UINT8(v0_orig_note, s.voices[1].midi_note);
+
+  // Invariant: all 6 voices have pairwise distinct notes
+  for (uint32_t i = 0; i < VOICES; i++) {
+    for (uint32_t j = i + 1; j < VOICES; j++) {
+      TEST_ASSERT_NOT_EQUAL(s.voices[i].midi_note, s.voices[j].midi_note);
+    }
+  }
+
+  // Selecting the same note on voice 0 is a no-op
+  s.set_or_swap_note(0, v1_orig_note);
+  TEST_ASSERT_EQUAL_UINT8(v1_orig_note, s.voices[0].midi_note);
+  TEST_ASSERT_EQUAL_UINT8(v0_orig_note, s.voices[1].midi_note);
+
+  // Out-of-bounds voice index is a no-op
+  s.set_or_swap_note(99, 44);
+}
+
+void test_drum_rack_note_row_mapping(void) {
+  // Verify standard 4x4 drum rack layout (Bottom row = notes 36..39, Top row = notes 48..51)
+  // Row 3 (Bottom row of step pads: steps 12..15)
+  TEST_ASSERT_EQUAL_UINT8(36, step_to_drum_rack_note(12)); // Kick
+  TEST_ASSERT_EQUAL_UINT8(37, step_to_drum_rack_note(13)); // Rimshot
+  TEST_ASSERT_EQUAL_UINT8(38, step_to_drum_rack_note(14)); // Snare
+  TEST_ASSERT_EQUAL_UINT8(39, step_to_drum_rack_note(15)); // Clap
+
+  // Row 2 (steps 8..11)
+  TEST_ASSERT_EQUAL_UINT8(40, step_to_drum_rack_note(8));  // Electric Snare
+  TEST_ASSERT_EQUAL_UINT8(41, step_to_drum_rack_note(9));  // Floor Tom
+  TEST_ASSERT_EQUAL_UINT8(42, step_to_drum_rack_note(10)); // Closed Hi-Hat
+  TEST_ASSERT_EQUAL_UINT8(43, step_to_drum_rack_note(11)); // High Floor Tom
+
+  // Row 1 (steps 4..7)
+  TEST_ASSERT_EQUAL_UINT8(44, step_to_drum_rack_note(4)); // Pedal Hi-Hat
+  TEST_ASSERT_EQUAL_UINT8(45, step_to_drum_rack_note(5)); // Low Tom
+  TEST_ASSERT_EQUAL_UINT8(46, step_to_drum_rack_note(6)); // Open Hi-Hat
+  TEST_ASSERT_EQUAL_UINT8(47, step_to_drum_rack_note(7)); // Mid Tom
+
+  // Row 0 (Top row of step pads: steps 0..3)
+  TEST_ASSERT_EQUAL_UINT8(48, step_to_drum_rack_note(0)); // Hi-Mid Tom
+  TEST_ASSERT_EQUAL_UINT8(49, step_to_drum_rack_note(1)); // Crash Cymbal
+  TEST_ASSERT_EQUAL_UINT8(50, step_to_drum_rack_note(2)); // High Tom
+  TEST_ASSERT_EQUAL_UINT8(51, step_to_drum_rack_note(3)); // Ride Cymbal
+
+  // Bijective mapping test: round-trip for all 16 pads
+  for (uint32_t s = 0; s < 16; s++) {
+    uint8_t note = step_to_drum_rack_note(s);
+    TEST_ASSERT_TRUE(note >= 36 && note <= 51);
+    TEST_ASSERT_EQUAL_UINT32(s, drum_rack_note_to_step(note));
+  }
+}
+
+class MockStackMode : public UIMode {
+public:
+  int enters = 0;
+  int exits = 0;
+  void on_enter() override { enters++; }
+  void on_exit() override { exits++; }
+  void on_key(const KeyContext &) override {}
+  void render_leds() override {}
+};
+
+void test_mode_manager_stack_transitions(void) {
+  ModeManager mm;
+  MockStackMode seq_m, fn_m, fn_all_m;
+
+  mm.switch_mode(&seq_m);
+  TEST_ASSERT_EQUAL_PTR(&seq_m, mm.current_mode());
+  TEST_ASSERT_EQUAL_INT(1, seq_m.enters);
+
+  // Press FN -> push fn_m
+  mm.push_mode(&fn_m);
+  TEST_ASSERT_EQUAL_PTR(&fn_m, mm.current_mode());
+  TEST_ASSERT_EQUAL_INT(1, seq_m.exits);
+  TEST_ASSERT_EQUAL_INT(1, fn_m.enters);
+
+  // Press ALL while in FN -> push fn_all_m
+  mm.push_mode(&fn_all_m);
+  TEST_ASSERT_EQUAL_PTR(&fn_all_m, mm.current_mode());
+  TEST_ASSERT_EQUAL_INT(1, fn_m.exits);
+  TEST_ASSERT_EQUAL_INT(1, fn_all_m.enters);
+
+  // Release ALL -> pop back to fn_m
+  mm.pop_mode();
+  TEST_ASSERT_EQUAL_PTR(&fn_m, mm.current_mode());
+  TEST_ASSERT_EQUAL_INT(1, fn_all_m.exits);
+  TEST_ASSERT_EQUAL_INT(2, fn_m.enters);
+
+  // Release FN -> pop back to seq_m
+  mm.pop_mode();
+  TEST_ASSERT_EQUAL_PTR(&seq_m, mm.current_mode());
+  TEST_ASSERT_EQUAL_INT(2, fn_m.exits);
+  TEST_ASSERT_EQUAL_INT(2, seq_m.enters);
+}
+
+
 int main(int argc, char **argv) {
   UNITY_BEGIN();
 
@@ -1124,6 +1250,13 @@ int main(int argc, char **argv) {
 
   // Pattern Presets & Kits
   RUN_TEST(test_pattern_presets_voice_and_kits);
+
+  // Voice MIDI Notes
+  RUN_TEST(test_voice_midi_note_initialization);
+  RUN_TEST(test_voice_midi_note_assign_unassigned);
+  RUN_TEST(test_voice_midi_note_swap);
+  RUN_TEST(test_drum_rack_note_row_mapping);
+  RUN_TEST(test_mode_manager_stack_transitions);
 
   return UNITY_END();
 }

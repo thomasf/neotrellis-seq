@@ -1,0 +1,671 @@
+  html { scroll-behavior: smooth; }
+  body { background: #f6f6f4; color: #1b1b1a; font: 15px/1.55 system-ui, sans-serif;
+         margin: 0 auto; max-width: 60rem; padding: 2rem 1.5rem 4rem; }
+  h1 { font-size: 1.5rem; margin: 0 0 .3rem; }
+  h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em;
+       color: #6b6b66; margin: 2.5rem 0 .8rem; }
+  h3 { font-size: .95rem; font-weight: 700; color: #333330; margin: 1.8rem 0 .5rem; }
+  .note { color: #6b6b66; }
+  code, .k { font: 13px/1.4 ui-monospace, monospace; }
+  .act-name { font-weight: 600; white-space: nowrap; color: #111; }
+  a { color: #1a56db; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .screen-page { scroll-margin-top: 3.6rem; }
+
+  /* Site navigation bar */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(246, 246, 244, 0.94);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid #dcdcd6;
+    margin: -2rem -1.5rem 2rem;
+    padding: 0.6rem 1.5rem;
+  }
+  .top-nav-inner {
+    max-width: 60rem;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+  }
+  .top-nav-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #111;
+    letter-spacing: -0.01em;
+  }
+  .top-nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.75rem;
+    font-size: 0.85rem;
+  }
+  .top-nav-links a {
+    color: #4b4b46;
+    font-weight: 500;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    transition: color 0.15s, background-color 0.15s;
+  }
+  .top-nav-links a:hover {
+    color: #111;
+    background: #e8e8e2;
+    text-decoration: none;
+  }
+  .top-nav-links a.nav-gh {
+    color: #1a56db;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .top-nav-links a.nav-gh:hover {
+    background: #e1ebff;
+  }
+
+  /* GitHub project links on front page */
+  .project-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: 1.2rem 0 1.5rem;
+  }
+  .btn-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 0.85rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 6px;
+    border: 1px solid #d0d0c8;
+    background: #ffffff;
+    color: #1b1b1a;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .btn-link:hover {
+    background: #f0f0ec;
+    border-color: #b0b0a8;
+    text-decoration: none;
+  }
+  .btn-link.primary {
+    background: #1b1b1a;
+    color: #ffffff;
+    border-color: #1b1b1a;
+  }
+  .btn-link.primary:hover {
+    background: #333330;
+    border-color: #333330;
+  }
+  .btn-link svg {
+    flex-shrink: 0;
+  }
+  .print-only, .print-repo-url { display: none; }
+
+  /* The pad grid: 8 columns x 4 rows, in hardware order. */
+  .grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: .4rem;
+          background: #16161a; border-radius: 12px; padding: .8rem; min-width: 44rem; }
+  .grid div { border-radius: 7px; padding: .4rem .45rem .5rem; color: #fff;
+              min-height: 3.4rem; font-size: .8rem; font-weight: 600; }
+  .grid i { display: block; font: 11px/1.6 ui-monospace, monospace;
+            font-style: normal; font-weight: 400; opacity: .65; }
+  .scroll { overflow-x: auto; }
+
+  /* Pad colours, from src/colors.h. */
+  .step  { background: #000a7f; }             /* COLOR_VOC0_UNSET, hue follows voice */
+  .voc0  { background: #2050e0; }
+  .voc1  { background: #ad8920; }
+  .voc2  { background: #20bcaf; }
+  .voc3  { background: #489120; }
+  .voc4  { background: #b030b0; }
+  .voc5  { background: #808000; }
+  .act   { background: #8080b0; color: #111; } /* COLOR_PACT */
+  .mod   { background: #808b80; color: #111; } /* COLOR_PMOD */
+  .ppos  { background: #d0d0d0; color: #111; } /* COLOR_PPOS */
+  .tool  { background: #902020; color: #fff; } /* COLOR_TOOL */
+  .red   { background: #d02020; color: #fff; } /* COLOR_RED */
+  .green { background: #20d020; color: #111; } /* COLOR_GREEN */
+  .off   { background: #000; color: #777; }    /* COLOR_OFF */
+  .held  { outline: 2px solid #fff; outline-offset: -2px; }
+
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+  th, td { text-align: left; padding: .4rem .7rem .4rem 0; border-bottom: 1px solid #dcdcd6; }
+  th { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #6b6b66; }
+
+  .vtag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 3px;
+    min-width: 44px;
+    text-align: center;
+    margin-right: 6px;
+    letter-spacing: 0.04em;
+    box-sizing: border-box;
+  }
+  .vtag.v0 { background: #2050e0; color: #ffffff; }
+  .vtag.v1 { background: #ad8920; color: #ffffff; }
+  .vtag.v2 { background: #20bcaf; color: #000000; }
+  .vtag.v3 { background: #489120; color: #ffffff; }
+  .vtag.v4 { background: #b030b0; color: #ffffff; }
+  .vtag.v5 { background: #808000; color: #ffffff; }
+
+  .kit-voices {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin: 2px 0;
+  }
+  .kit-v {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+  .kit-v code {
+    font: 12px/1.3 ui-monospace, monospace;
+    letter-spacing: 0.04em;
+  }
+  .genre-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #6b6b66;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 2px;
+  }
+  td.kit-pattern {
+    white-space: nowrap;
+    padding-right: 1.2rem;
+  }
+
+  .print-legend { display: none; }
+
+  /* Ableton Drum Rack 4x4 Pad Grid */
+  .drum-rack-wrap { overflow-x: auto; }
+  .drum-rack-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    background: #16161a;
+    border-radius: 12px;
+    padding: 0.8rem;
+    max-width: 44rem;
+    margin: 1rem 0 1.2rem;
+  }
+  .drum-rack-pad {
+    border-radius: 8px;
+    padding: 0.55rem 0.65rem 0.6rem;
+    min-height: 4.8rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+    position: relative;
+    border: 2px solid transparent;
+    color: #ffffff;
+  }
+  .drum-rack-pad .pad-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font: 11px/1.3 ui-monospace, monospace;
+    opacity: 0.85;
+  }
+  .drum-rack-pad .pad-name {
+    font-size: 0.88rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0.2rem 0;
+  }
+  .drum-rack-pad .pad-voice {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font: 11px/1.3 ui-monospace, monospace;
+    font-weight: 600;
+  }
+  .drum-rack-pad.is-alt {
+    border: 2px dashed rgba(255, 255, 255, 0.9);
+  }
+  .drum-rack-pad.unassigned {
+    background: #1c1c20;
+    color: #6a6a75;
+    border: 1px dashed #34343e;
+  }
+  .drum-rack-pad.unassigned .pad-name {
+    color: #828290;
+    font-weight: 500;
+  }
+  .drum-rack-tag {
+    display: inline-block;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    background: rgba(0, 0, 0, 0.35);
+    color: #fff;
+  }
+  .drum-rack-tag.alt-tag {
+    background: rgba(255, 255, 255, 0.3);
+    color: #fff;
+  }
+  .pad-mode-badge {
+    font-size: 10px;
+    opacity: 0.9;
+    font-weight: 500;
+  }
+
+  /* Print Stylesheet optimized for Black & White Printers */
+  @media print {
+    @page {
+      size: portrait;
+      margin: 7mm 10mm 10mm 10mm;
+      @bottom-right {
+        content: "Page " counter(page) " of " counter(pages);
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 8.5pt;
+        font-weight: 500;
+        color: #555555;
+      }
+      @bottom-left {
+        content: "Trellis M4 Sequencer · https://github.com/thomasf/neotrellis-seq";
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 8.5pt;
+        font-weight: 500;
+        color: #777777;
+      }
+    }
+
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    .top-nav, .project-bar, .no-print {
+      display: none !important;
+    }
+
+    .print-repo-url {
+      display: block !important;
+      font-size: 9pt !important;
+      color: #333333 !important;
+      margin: 1pt 0 3pt !important;
+      font-family: ui-monospace, monospace !important;
+    }
+
+    a {
+      color: inherit !important;
+      text-decoration: none !important;
+    }
+
+    body {
+      background: #ffffff !important;
+      color: #000000 !important;
+      font-size: 12pt;
+      line-height: 1.3;
+      max-width: 100% !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .screen-page {
+      page-break-after: always;
+      break-after: page;
+      padding-top: 2pt;
+    }
+
+    .screen-page:last-of-type {
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    h1 {
+      font-size: 17.5pt;
+      margin: 0 0 2.5pt;
+      color: #000000 !important;
+    }
+
+    h2 {
+      font-size: 13.2pt;
+      margin: 5pt 0 2pt;
+      color: #000000 !important;
+      border-bottom: 1.2pt solid #000000;
+      padding-bottom: 1pt;
+      letter-spacing: .04em;
+      page-break-after: avoid;
+      break-after: avoid;
+    }
+
+    h3 {
+      font-size: 11.2pt;
+      font-weight: 700;
+      margin: 4.5pt 0 2pt;
+      color: #000000 !important;
+      page-break-after: avoid;
+      break-after: avoid;
+    }
+
+    .screen-title {
+      font-size: 14.5pt !important;
+      font-weight: 700 !important;
+      margin: 0 0 2.5pt !important;
+      text-transform: none !important;
+      border-bottom: 1.8pt solid #000000 !important;
+      padding-bottom: 2pt !important;
+    }
+
+    .note {
+      color: #2b2b2b !important;
+      font-size: 10.5pt;
+      line-height: 1.25;
+      margin: 2pt 0 3.5pt;
+    }
+
+    code, .k {
+      font-size: 10.5pt;
+      color: #000000 !important;
+    }
+
+    .scroll {
+      overflow: visible !important;
+      width: 100% !important;
+      margin: 0 0 3pt 0 !important;
+    }
+
+    /* Print-optimized 8x4 Grid */
+    .grid {
+      display: grid !important;
+      grid-template-columns: repeat(8, 1fr) !important;
+      min-width: 0 !important;
+      width: 100% !important;
+      background: #ffffff !important;
+      border: 1.5pt solid #000000 !important;
+      border-radius: 3pt !important;
+      padding: 2pt !important;
+      gap: 1.8pt !important;
+      box-sizing: border-box !important;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .grid div {
+      border-radius: 2pt !important;
+      padding: 1.8pt 1.8pt !important;
+      min-height: 24pt !important;
+      font-size: 8.8pt !important;
+      font-weight: 700 !important;
+      line-height: 1.15 !important;
+      box-sizing: border-box !important;
+      border: 0.75pt solid #444444 !important;
+      overflow: hidden !important;
+    }
+
+    .grid i {
+      font-size: 7.5pt !important;
+      line-height: 1.15 !important;
+      margin-top: 1.2pt !important;
+      opacity: 1 !important;
+    }
+
+    /* Print-optimized 4x4 Drum Rack Grid */
+    .drum-rack-wrap {
+      overflow: visible !important;
+      width: 100% !important;
+      margin: 0 0 3pt 0 !important;
+    }
+    .drum-rack-grid {
+      display: grid !important;
+      grid-template-columns: repeat(4, 1fr) !important;
+      min-width: 0 !important;
+      width: 100% !important;
+      background: #ffffff !important;
+      border: 1.5pt solid #000000 !important;
+      border-radius: 3pt !important;
+      padding: 2pt !important;
+      gap: 2pt !important;
+      box-sizing: border-box !important;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    .drum-rack-pad {
+      border-radius: 2pt !important;
+      padding: 2pt 3pt !important;
+      min-height: 28pt !important;
+      font-size: 8.5pt !important;
+      color: #000000 !important;
+      border: 0.75pt solid #333333 !important;
+    }
+    .drum-rack-pad.is-alt {
+      border: 1.5pt dashed #000000 !important;
+    }
+    .drum-rack-pad.unassigned {
+      background: #ffffff !important;
+      color: #777777 !important;
+      border: 0.75pt dashed #aaaaaa !important;
+    }
+    .drum-rack-tag {
+      background: #000000 !important;
+      color: #ffffff !important;
+    }
+    .drum-rack-tag.alt-tag {
+      background: #444444 !important;
+      color: #ffffff !important;
+    }
+
+    /* Black and White Pad Types */
+    .step {
+      background: #ffffff !important;
+      color: #000000 !important;
+      border: 0.75pt solid #555555 !important;
+    }
+    .step i {
+      color: #555555 !important;
+    }
+
+    .act {
+      background: #e4e4e4 !important;
+      color: #000000 !important;
+      border: 1pt solid #222222 !important;
+    }
+    .act i {
+      color: #333333 !important;
+    }
+
+    .mod {
+      background: #cccccc !important;
+      color: #000000 !important;
+      border: 1.2pt solid #000000 !important;
+    }
+    .mod i {
+      color: #111111 !important;
+    }
+
+    .ppos {
+      background: #eeeeee !important;
+      color: #000000 !important;
+      border: 1.5pt double #000000 !important;
+    }
+    .ppos i {
+      color: #333333 !important;
+    }
+
+    /* Held modifier: Inverted solid black with white text */
+    .held {
+      background: #000000 !important;
+      color: #ffffff !important;
+      border: 1.5pt solid #000000 !important;
+      outline: none !important;
+    }
+    .held i {
+      color: #dddddd !important;
+    }
+
+    /* Voice / Swap pads: light tone with distinct dark top bar */
+    .voc0, .voc1, .voc2, .voc3, .voc4, .voc5 {
+      background: #f4f4f4 !important;
+      color: #000000 !important;
+      border: 0.75pt solid #333333 !important;
+      border-top: 2.5pt solid #000000 !important;
+    }
+    .voc0 i, .voc1 i, .voc2 i, .voc3 i, .voc4 i, .voc5 i {
+      color: #222222 !important;
+      font-weight: 600 !important;
+    }
+
+    /* Unassigned / empty pads: light dashed box */
+    .off {
+      background: #ffffff !important;
+      color: #888888 !important;
+      border: 0.75pt dashed #999999 !important;
+    }
+    .off i {
+      color: #aaaaaa !important;
+    }
+
+    /* Tables in print */
+    table {
+      width: 100% !important;
+      font-size: 10.5pt !important;
+      margin: 2pt 0 3.5pt !important;
+      border-collapse: collapse !important;
+    }
+
+    th {
+      font-size: 9.5pt !important;
+      color: #000000 !important;
+      border-bottom: 1.2pt solid #000000 !important;
+      padding: 1pt 2.5pt !important;
+    }
+
+    td {
+      color: #111111 !important;
+      border-bottom: 0.5pt solid #cccccc !important;
+      padding: 1pt 2.5pt !important;
+      line-height: 1.2 !important;
+    }
+
+    .act-name {
+      font-weight: 600 !important;
+      white-space: nowrap !important;
+      color: #000000 !important;
+    }
+
+    .k {
+      font-size: 10.5pt !important;
+      font-weight: 700 !important;
+      color: #000000 !important;
+      white-space: nowrap !important;
+    }
+
+    /* Compact print legend */
+    .print-legend {
+      display: flex !important;
+      gap: 8pt;
+      font-size: 9.5pt;
+      color: #222222;
+      margin: 2pt 0 3pt;
+      padding: 1.5pt 3.5pt;
+      background: #fbfbfb;
+      border: 0.5pt solid #dddddd;
+      border-radius: 2pt;
+      align-items: center;
+      page-break-inside: avoid;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 3pt;
+    }
+
+    .legend-box {
+      display: inline-block;
+      width: 9pt;
+      height: 7.5pt;
+      border-radius: 1.5pt;
+      vertical-align: middle;
+      box-sizing: border-box;
+    }
+
+    .legend-box.step-box { background: #ffffff !important; border: 0.75pt solid #555555 !important; }
+    .legend-box.act-box { background: #e4e4e4 !important; border: 1pt solid #222222 !important; }
+    .legend-box.mod-box { background: #cccccc !important; border: 1.2pt solid #000000 !important; }
+    .legend-box.held-box { background: #000000 !important; border: 1.2pt solid #000000 !important; }
+    .legend-box.voc-box { background: #f4f4f4 !important; border: 0.75pt solid #333333 !important; border-top: 2.5pt solid #000000 !important; }
+    .legend-box.off-box { background: #ffffff !important; border: 0.75pt dashed #999999 !important; }
+
+    #page-kits {
+      page-break-inside: auto !important;
+      break-inside: auto !important;
+    }
+    .kits-header {
+      page-break-before: always;
+      break-before: page;
+    }
+    /* Pattern tables in print should avoid page breaks */
+    .pattern-table,
+    #page-kits table {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    #page-kits table.kits-table,
+    #page-kits table:has(.kit-pattern) {
+      page-break-inside: auto;
+      break-inside: auto;
+    }
+    tr,
+    #page-kits tr,
+    .kit-pattern,
+    .kit-voices {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    .vtag {
+      display: inline-block !important;
+      font-size: 7.5pt !important;
+      font-weight: 700 !important;
+      line-height: 1.12 !important;
+      padding: 0.5pt 0 !important;
+      width: 42pt !important;
+      min-width: 42pt !important;
+      max-width: 42pt !important;
+      text-align: center !important;
+      box-sizing: border-box !important;
+      border: 0.6pt solid #333333 !important;
+      background: #f0f0f0 !important;
+      color: #000000 !important;
+      border-radius: 2pt !important;
+      margin-right: 6pt !important;
+      flex-shrink: 0 !important;
+      letter-spacing: 0.04em !important;
+    }
+    .kit-voices {
+      gap: 0.5pt !important;
+    }
+    .kit-v {
+      display: flex !important;
+      align-items: center !important;
+      white-space: nowrap !important;
+    }
+    .kit-v code {
+      font-size: 8.8pt !important;
+      line-height: 1.12 !important;
+      font-family: ui-monospace, monospace !important;
+      display: inline-block !important;
+      white-space: pre !important;
+    }
+    .genre-tag {
+      font-size: 8.2pt !important;
+      color: #444444 !important;
+    }
+  }

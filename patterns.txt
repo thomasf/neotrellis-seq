@@ -3,7 +3,7 @@
 # =============================================================================
 #
 # This file is the single source of truth for both C++ presets (src/PatternPresets.h)
-# and documentation (UI.html). Run `go run contrib/patterns.go` to regenerate.
+# and documentation (MANUAL.html). Run `go run ./cmd/neotrellis-seq-generator` to regenerate.
 #
 # SYNTAX GUIDE:
 # -----------------------------------------------------------------------------

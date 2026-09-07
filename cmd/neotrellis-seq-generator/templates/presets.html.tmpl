@@ -1,0 +1,17 @@
+<!-- BEGIN_PATTERNS_PRESETS -->
+<h2 class="presets-header">Single-Voice Pattern Presets (<code>FN + ACCENT + STEP n</code>)</h2>
+<p class="note">
+  Applies preset <i>n</i> (1&ndash;16) to the active voice's current pattern.
+  Velocity symbols: <strong>■</strong> Accent (127), <strong>●</strong> Normal (99), <strong>○</strong> Ghost (50), <strong>·</strong> Rest.
+</p>
+{{- range .PresetVoices }}
+
+<h3>{{ .Title }}</h3>
+<table class="pattern-table">
+  <tr><th>Pad</th><th>Preset Name</th><th>Rhythm (16 Steps)</th></tr>
+  {{- range .Presets }}
+  <tr><td class="k">STEP {{ .Pad }}</td><td>{{ .Name }}</td><td>{{ safeHTML .RhythmHTML }}</td></tr>
+  {{- end }}
+</table>
+{{- end }}
+<!-- END_PATTERNS_PRESETS -->

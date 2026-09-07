@@ -3,8 +3,7 @@
 set -e
 
 echo "build..."
-go run contrib/palette.go
-go run contrib/patterns.go
+go run ./cmd/neotrellis-seq-generator
 platformio run -s -e dev -t upload
 
 echo "watch..."

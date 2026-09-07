@@ -26,12 +26,12 @@ type StepTimingInfo struct {
 }
 
 type TimingSnapshot struct {
-	HasLatency       bool
-	LastLatency      time.Duration
-	MinLatency       time.Duration
-	MaxLatency       time.Duration
-	AvgLatency       time.Duration
-	LatencyCount     int64
+	HasLatency   bool
+	LastLatency  time.Duration
+	MinLatency   time.Duration
+	MaxLatency   time.Duration
+	AvgLatency   time.Duration
+	LatencyCount int64
 
 	IdealStep        time.Duration
 	LastStepInterval time.Duration
@@ -229,12 +229,12 @@ func (t *TimingTracker) Snapshot() TimingSnapshot {
 	}
 
 	return TimingSnapshot{
-		HasLatency:       t.latencyCount > 0,
-		LastLatency:      t.lastLatency,
-		MinLatency:       t.minLatency,
-		MaxLatency:       t.maxLatency,
-		AvgLatency:       t.avgLatency,
-		LatencyCount:     t.latencyCount,
+		HasLatency:   t.latencyCount > 0,
+		LastLatency:  t.lastLatency,
+		MinLatency:   t.minLatency,
+		MaxLatency:   t.maxLatency,
+		AvgLatency:   t.avgLatency,
+		LatencyCount: t.latencyCount,
 
 		IdealStep:        idealStep,
 		LastStepInterval: t.lastStepInterval,

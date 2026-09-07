@@ -97,12 +97,10 @@ void begin_edit() {
 // prior to an edit, into the open undo group. It is skipped when the most
 // recent entry already records that pattern in that state, which is what
 // happens when the previous edit turned out to change nothing.
-void record_before(uint32_t voice, uint32_t pattern_idx,
-                   const Pattern &before) {
+void record_before(uint32_t voice, uint32_t pattern_idx, const Pattern &before) {
   if (!undo_buffer.empty()) {
     UndoEntry const &last = undo_buffer.back();
-    if (last.voice == voice && last.pattern_idx == pattern_idx &&
-        last.before == before) {
+    if (last.voice == voice && last.pattern_idx == pattern_idx && last.before == before) {
       return;
     }
   }
@@ -191,7 +189,7 @@ void rewind_transport() {
   }
 }
 
-void open_menu() { mode_manager.switch_mode(&menu_mode); }
+void open_menu() { mode_manager.push_mode(&menu_mode); }
 
 void load_kit_preset(uint32_t kit_index) {
   if (kit_index >= 16) {
@@ -203,8 +201,7 @@ void load_kit_preset(uint32_t kit_index) {
       continue;
     }
     record_undo(voice);
-    PatternPresets::apply_kit_voice(voice, kit_index,
-                                    seq.voices[voice].pattern());
+    PatternPresets::apply_kit_voice(voice, kit_index, seq.voices[voice].pattern());
   }
 }
 
@@ -338,8 +335,7 @@ void transform_all_patterns(Transform transform, uint32_t index) {
 // board, declutter picks among the voices sounding on a step, and sync
 // lengths copies the selected voice's length to the rest.
 bool transform_board(uint32_t index) {
-  if (index != KEY_DRIFT_INDEX && index != KEY_LIFE_INDEX &&
-      index != KEY_SNAP_INDEX) {
+  if (index != KEY_DRIFT_INDEX && index != KEY_LIFE_INDEX && index != KEY_SNAP_INDEX) {
     return false;
   }
   seed_random();
@@ -397,12 +393,12 @@ void swap_pattern(uint32_t other) {
   std::swap(*seq.voice->pattern(), *seq.voices[other].pattern());
 }
 
-// toggle_note_offset moves voice `voice` between its base note and the base
-// note plus ALT_NOTE_OFFSET (FN + the selected voice's pad). It is not
-// a pattern edit, so undo does not see it; the same chord moves back.
-void toggle_note_offset(uint32_t voice) {
-  Voice &v = seq.voices[voice];
-  v.note_offset = v.note_offset == 0 ? ALT_NOTE_OFFSET : 0;
+// get_voice_midi_note returns the MIDI note number for a given voice.
+uint8_t get_voice_midi_note(uint32_t voice) {
+  if (voice >= VOICES) {
+    return 0;
+  }
+  return seq.voices[voice].midi_note;
 }
 
 void setup() {
@@ -475,13 +471,13 @@ void midi_queue(uint8_t cin, uint8_t status, uint8_t data1, uint8_t data2) {
 }
 
 void midi_note_on(uint8_t note, uint8_t velocity) {
-  midi_queue(_USB_MIDI_CIN_NOTE_ON, 0x90 | MIDI_CHANNEL,
-             std::min(note, uint8_t(0x7F)), std::min(velocity, uint8_t(0x7F)));
+  midi_queue(_USB_MIDI_CIN_NOTE_ON, 0x90 | MIDI_CHANNEL, std::min(note, uint8_t(0x7F)),
+             std::min(velocity, uint8_t(0x7F)));
 }
 
 void midi_note_off(uint8_t note, uint8_t velocity) {
-  midi_queue(_USB_MIDI_CIN_NOTE_OFF, 0x80 | MIDI_CHANNEL,
-             std::min(note, uint8_t(0x7F)), std::min(velocity, uint8_t(0x7F)));
+  midi_queue(_USB_MIDI_CIN_NOTE_OFF, 0x80 | MIDI_CHANNEL, std::min(note, uint8_t(0x7F)),
+             std::min(velocity, uint8_t(0x7F)));
 }
 
 // notes_off queues a note off for every sounding voice. Callers flush. It is
@@ -519,7 +515,7 @@ void run_step() {
     Voice &v = seq.voices[voice];
     Step const current_step = v.advance();
     if (current_step.vel > 0) {
-      v.playing_note = FIRST_MIDI_NOTE + voice + v.note_offset;
+      v.playing_note = get_voice_midi_note(voice);
       midi_note_on(v.playing_note, current_step.vel);
       v.is_playing = true;
       voice_flash_mask |= (1U << voice);
@@ -535,8 +531,7 @@ void render_pixels() {
   noInterrupts();
   for (uint32_t i = 0; i < VOICES; i++) {
     if (is_voice_flashing(i)) {
-      uint32_t const flash_color =
-          seq.voices[i].is_protected ? COLOR_RED : COLOR_PPOS;
+      uint32_t const flash_color = seq.voices[i].is_protected ? COLOR_RED : COLOR_PPOS;
       set_pixel(voice_index_to_key(i), flash_color);
     } else {
       set_pixel(voice_index_to_key(i), voice_index_to_color(i));
@@ -561,6 +556,15 @@ void render_pixels() {
 }
 
 uint32_t held_keys_mask = 0;
+
+uint32_t get_held_voice() {
+  for (uint32_t v = 0; v < VOICES; v++) {
+    if (held_keys_mask & (1UL << voice_index_to_key(v))) {
+      return v;
+    }
+  }
+  return VOICES;
+}
 
 // handle_keys drains the keypad event queue and dispatches via the active
 // UIMode.
@@ -655,9 +659,7 @@ void on_midi_stop() {
 
 // Song Position Pointer arrives while stopped, ahead of a Continue, and counts
 // MIDI beats (sixteenths) from the start of the song.
-void on_midi_song_position(uint32_t beats) {
-  locate(beats * MIDI_CLOCKS_PER_BEAT);
-}
+void on_midi_song_position(uint32_t beats) { locate(beats * MIDI_CLOCKS_PER_BEAT); }
 
 // System Reset: stop, silence and rewind.
 void on_midi_reset() {
@@ -707,17 +709,14 @@ void service_clock() {
   uint32_t const now_us = micros();
   uint32_t target_us =
       clock_start_us +
-      static_cast<uint32_t>(
-          (static_cast<uint64_t>(internal_clock_ticks + 1) * 2500000ULL) / BPM);
+      static_cast<uint32_t>((static_cast<uint64_t>(internal_clock_ticks + 1) * 2500000ULL) / BPM);
 
   while (static_cast<int32_t>(now_us - target_us) >= 0) {
     ++internal_clock_ticks;
     on_midi_clock();
     target_us =
         clock_start_us +
-        static_cast<uint32_t>(
-            (static_cast<uint64_t>(internal_clock_ticks + 1) * 2500000ULL) /
-            BPM);
+        static_cast<uint32_t>((static_cast<uint64_t>(internal_clock_ticks + 1) * 2500000ULL) / BPM);
   }
 #else
   // read() returns a zeroed packet once the queue is empty; 0 is not a valid
@@ -743,8 +742,7 @@ void init_timer() {
   MCLK->APBBMASK.reg |= MCLK_APBBMASK_TC3;
 
   // Route 120 MHz GCLK0 to TC3
-  GCLK->PCHCTRL[TC3_GCLK_ID].reg =
-      GCLK_PCHCTRL_GEN_GCLK0_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
+  GCLK->PCHCTRL[TC3_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK0_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
   while (!GCLK->PCHCTRL[TC3_GCLK_ID].bit.CHEN)
     ;
 

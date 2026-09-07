@@ -1,4 +1,4 @@
-module local/neotrellis-seq
+module github.com/thomasf/neotrellis-seq
 
 go 1.27
 

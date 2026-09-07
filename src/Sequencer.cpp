@@ -1,8 +1,7 @@
 #include "Sequencer.h"
 
 void Pattern::shift(int32_t n) {
-  int32_t const len =
-      static_cast<int32_t>(std::min<uint32_t>(length, steps.size()));
+  int32_t const len = static_cast<int32_t>(std::min<uint32_t>(length, steps.size()));
   if (len < 2) {
     return;
   }
@@ -159,11 +158,9 @@ Step Voice::step(uint32_t idx) { return pattern()->steps[idx]; }
 
 Step Voice::step() { return pattern()->steps[pos]; }
 
-static constexpr uint8_t SPIRAL_TABLE[16] = {0,  1,  2, 3, 7, 11, 15, 14,
-                                             13, 12, 8, 4, 5, 6,  10, 9};
+static constexpr uint8_t SPIRAL_TABLE[16] = {0, 1, 2, 3, 7, 11, 15, 14, 13, 12, 8, 4, 5, 6, 10, 9};
 
-static uint32_t filter_perm(const uint8_t table[16], uint32_t idx,
-                            uint32_t len) {
+static uint32_t filter_perm(const uint8_t table[16], uint32_t idx, uint32_t len) {
   if (len >= 16) {
     return table[idx % 16];
   }
@@ -206,8 +203,7 @@ uint32_t Voice::cycle_length() const {
   if (len <= 1) {
     return len == 0 ? 0 : 1;
   }
-  uint32_t const base_cycle =
-      ((path_modifiers & PATH_PINGPONG) && len > 1) ? (2 * len - 2) : len;
+  uint32_t const base_cycle = ((path_modifiers & PATH_PINGPONG) && len > 1) ? (2 * len - 2) : len;
   if (path_modifiers & PATH_MUTATE) {
     uint32_t c = 4 * len * NUM_MUTATE_PATH_MODIFIERS;
     if (path_modifiers & PATH_PHASE) {
@@ -234,11 +230,9 @@ uint32_t Voice::calculate_pos(uint32_t tick) const {
     mods = (mods & ~PATH_MUTATE) | mutant;
   }
 
-  uint32_t const base_cycle =
-      ((mods & PATH_PINGPONG) && len > 1) ? (2 * len - 2) : len;
+  uint32_t const base_cycle = ((mods & PATH_PINGPONG) && len > 1) ? (2 * len - 2) : len;
   uint32_t const t = tick % base_cycle;
-  uint32_t u = (mods & PATH_PINGPONG) ? ((t < len) ? t : (base_cycle - t))
-                                      : t;
+  uint32_t u = (mods & PATH_PINGPONG) ? ((t < len) ? t : (base_cycle - t)) : t;
 
   if (mods & PATH_PHASE) {
     uint32_t const shift = (voice_idx * 2 + (tick / base_cycle)) % len;
@@ -309,7 +303,8 @@ uint32_t Voice::calculate_pos(uint32_t tick) const {
   }
 
   if (mods & PATH_DRUNKEN) {
-    // Deterministic hash of tick for bounded random hesitation/anticipation (+-1 step)
+    // Deterministic hash of tick for bounded random hesitation/anticipation
+    // (+-1 step)
     uint32_t h = (tick ^ 0x9e3779b9u) * 0x85ebca6bu;
     h ^= h >> 13;
     uint32_t const roll = h % 100;
@@ -363,12 +358,9 @@ void UndoBuffer::clear() {
 
 void UndoBuffer::begin_group() { group_pending = true; }
 
-const UndoEntry &UndoBuffer::back() const {
-  return entries[(start + count - 1) % capacity];
-}
+const UndoEntry &UndoBuffer::back() const { return entries[(start + count - 1) % capacity]; }
 
-void UndoBuffer::push(uint32_t voice, uint32_t pattern_idx,
-                      const Pattern &before) {
+void UndoBuffer::push(uint32_t voice, uint32_t pattern_idx, const Pattern &before) {
   if (count == capacity) {
     drop_oldest_group();
   }
@@ -400,8 +392,26 @@ Sequencer::Sequencer() {
   voice = &voices[0];
   for (uint32_t i = 0; i < VOICES; i++) {
     voices[i].voice_idx = i;
+    voices[i].midi_note = ACTIVE_VOICE_MAP[i].base;
   }
 }
+
+void Sequencer::set_or_swap_note(uint32_t voice, uint8_t new_note) {
+  if (voice >= VOICES) {
+    return;
+  }
+  if (voices[voice].midi_note == new_note) {
+    return;
+  }
+  for (uint32_t other = 0; other < VOICES; other++) {
+    if (other != voice && voices[other].midi_note == new_note) {
+      std::swap(voices[voice].midi_note, voices[other].midi_note);
+      return;
+    }
+  }
+  voices[voice].midi_note = new_note;
+}
+
 // sounds_like reports whether `a` and `b` sound on the same steps within
 // `len`, ignoring velocity.
 static bool sounds_like(const Pattern &a, const Pattern &b, uint32_t len) {
@@ -413,8 +423,7 @@ static bool sounds_like(const Pattern &a, const Pattern &b, uint32_t len) {
   return true;
 }
 
-void Sequencer::fill_empty(uint32_t voice,
-                           uint32_t (*random_below)(uint32_t n)) {
+void Sequencer::fill_empty(uint32_t voice, uint32_t (*random_below)(uint32_t n)) {
   Pattern &target = *voices[voice].pattern();
   uint32_t const len = std::min<uint32_t>(target.length, target.steps.size());
 
@@ -506,8 +515,7 @@ void Sequencer::fill_empty(uint32_t voice,
     }
     bool copy = false;
     for (uint32_t other = 0; other < VOICES && !copy; other++) {
-      copy =
-          other != voice && sounds_like(target, *voices[other].pattern(), len);
+      copy = other != voice && sounds_like(target, *voices[other].pattern(), len);
     }
     if (!copy) {
       return;
@@ -721,9 +729,7 @@ bool pattern_has_sounding_notes(const Pattern &p) {
   return false;
 }
 
-bool Pattern::has_sounding_notes() const {
-  return pattern_has_sounding_notes(*this);
-}
+bool Pattern::has_sounding_notes() const { return pattern_has_sounding_notes(*this); }
 
 void VirtualBoard::load(const std::array<Pattern, VOICES> &patterns) {
   for (uint32_t tr = 0; tr < TILE_ROWS; tr++) {
@@ -769,20 +775,17 @@ void VirtualBoard::step_life(uint32_t generations) {
         if (live && (neighbours == 2 || neighbours == 3)) {
           continue; // survives, velocity and accent kept
         }
-        next_cells[r][c].vel =
-            (!live && neighbours == 3) ? DEFAULT_VELOCITY : 0;
+        next_cells[r][c].vel = (!live && neighbours == 3) ? DEFAULT_VELOCITY : 0;
       }
     }
     cells = next_cells;
   }
 }
 
-void VirtualBoard::extract_to_patterns(
-    std::array<Pattern, VOICES> &patterns) const {
+void VirtualBoard::extract_to_patterns(std::array<Pattern, VOICES> &patterns) const {
   for (uint32_t vr = 0; vr < CORE_ROWS; vr++) {
     for (uint32_t vc = 0; vc < CORE_COLS; vc++) {
-      uint32_t const voice_idx =
-          (vr / GRID_SIZE) * VOICE_COLS + (vc / GRID_SIZE);
+      uint32_t const voice_idx = (vr / GRID_SIZE) * VOICE_COLS + (vc / GRID_SIZE);
       uint32_t const step_idx = (vr % GRID_SIZE) * GRID_SIZE + (vc % GRID_SIZE);
       Pattern &p = patterns[voice_idx];
       uint32_t const plen = std::min<uint32_t>(p.length, p.steps.size());
@@ -796,8 +799,7 @@ void VirtualBoard::extract_to_patterns(
 void VirtualBoard::extract_to_voices(std::array<Voice, VOICES> &voices) const {
   for (uint32_t vr = 0; vr < CORE_ROWS; vr++) {
     for (uint32_t vc = 0; vc < CORE_COLS; vc++) {
-      uint32_t const voice_idx =
-          (vr / GRID_SIZE) * VOICE_COLS + (vc / GRID_SIZE);
+      uint32_t const voice_idx = (vr / GRID_SIZE) * VOICE_COLS + (vc / GRID_SIZE);
       if (voices[voice_idx].is_protected) {
         continue;
       }
