@@ -35,30 +35,6 @@ void Pattern::reverse() {
   std::reverse(steps.begin(), steps.begin() + len);
 }
 
-void Pattern::euclid() {
-  uint32_t const len = std::min<uint32_t>(length, steps.size());
-  std::array<uint8_t, 16> vels;
-  uint32_t k = 0;
-  for (uint32_t i = 0; i < len; i++) {
-    if (steps[i].vel > 0) {
-      vels[k++] = steps[i].vel;
-    }
-    steps[i].vel = 0;
-  }
-  if (k == 0) {
-    return;
-  }
-  // Bresenham form of the Euclidean rhythm E(k, len): step i sounds when the
-  // running total i * k crosses a multiple of len, which lands k onsets as
-  // evenly as integers allow with the first one on step 0.
-  uint32_t next = 0;
-  for (uint32_t i = 0; i < len; i++) {
-    if ((i * k) % len < k) {
-      steps[i].vel = vels[next++];
-    }
-  }
-}
-
 void Pattern::accent_every(uint32_t n) {
   uint32_t const len = std::min<uint32_t>(length, steps.size());
   for (uint32_t i = 0; i < len; i++) {
@@ -90,63 +66,6 @@ void Pattern::echo() {
     Step &target = steps[(i + ECHO_STEPS) % len];
     if (vel > target.vel) {
       target.vel = vel;
-    }
-  }
-}
-
-void Pattern::snap() {
-  uint32_t const len = std::min<uint32_t>(length, steps.size());
-  if (len == 0) {
-    return;
-  }
-  std::array<Step, 16> const before = steps;
-  for (uint32_t i = 0; i < len; i++) {
-    steps[i].vel = 0;
-  }
-  for (uint32_t i = 0; i < len; i++) {
-    if (before[i].vel == 0) {
-      continue;
-    }
-    // Ring distances to the nearest downbeat, back (earlier) and forward.
-    uint32_t back = len;
-    uint32_t forward = len;
-    for (uint32_t d = 0; d < len; d += 4) {
-      back = std::min(back, (i + len - d) % len);
-      forward = std::min(forward, (d + len - i) % len);
-    }
-    uint32_t to = i;
-    if (back == 0) {
-      to = i;
-    } else if (back <= forward) {
-      to = (i + len - 1) % len;
-    } else {
-      to = (i + 1) % len;
-    }
-    steps[to].vel = std::max(steps[to].vel, before[i].vel);
-  }
-}
-
-void Pattern::rule30() {
-  uint32_t const len = std::min<uint32_t>(length, steps.size());
-  if (len == 0) {
-    return;
-  }
-  std::array<bool, 16> before;
-  for (uint32_t i = 0; i < len; i++) {
-    before[i] = steps[i].vel > 0;
-  }
-  for (uint32_t i = 0; i < len; i++) {
-    bool const left = before[(i + len - 1) % len];
-    bool const self = before[i];
-    bool const right = before[(i + 1) % len];
-    // Rule 30 as a table over the window (left, self, right), bit 0 for
-    // (off, off, off) up to bit 7 for (on, on, on): 00011110.
-    uint32_t const window = (left << 2) | (self << 1) | right;
-    bool const next = (30 >> window) & 1;
-    if (next && !self) {
-      steps[i].vel = DEFAULT_VELOCITY;
-    } else if (!next) {
-      steps[i].vel = 0;
     }
   }
 }
@@ -533,54 +452,6 @@ void Sequencer::set_voice(uint32_t idx) {
   voice_idx = idx;
   voice = &voices[idx];
 };
-
-void Sequencer::rule30(uint32_t voice, uint32_t (*random_below)(uint32_t n)) {
-  if (voice >= VOICES) {
-    return;
-  }
-  Pattern &target = *voices[voice].pattern();
-  uint32_t const len = std::min<uint32_t>(target.length, target.steps.size());
-  uint32_t budget = 0;
-  for (uint32_t i = 0; i < len; i++) {
-    budget += target.steps[i].vel > 0;
-  }
-  target.rule30();
-
-  // crowd[i] counts the other voices sounding on step i, read wrapped as they
-  // play during the first pass of this pattern.
-  std::array<uint32_t, 16> crowd{};
-  for (uint32_t other = 0; other < VOICES; other++) {
-    if (other == voice) {
-      continue;
-    }
-    Pattern const &p = *voices[other].pattern();
-    uint32_t const plen = std::min<uint32_t>(p.length, p.steps.size());
-    if (plen == 0) {
-      continue;
-    }
-    for (uint32_t i = 0; i < len; i++) {
-      crowd[i] += p.steps[i % plen].vel > 0;
-    }
-  }
-
-  // Keep `budget` of the sounding steps, the quietest crowd first. Within one
-  // crowd level the steps are shuffled so a partial take is a random one.
-  std::array<uint32_t, 16> order;
-  uint32_t sounding = 0;
-  for (uint32_t i = 0; i < len; i++) {
-    if (target.steps[i].vel > 0) {
-      order[sounding++] = i;
-    }
-  }
-  for (uint32_t i = sounding; i > 1; i--) {
-    std::swap(order[i - 1], order[random_below(i)]);
-  }
-  std::stable_sort(order.begin(), order.begin() + sounding,
-                   [&](uint32_t a, uint32_t b) { return crowd[a] < crowd[b]; });
-  for (uint32_t k = budget; k < sounding; k++) {
-    target.steps[order[k]].vel = 0;
-  }
-}
 
 void Sequencer::drift(uint32_t voice, uint32_t (*random_below)(uint32_t n)) {
   if (voice >= VOICES) {

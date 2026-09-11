@@ -34,10 +34,6 @@ public:
   // reverse mirrors the steps within the pattern length, so the last step
   // becomes the first.
   void reverse();
-  // euclid keeps the sounding steps within the pattern length but spreads
-  // them as evenly as possible across it, starting on the first step. The
-  // velocities keep their order, so accents travel with the notes.
-  void euclid();
   // accent_every accents (ACCENT_VELOCITY) every n-th sounding step within
   // the pattern length, counting from the first step, and drops every other
   // sounding step to DEFAULT_VELOCITY. Silent steps stay silent. n == 0
@@ -51,20 +47,6 @@ public:
   // safe. Pressing again echoes the echoes, so each press adds one more
   // repeat, each half as loud, until they halve away to nothing.
   void echo();
-  // snap moves every sounding step within the pattern length one step toward
-  // its nearest downbeat (steps 0, 4, 8 and 12), measured round the ring of
-  // the length; a step halfway between two moves to the earlier one, and a
-  // step on a downbeat stays. When two notes meet, the louder one survives.
-  // Repeated presses quantise a smeared pattern onto the beats.
-  void snap();
-  // rule30 advances the steps within the pattern length one generation of
-  // the Rule 30 cellular automaton, read as a ring so the last step is the
-  // left neighbour of the first. A step's next state is decided by itself and
-  // its two neighbours: it sounds if its left neighbour sounds and it and its
-  // right neighbour are silent, or if its left neighbour is silent and it or
-  // its right neighbour sounds. A step that keeps sounding keeps its velocity,
-  // a newborn one gets DEFAULT_VELOCITY. Rule 30 is chaotic and never empties
-  void rule30();
   // has_sounding_notes reports whether any step within the pattern length has
   // velocity > 0.
   bool has_sounding_notes() const;
@@ -312,13 +294,6 @@ public:
   // exact copy of another voice's steps. random_below(n) must return a
   // uniform value in [0, n).
   void fill_empty(uint32_t voice, uint32_t (*random_below)(uint32_t n));
-  // rule30 advances voice `voice`'s current pattern one generation of Rule 30
-  // (Pattern::rule30) and then trims the result back to the number of notes
-  // the pattern had, so the voice keeps its density and role. The notes it
-  // keeps are those on the steps where the fewest other voices sound, read
-  // wrapped as in fill_empty; ties are broken at random. random_below(n) must
-  // return a uniform value in [0, n).
-  void rule30(uint32_t voice, uint32_t (*random_below)(uint32_t n));
   // drift moves one note of voice `voice`'s current pattern one step left or
   // right, chosen at random among the moves that land on a step where the
   // voice is silent and no other voice sounds, read wrapped as in fill_empty.

@@ -209,25 +209,23 @@ uint32_t random_below(uint32_t n) { return random(n); }
 
 // Step key indices (row major) of the keys whose ALL version is a board
 // transform rather than the single-voice transform applied to each voice:
-// STEP 11 is drift alone and declutter with ALL, STEP 12 rule 30 alone and
-// life with ALL, STEP 13 snap alone and sync lengths with ALL. See
-// transform_board.
+// STEP 11 is drift alone and declutter with ALL, STEP 12 is unassigned alone
+// and life with ALL, STEP 13 is unassigned alone and sync lengths with ALL.
+// See transform_board.
 constexpr uint32_t KEY_DRIFT_INDEX = 10;
 constexpr uint32_t KEY_LIFE_INDEX = 11;
-constexpr uint32_t KEY_SNAP_INDEX = 12;
+constexpr uint32_t KEY_SYNC_INDEX = 12;
 
 // apply_transform applies the FN + STEP action for the step key at
 // `index` (0-15, row major) to voice `voice`'s current pattern and reports
 // whether the key is assigned:
 //
 //   row 0: shift left by 1, right by 1, left by 4, right by 4
-//   row 1: deterministic reshapes: reverse, invert, euclid, fill empty (which
+//   row 1: deterministic reshapes: reverse, invert, fill empty (which
 //          is random only when no step is free)
-//   row 2: shuffle, echo, drift, rule 30 with the note count locked. With
-//          ALL the last two are declutter and life instead, see
+//   row 2: shuffle, echo, drift. With ALL, declutter and life instead, see
 //          transform_board.
-//   row 3: snap (sync lengths with ALL, see transform_board), the rest
-//          unassigned
+//   row 3: unassigned (sync lengths with ALL, see transform_board)
 bool apply_transform(uint32_t voice, uint32_t index) {
   Pattern *const p = seq.voices[voice].pattern();
   switch (index) {
@@ -252,9 +250,6 @@ bool apply_transform(uint32_t voice, uint32_t index) {
   case 5:
     p->invert();
     break;
-  case 6:
-    p->euclid();
-    break;
   case 7:
     seq.fill_empty(voice, random_below);
     break;
@@ -268,14 +263,6 @@ bool apply_transform(uint32_t voice, uint32_t index) {
     break;
   case KEY_DRIFT_INDEX:
     seq.drift(voice, random_below);
-    break;
-  case KEY_LIFE_INDEX:
-    seq.rule30(voice, random_below);
-    break;
-
-  // row 3: snap
-  case KEY_SNAP_INDEX:
-    p->snap();
     break;
 
   default:
@@ -335,7 +322,7 @@ void transform_all_patterns(Transform transform, uint32_t index) {
 // board, declutter picks among the voices sounding on a step, and sync
 // lengths copies the selected voice's length to the rest.
 bool transform_board(uint32_t index) {
-  if (index != KEY_DRIFT_INDEX && index != KEY_LIFE_INDEX && index != KEY_SNAP_INDEX) {
+  if (index != KEY_DRIFT_INDEX && index != KEY_LIFE_INDEX && index != KEY_SYNC_INDEX) {
     return false;
   }
   seed_random();

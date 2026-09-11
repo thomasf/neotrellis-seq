@@ -152,57 +152,6 @@ void test_pattern_reverse(void) {
   TEST_ASSERT_EQUAL_UINT8(40, p.steps[3].vel);
 }
 
-void test_pattern_euclid(void) {
-  Pattern p;
-  p.length = 16;
-  // Put 4 notes at arbitrary steps
-  p.steps[1].vel = 100;
-  p.steps[3].vel = 110;
-  p.steps[7].vel = 120;
-  p.steps[11].vel = 130;
-
-  p.euclid();
-  // 4 notes evenly spread over 16 steps should land on 0, 4, 8, 12
-  TEST_ASSERT_EQUAL_UINT8(100, p.steps[0].vel);
-  TEST_ASSERT_EQUAL_UINT8(110, p.steps[4].vel);
-  TEST_ASSERT_EQUAL_UINT8(120, p.steps[8].vel);
-  TEST_ASSERT_EQUAL_UINT8(130, p.steps[12].vel);
-
-  // All other steps within length 16 should be 0
-  for (uint32_t i = 0; i < 16; i++) {
-    if (i % 4 != 0) {
-      TEST_ASSERT_EQUAL_UINT8(0, p.steps[i].vel);
-    }
-  }
-
-  // Test 3 notes over 8 steps: E(3, 8) lands on 0, 3, 6
-  Pattern p3;
-  p3.length = 8;
-  p3.steps[0].vel = 60;
-  p3.steps[1].vel = 70;
-  p3.steps[2].vel = 80;
-  p3.steps[8].vel = 99; // Beyond length
-
-  p3.euclid();
-  TEST_ASSERT_EQUAL_UINT8(60, p3.steps[0].vel);
-  TEST_ASSERT_EQUAL_UINT8(0, p3.steps[1].vel);
-  TEST_ASSERT_EQUAL_UINT8(0, p3.steps[2].vel);
-  TEST_ASSERT_EQUAL_UINT8(70, p3.steps[3].vel);
-  TEST_ASSERT_EQUAL_UINT8(0, p3.steps[4].vel);
-  TEST_ASSERT_EQUAL_UINT8(0, p3.steps[5].vel);
-  TEST_ASSERT_EQUAL_UINT8(80, p3.steps[6].vel);
-  TEST_ASSERT_EQUAL_UINT8(0, p3.steps[7].vel);
-  TEST_ASSERT_EQUAL_UINT8(99, p3.steps[8].vel); // Untouched
-
-  // Test empty pattern: no notes
-  Pattern p_empty;
-  p_empty.length = 16;
-  p_empty.euclid();
-  for (uint32_t i = 0; i < 16; i++) {
-    TEST_ASSERT_EQUAL_UINT8(0, p_empty.steps[i].vel);
-  }
-}
-
 void test_pattern_accent_every_and_clear_accents(void) {
   Pattern p;
   p.length = 6;
@@ -218,11 +167,11 @@ void test_pattern_accent_every_and_clear_accents(void) {
   p.accent_every(2);
   TEST_ASSERT_EQUAL_UINT8(ACCENT_VELOCITY, p.steps[0].vel);  // 0 % 2 == 0
   TEST_ASSERT_EQUAL_UINT8(DEFAULT_VELOCITY, p.steps[1].vel); // 1 % 2 != 0
-  TEST_ASSERT_EQUAL_UINT8(0, p.steps[2].vel); // silent stays silent
+  TEST_ASSERT_EQUAL_UINT8(0, p.steps[2].vel);                // silent stays silent
   TEST_ASSERT_EQUAL_UINT8(DEFAULT_VELOCITY, p.steps[3].vel); // 3 % 2 != 0
   TEST_ASSERT_EQUAL_UINT8(ACCENT_VELOCITY, p.steps[4].vel);  // 4 % 2 == 0
   TEST_ASSERT_EQUAL_UINT8(DEFAULT_VELOCITY, p.steps[5].vel); // 5 % 2 != 0
-  TEST_ASSERT_EQUAL_UINT8(99, p.steps[6].vel); // beyond length untouched
+  TEST_ASSERT_EQUAL_UINT8(99, p.steps[6].vel);               // beyond length untouched
 
   // Clear accents
   p.clear_accents();
@@ -265,52 +214,6 @@ void test_pattern_echo(void) {
   Pattern p_zero;
   p_zero.length = 0;
   p_zero.echo(); // should not crash
-}
-
-void test_pattern_snap(void) {
-  Pattern p;
-  p.length = 16;
-  // Step 0 is a downbeat, stays
-  p.steps[0].vel = 100;
-  // Step 1 moves to 0 (closer to 0 than 4)
-  p.steps[1].vel = 80;
-  // Step 3 moves to 4 (closer to 4 than 0)
-  p.steps[3].vel = 90;
-  // Step 7 moves to 8 (closer to 8 than 4)
-  p.steps[7].vel = 70;
-  // Step 10 is halfway between 8 and 12, moves to 9 (towards downbeat 8)
-  p.steps[10].vel = 60;
-
-  p.snap();
-  // Step 0 collision: max(100, 80) = 100
-  TEST_ASSERT_EQUAL_UINT8(100, p.steps[0].vel);
-  TEST_ASSERT_EQUAL_UINT8(0, p.steps[1].vel);
-  TEST_ASSERT_EQUAL_UINT8(0, p.steps[3].vel);
-  TEST_ASSERT_EQUAL_UINT8(90, p.steps[4].vel);
-  TEST_ASSERT_EQUAL_UINT8(0, p.steps[7].vel);
-  TEST_ASSERT_EQUAL_UINT8(70, p.steps[8].vel);
-  TEST_ASSERT_EQUAL_UINT8(60, p.steps[9].vel);
-  TEST_ASSERT_EQUAL_UINT8(0, p.steps[10].vel);
-}
-
-void test_pattern_rule30(void) {
-  Pattern p;
-  p.length = 8;
-  p.steps[0].vel = 100; // Single sounding step
-  p.steps[8].vel = 77;  // Beyond length
-
-  p.rule30();
-  // For [1, 0, 0, 0, 0, 0, 0, 0]:
-  // step 0: left=0, self=1, right=0 -> survives with 100
-  // step 1: left=1, self=0, right=0 -> born with DEFAULT_VELOCITY
-  // step 7: left=0, self=0, right=1 -> born with DEFAULT_VELOCITY
-  // all others: 0
-  TEST_ASSERT_EQUAL_UINT8(100, p.steps[0].vel);
-  TEST_ASSERT_EQUAL_UINT8(DEFAULT_VELOCITY, p.steps[1].vel);
-  TEST_ASSERT_EQUAL_UINT8(0, p.steps[2].vel);
-  TEST_ASSERT_EQUAL_UINT8(0, p.steps[6].vel);
-  TEST_ASSERT_EQUAL_UINT8(DEFAULT_VELOCITY, p.steps[7].vel);
-  TEST_ASSERT_EQUAL_UINT8(77, p.steps[8].vel); // Preserved beyond length
 }
 
 void test_pattern_shuffle(void) {
@@ -507,8 +410,7 @@ void test_sequencer_fill_empty(void) {
     TEST_ASSERT_EQUAL_UINT8(0, seq.voices[0].pattern()->steps[i].vel);
   }
   for (uint32_t i = 4; i < 16; i++) {
-    TEST_ASSERT_EQUAL_UINT8(DEFAULT_VELOCITY,
-                            seq.voices[0].pattern()->steps[i].vel);
+    TEST_ASSERT_EQUAL_UINT8(DEFAULT_VELOCITY, seq.voices[0].pattern()->steps[i].vel);
   }
 
   // A voice that sounds on every step (e.g. continuous hats) is ignored
@@ -523,8 +425,7 @@ void test_sequencer_fill_empty(void) {
   // steps are free!
   seq.fill_empty(0, mock_random_zero);
   for (uint32_t i = 0; i < 16; i++) {
-    TEST_ASSERT_EQUAL_UINT8(DEFAULT_VELOCITY,
-                            seq.voices[0].pattern()->steps[i].vel);
+    TEST_ASSERT_EQUAL_UINT8(DEFAULT_VELOCITY, seq.voices[0].pattern()->steps[i].vel);
   }
 }
 
@@ -539,8 +440,7 @@ void test_sequencer_drift(void) {
   seq.drift(0, mock_random_zero);
 
   TEST_ASSERT_EQUAL_UINT8(0, seq.voices[0].pattern()->steps[4].vel);
-  TEST_ASSERT_EQUAL_UINT8(
-      110, seq.voices[0].pattern()->steps[3].vel); // Kept velocity
+  TEST_ASSERT_EQUAL_UINT8(110, seq.voices[0].pattern()->steps[3].vel); // Kept velocity
 
   // Now block step 2 with Voice 1
   seq.voices[1].pattern()->steps[2].vel = 90;
@@ -555,26 +455,6 @@ void test_sequencer_drift(void) {
   seq.voices[1].pattern()->steps[5].vel = 90;
   seq.drift(0, mock_random_zero);
   TEST_ASSERT_EQUAL_UINT8(110, seq.voices[0].pattern()->steps[4].vel);
-}
-
-void test_sequencer_rule30(void) {
-  Sequencer seq;
-  seq.voices[0].pattern()->length = 8;
-  seq.voices[0].pattern()->steps[0].vel = 100; // Budget = 1 note
-
-  // Rule 30 on [1, 0, 0, 0, 0, 0, 0, 0] gives notes at 0, 1, 7.
-  // Let Voice 1 sound on steps 0 and 1, making step 7 the quietest.
-  seq.voices[1].pattern()->length = 8;
-  seq.voices[1].pattern()->steps[0].vel = 90;
-  seq.voices[1].pattern()->steps[1].vel = 90;
-
-  seq.rule30(0, mock_random_zero);
-
-  // Budget of 1 note must be maintained, and quietest step (7) is chosen.
-  TEST_ASSERT_EQUAL_UINT8(0, seq.voices[0].pattern()->steps[0].vel);
-  TEST_ASSERT_EQUAL_UINT8(0, seq.voices[0].pattern()->steps[1].vel);
-  TEST_ASSERT_EQUAL_UINT8(DEFAULT_VELOCITY,
-                          seq.voices[0].pattern()->steps[7].vel);
 }
 
 void test_pattern_presets_voice_and_kits(void) {
@@ -787,8 +667,7 @@ void test_path_modifier_spiral(void) {
   v.pattern()->length = 16;
   v.path_modifiers = PATH_SPIRAL;
 
-  uint32_t const expected[16] = {0,  1,  2, 3, 7, 11, 15, 14,
-                                 13, 12, 8, 4, 5, 6,  10, 9};
+  uint32_t const expected[16] = {0, 1, 2, 3, 7, 11, 15, 14, 13, 12, 8, 4, 5, 6, 10, 9};
   v.seek(0);
   for (uint32_t i = 0; i < 16; i++) {
     v.advance();
@@ -801,8 +680,7 @@ void test_path_modifier_stutter(void) {
   v.pattern()->length = 16;
   v.path_modifiers = PATH_STUTTER;
 
-  uint32_t const expected[16] = {0, 1, 1, 3,  4, 5, 5, 7,
-                                 8, 9, 9, 11, 12, 13, 13, 15};
+  uint32_t const expected[16] = {0, 1, 1, 3, 4, 5, 5, 7, 8, 9, 9, 11, 12, 13, 13, 15};
   v.seek(0);
   for (uint32_t i = 0; i < 16; i++) {
     v.advance();
@@ -821,10 +699,7 @@ void test_path_modifier_phase(void) {
   // Pass 2 (ticks 8..11):  2, 3, 0, 1
   // Pass 3 (ticks 12..15): 3, 0, 1, 2
   uint32_t const expected[16] = {
-      0, 1, 2, 3,
-      1, 2, 3, 0,
-      2, 3, 0, 1,
-      3, 0, 1, 2,
+      0, 1, 2, 3, 1, 2, 3, 0, 2, 3, 0, 1, 3, 0, 1, 2,
   };
   v.seek(0);
   for (uint32_t i = 0; i < 16; i++) {
@@ -853,8 +728,7 @@ void test_path_modifier_pingpong_spiral_combination(void) {
   v.path_modifiers = PATH_PINGPONG | PATH_SPIRAL;
 
   // First 16 steps should follow spiral inward
-  uint32_t const spiral_in[16] = {0,  1,  2, 3, 7, 11, 15, 14,
-                                  13, 12, 8, 4, 5, 6,  10, 9};
+  uint32_t const spiral_in[16] = {0, 1, 2, 3, 7, 11, 15, 14, 13, 12, 8, 4, 5, 6, 10, 9};
   v.seek(0);
   for (uint32_t i = 0; i < 16; i++) {
     v.advance();
@@ -913,8 +787,7 @@ void test_path_modifier_mutate(void) {
 
   // Next round should also be a full permutation
   std::array<bool, NUM_MUTATE_PATH_MODIFIERS> seen_round2{};
-  for (uint32_t bar4 = NUM_MUTATE_PATH_MODIFIERS;
-       bar4 < 2 * NUM_MUTATE_PATH_MODIFIERS; bar4++) {
+  for (uint32_t bar4 = NUM_MUTATE_PATH_MODIFIERS; bar4 < 2 * NUM_MUTATE_PATH_MODIFIERS; bar4++) {
     PathModifier const mod = get_mutate_modifier(bar4);
     for (size_t i = 0; i < NUM_MUTATE_PATH_MODIFIERS; i++) {
       if (MUTATE_PATH_MODIFIERS[i] == mod) {
@@ -939,8 +812,7 @@ void test_path_modifier_mutate(void) {
   v_expected0.path_modifiers = mod0;
 
   for (uint32_t tick = 0; tick < 16; tick++) {
-    TEST_ASSERT_EQUAL_UINT32(v_expected0.calculate_pos(tick),
-                             v.calculate_pos(tick));
+    TEST_ASSERT_EQUAL_UINT32(v_expected0.calculate_pos(tick), v.calculate_pos(tick));
   }
 
   // In bars 4..7 (ticks 16..31), behavior matches get_mutate_modifier(1)
@@ -950,8 +822,7 @@ void test_path_modifier_mutate(void) {
   v_expected1.path_modifiers = mod1;
 
   for (uint32_t tick = 16; tick < 32; tick++) {
-    TEST_ASSERT_EQUAL_UINT32(v_expected1.calculate_pos(tick),
-                             v.calculate_pos(tick));
+    TEST_ASSERT_EQUAL_UINT32(v_expected1.calculate_pos(tick), v.calculate_pos(tick));
   }
 }
 
@@ -960,8 +831,7 @@ void test_path_modifier_weave(void) {
   v.pattern()->length = 16;
   v.path_modifiers = PATH_WEAVE;
 
-  uint32_t const expected[16] = {0, 1, 2, 1, 2, 3, 4, 3,
-                                 4, 5, 6, 5, 6, 7, 8, 7};
+  uint32_t const expected[16] = {0, 1, 2, 1, 2, 3, 4, 3, 4, 5, 6, 5, 6, 7, 8, 7};
   v.seek(0);
   for (uint32_t i = 0; i < 16; i++) {
     v.advance();
@@ -974,8 +844,7 @@ void test_path_modifier_broken_thirds(void) {
   v.pattern()->length = 16;
   v.path_modifiers = PATH_BROKEN_THIRDS;
 
-  uint32_t const expected[16] = {0, 2, 1, 3, 2, 4, 3, 5,
-                                 4, 6, 5, 7, 6, 8, 7, 9};
+  uint32_t const expected[16] = {0, 2, 1, 3, 2, 4, 3, 5, 4, 6, 5, 7, 6, 8, 7, 9};
   v.seek(0);
   for (uint32_t i = 0; i < 16; i++) {
     v.advance();
@@ -988,8 +857,7 @@ void test_path_modifier_beat_pingpong(void) {
   v.pattern()->length = 16;
   v.path_modifiers = PATH_BEAT_PINGPONG;
 
-  uint32_t const expected[16] = {0, 1, 1, 0, 4, 5, 5, 4,
-                                 8, 9, 9, 8, 12, 13, 13, 12};
+  uint32_t const expected[16] = {0, 1, 1, 0, 4, 5, 5, 4, 8, 9, 9, 8, 12, 13, 13, 12};
   v.seek(0);
   for (uint32_t i = 0; i < 16; i++) {
     v.advance();
@@ -1002,8 +870,7 @@ void test_path_modifier_downbeat_lock(void) {
   v.pattern()->length = 16;
   v.path_modifiers = PATH_DOWNBEAT_LOCK;
 
-  uint32_t const expected[16] = {0, 3, 2, 1, 4, 7, 6, 5,
-                                 8, 11, 10, 9, 12, 15, 14, 13};
+  uint32_t const expected[16] = {0, 3, 2, 1, 4, 7, 6, 5, 8, 11, 10, 9, 12, 15, 14, 13};
   v.seek(0);
   for (uint32_t i = 0; i < 16; i++) {
     v.advance();
@@ -1016,8 +883,7 @@ void test_path_modifier_pair_swap(void) {
   v.pattern()->length = 16;
   v.path_modifiers = PATH_PAIR_SWAP;
 
-  uint32_t const expected[16] = {1, 0, 3, 2, 5, 4, 7, 6,
-                                 9, 8, 11, 10, 13, 12, 15, 14};
+  uint32_t const expected[16] = {1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15, 14};
   v.seek(0);
   for (uint32_t i = 0; i < 16; i++) {
     v.advance();
@@ -1030,8 +896,7 @@ void test_path_modifier_turnaround(void) {
   v.pattern()->length = 16;
   v.path_modifiers = PATH_TURNAROUND;
 
-  uint32_t const expected[16] = {0, 1, 2, 3, 4, 5, 6, 7,
-                                 8, 9, 10, 11, 15, 14, 13, 12};
+  uint32_t const expected[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 14, 13, 12};
   v.seek(0);
   for (uint32_t i = 0; i < 16; i++) {
     v.advance();
@@ -1044,8 +909,7 @@ void test_path_modifier_pedal(void) {
   v.pattern()->length = 16;
   v.path_modifiers = PATH_PEDAL;
 
-  uint32_t const expected[16] = {0, 1, 0, 3, 4, 5, 4, 7,
-                                 8, 9, 8, 11, 12, 13, 12, 15};
+  uint32_t const expected[16] = {0, 1, 0, 3, 4, 5, 4, 7, 8, 9, 8, 11, 12, 13, 12, 15};
   v.seek(0);
   for (uint32_t i = 0; i < 16; i++) {
     v.advance();
@@ -1192,7 +1056,6 @@ void test_mode_manager_stack_transitions(void) {
   TEST_ASSERT_EQUAL_INT(2, seq_m.enters);
 }
 
-
 int main(int argc, char **argv) {
   UNITY_BEGIN();
 
@@ -1205,11 +1068,8 @@ int main(int argc, char **argv) {
   RUN_TEST(test_pattern_shift);
   RUN_TEST(test_pattern_invert);
   RUN_TEST(test_pattern_reverse);
-  RUN_TEST(test_pattern_euclid);
   RUN_TEST(test_pattern_accent_every_and_clear_accents);
   RUN_TEST(test_pattern_echo);
-  RUN_TEST(test_pattern_snap);
-  RUN_TEST(test_pattern_rule30);
   RUN_TEST(test_pattern_shuffle);
 
   // Voice Management & Playback
@@ -1240,7 +1100,6 @@ int main(int argc, char **argv) {
   RUN_TEST(test_sequencer_voice_selection);
   RUN_TEST(test_sequencer_fill_empty);
   RUN_TEST(test_sequencer_drift);
-  RUN_TEST(test_sequencer_rule30);
   RUN_TEST(test_voice_protect_flags);
   RUN_TEST(test_voice_protect_declutter);
   RUN_TEST(test_voice_protect_dropout);
