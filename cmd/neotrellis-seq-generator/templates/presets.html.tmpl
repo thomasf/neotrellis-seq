@@ -20,7 +20,7 @@
       {{- else }}
       <div class="page-rows">
         {{- range .Pages }}
-        <div class="page-row"><span class="plabel">P{{ .PageNum }}</span><code>{{ safeHTML .RhythmHTML }}</code></div>
+        <div class="page-row"><code>{{ safeHTML .RhythmHTML }}</code></div>
         {{- end }}
       </div>
       {{- end }}

@@ -137,8 +137,8 @@
   <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
   <tr><td class="k">STEP <i>n</i></td><td class="act-name">Toggle Step</td><td>Toggles the note on step <i>n</i> of the selected pattern (on active page, up to 64 steps).</td></tr>
   <tr><td class="k">VOICE <i>v</i></td><td class="act-name">Select Voice</td><td>Selects voice <i>v</i> for editing, flashes active page number in red on step grid, and lights up while it fires.</td></tr>
-  <tr><td class="k">&larr; PAGE</td><td class="act-name">Previous Page</td><td>Switches the 16-step grid view to the previous page (Page 1&ndash;4). Lights up (<code>COLOR_PMOD</code>) when a previous page exists. Briefly flashes the active page number on the step grid in red.</td></tr>
-  <tr><td class="k">PAGE &rarr;</td><td class="act-name">Next Page</td><td>Switches the 16-step grid view to the next page. Lights up (<code>COLOR_PMOD</code>) when the pattern extends into a subsequent page (up to 64 steps). Briefly flashes the active page number on the step grid in red.</td></tr>
+  <tr><td class="k">&larr; PAGE</td><td class="act-name">Previous Page</td><td>Switches the 16-step grid view to the previous page (Page 1&ndash;4). Lights up when a previous page exists. Briefly flashes the active page number on the step grid in red.</td></tr>
+  <tr><td class="k">PAGE &rarr;</td><td class="act-name">Next Page</td><td>Switches the 16-step grid view to the next page. Lights up when the pattern extends into a subsequent page (up to 64 steps). Briefly flashes the active page number on the step grid in red.</td></tr>
   <tr><td class="k">CLEAR</td><td class="act-name">Clear Pattern</td><td>Zeroes every step of the selected pattern across all pages.</td></tr>
   <tr><td class="k">MENU</td><td class="act-name">Menu Mode</td><td>Enters settings menu (Voice Protect, playback path modifiers, MIDI note assignment, play/stop toggle, and sleep mode). Press MENU again to return to sequencer.</td></tr>
 </table>
@@ -146,7 +146,7 @@
 <h2>Held modifiers</h2>
 <table>
   <tr><th>Combination</th><th>Action</th><th>Description</th></tr>
-  <tr><td class="k">&larr; PAGE + PAGE &rarr;</td><td class="act-name">Page Length Mode</td><td>Holding both page buttons enters page length set mode. Both buttons light white (<code>COLOR_PPOS</code>), and steps 1&ndash;4 illuminate in red up to current page count. Tap STEP 1, 2, 3, or 4 to set pattern length to 16, 32, 48, or 64 steps.</td></tr>
+  <tr><td class="k">&larr; PAGE + PAGE &rarr;</td><td class="act-name">Page Length Mode</td><td>Holding both page buttons enters page length set mode. Both buttons light white, and steps 1&ndash;4 illuminate in red up to current page count. Tap STEP 1, 2, 3, or 4 to set pattern length to 16, 32, 48, or 64 steps.</td></tr>
   <tr><td class="k">&larr; PAGE + PAGE &rarr; + ALL</td><td class="act-name">Set All Page Lengths</td><td>Holding both page buttons with ALL, then tapping STEP 1&ndash;4 sets pattern length to 16, 32, 48, or 64 steps across all unprotected voices simultaneously.</td></tr>
   <tr><td class="k">ACCENT + STEP <i>n</i></td><td class="act-name">Accent Step</td><td>Accents step <i>n</i> (velocity 127) on the active page. Toggles an accented step back to normal velocity (99); switches a silent step on accented.</td></tr>
   <tr><td class="k">ACCENT + CLEAR</td><td class="act-name">Clear Accents</td><td>Removes all accents from the selected pattern across all pages, leaving notes in place.</td></tr>
@@ -517,7 +517,7 @@
   for that voice (the active voice lights in white). The top-left button (STEP 1) toggles
   <strong>Voice Protect</strong> on and off. The second step row (STEP 5&ndash;8) toggles
   4 independent, combinable <strong>Playback Path Modifiers</strong>. All toggles illuminate
-  green (<code>COLOR_GREEN</code>) when active and red (<code>COLOR_RED</code>) when inactive.
+  green when active and red when inactive.
   Hold any voice pad (<code>VOICE 0&ndash;5</code>) to reassign its MIDI note on the 16-step grid.
   Tap <code>ALL</code> when stopped to start playback (green). Hold <code>ALL</code> for 1 second while running to stop playback (red), preventing accidental stops during performance.
   Hold <code>ALL</code> for 2 seconds to enter <strong>Sleep Mode</strong> (stops playback, turns off all LEDs except dim ALL, and locks controls until ALL is pressed again).
@@ -573,8 +573,8 @@
   <tr><td class="k">STEP 7 (Row 2)</td><td class="act-name">Phase Slip Path</td><td>Rotational phase slip (+1 step offset each completed cycle, staggered by +2 steps per voice). Lights green when active, red when inactive.</td></tr>
   <tr><td class="k">STEP 8 (Row 2)</td><td class="act-name">Mutate Path</td><td>Randomly switches between all unused path modifiers every 4 bars (Stutter, Weave, Drunken, Beat Ping-Pong, Broken Thirds, Downbeat Lock, Pair Swap, Turnaround, Pedal). Lights green when active, red when inactive.</td></tr>
   <tr><td class="k">ALL (tap)</td><td class="act-name">Start Playback</td><td>Starts sequencer playback when stopped. Ignored while running to prevent stopping playback by mistake.</td></tr>
-  <tr><td class="k">Hold ALL (1s)</td><td class="act-name">Stop Playback</td><td>Stops sequencer playback when running. Illuminates red (<code>COLOR_RED</code>) once stopped.</td></tr>
-  <tr><td class="k">Hold ALL (2s)</td><td class="act-name">Sleep Mode</td><td>Stops sequencer playback, turns off all other LEDs, and locks all keys. The <code>ALL</code> button remains dimly lit (<code>COLOR_DIM_ALL</code>) until pressed again to wake up and return to the sequencer.</td></tr>
+  <tr><td class="k">Hold ALL (1s)</td><td class="act-name">Stop Playback</td><td>Stops sequencer playback when running. Illuminates red once stopped.</td></tr>
+  <tr><td class="k">Hold ALL (2s)</td><td class="act-name">Sleep Mode</td><td>Stops sequencer playback, turns off all other LEDs, and locks all keys. The <code>ALL</code> button remains dimly lit until pressed again to wake up and return to the sequencer.</td></tr>
   <tr><td class="k">MENU</td><td class="act-name">Exit Menu</td><td>Exits Menu Mode and returns to the sequencer.</td></tr>
 </table>
 </section>
@@ -584,7 +584,7 @@
 <p class="note">
   Holding any <code>VOICE</code> pad for &ge;&thinsp;200ms in Menu Mode (or holding a voice pad and tapping a step pad)
   enters Voice Menu Mode. The 4&times;4 step grid mirrors the 16-pad Ableton Drum Rack (notes 36&ndash;51, bottom row 36&ndash;39 to top row 48&ndash;51).
-  The currently assigned pad for the active voice illuminates in white (<code>COLOR_PPOS</code>). Pads assigned to other
+  The currently assigned pad for the active voice illuminates in white. Pads assigned to other
   voices illuminate in their respective voice colors. Available / unassigned pads are dark.
   Tap any step pad (1&ndash;16) to reassign or swap notes. Tap another voice pad to switch the voice being edited.
   Release the held voice pad to return to Menu Mode, or tap <code>MENU</code> to exit directly back to the sequencer.
@@ -640,7 +640,7 @@
 <table>
   <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
   <tr><td class="k">STEP 1&ndash;16</td><td class="act-name">Assign / Swap Note</td><td>Assigns the 4&times;4 drum rack MIDI note (notes 36&ndash;51) of that step to the currently held voice. If another voice already owns that note, the two voices swap their notes.</td></tr>
-  <tr><td class="k">Hold VOICE 0&ndash;5</td><td class="act-name">Active Voice Focus</td><td>Holding any voice pad for &ge;&thinsp;200ms keeps Voice Menu Mode active. The active voice lights in white (<code>COLOR_PPOS</code>), and its assigned step pad also illuminates in white.</td></tr>
+  <tr><td class="k">Hold VOICE 0&ndash;5</td><td class="act-name">Active Voice Focus</td><td>Holding any voice pad for &ge;&thinsp;200ms keeps Voice Menu Mode active. The active voice lights in white, and its assigned step pad also illuminates in white.</td></tr>
   <tr><td class="k">Release VOICE</td><td class="act-name">Return to Menu</td><td>Releasing the held voice pad returns immediately to Menu Mode.</td></tr>
   <tr><td class="k">VOICE 0&ndash;5 (tap other)</td><td class="act-name">Switch Edit Voice</td><td>Tapping another voice pad switches the active editing voice to that channel.</td></tr>
   <tr><td class="k">MENU</td><td class="act-name">Exit Sequencer</td><td>Exits Menu Mode and Voice Menu Mode, returning directly to the sequencer.</td></tr>

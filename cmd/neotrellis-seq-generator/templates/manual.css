@@ -133,21 +133,21 @@
             font-style: normal; font-weight: 400; opacity: .65; }
   .scroll { overflow-x: auto; }
 
-  /* Pad colours, from src/colors.h. */
-  .step  { background: #000a7f; }             /* COLOR_VOC0_UNSET, hue follows voice */
+  /* Pad colours */
+  .step  { background: #000a7f; }             /* Dim step, hue follows voice */
   .voc0  { background: #2050e0; }
   .voc1  { background: #ad8920; }
   .voc2  { background: #20bcaf; }
   .voc3  { background: #489120; }
   .voc4  { background: #b030b0; }
   .voc5  { background: #808000; }
-  .act   { background: #8080b0; color: #111; } /* COLOR_PACT */
-  .mod   { background: #808b80; color: #111; } /* COLOR_PMOD */
-  .ppos  { background: #d0d0d0; color: #111; } /* COLOR_PPOS */
-  .tool  { background: #902020; color: #fff; } /* COLOR_TOOL */
-  .red   { background: #d02020; color: #fff; } /* COLOR_RED */
-  .green { background: #20d020; color: #111; } /* COLOR_GREEN */
-  .off   { background: #000; color: #777; }    /* COLOR_OFF */
+  .act   { background: #8080b0; color: #111; }
+  .mod   { background: #808b80; color: #111; }
+  .ppos  { background: #d0d0d0; color: #111; }
+  .tool  { background: #902020; color: #fff; }
+  .red   { background: #d02020; color: #fff; }
+  .green { background: #20d020; color: #111; }
+  .off   { background: #000; color: #777; }
   .held  { outline: 2px solid #fff; outline-offset: -2px; }
 
   table { border-collapse: collapse; width: 100%; font-size: .9rem; }
