@@ -114,7 +114,8 @@ constexpr uint32_t KEY_VOICE_SELECT_4 = 30;
 constexpr uint32_t KEY_VOICE_SELECT_5 = 31;
 constexpr uint32_t KEY_VOICE_SELECT_ALL = 7;
 
-constexpr uint32_t KEY_PATTERN_LEN = 29;
+constexpr uint32_t KEY_FN2 = 29;
+constexpr uint32_t KEY_PATTERN_LEN = KEY_FN2;
 constexpr uint32_t KEY_PATTERN_POS = 21;
 constexpr uint32_t KEY_COPY = 4;
 constexpr uint32_t KEY_PASTE = 5;

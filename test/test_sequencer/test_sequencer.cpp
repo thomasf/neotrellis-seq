@@ -1105,6 +1105,44 @@ void test_mode_manager_stack_transitions(void) {
   TEST_ASSERT_EQUAL_PTR(&seq_m, mm.current_mode());
   TEST_ASSERT_EQUAL_INT(2, fn_m.exits);
   TEST_ASSERT_EQUAL_INT(2, seq_m.enters);
+
+  // Press FN2 -> push fn2_m
+  MockStackMode fn2_m, fn2_all_m;
+  mm.push_mode(&fn2_m);
+  TEST_ASSERT_EQUAL_PTR(&fn2_m, mm.current_mode());
+  TEST_ASSERT_EQUAL_INT(2, seq_m.exits);
+  TEST_ASSERT_EQUAL_INT(1, fn2_m.enters);
+
+  // Press ALL while in FN2 -> push fn2_all_m
+  mm.push_mode(&fn2_all_m);
+  TEST_ASSERT_EQUAL_PTR(&fn2_all_m, mm.current_mode());
+  TEST_ASSERT_EQUAL_INT(1, fn2_m.exits);
+  TEST_ASSERT_EQUAL_INT(1, fn2_all_m.enters);
+
+  // Release ALL -> pop back to fn2_m
+  mm.pop_mode();
+  TEST_ASSERT_EQUAL_PTR(&fn2_m, mm.current_mode());
+  TEST_ASSERT_EQUAL_INT(1, fn2_all_m.exits);
+  TEST_ASSERT_EQUAL_INT(2, fn2_m.enters);
+
+  // Release FN2 -> pop back to seq_m
+  mm.pop_mode();
+  TEST_ASSERT_EQUAL_PTR(&seq_m, mm.current_mode());
+  TEST_ASSERT_EQUAL_INT(2, fn2_m.exits);
+  TEST_ASSERT_EQUAL_INT(3, seq_m.enters);
+}
+
+void test_fn2_mod_len(void) {
+  TEST_ASSERT_EQUAL_UINT32(Mod::FN2 | Mod::POS, Mod::LEN);
+  KeyContext ctx{};
+  ctx.held_mask = Mod::FN2 | Mod::POS;
+  TEST_ASSERT_TRUE(ctx.has(Mod::LEN));
+  TEST_ASSERT_TRUE(ctx.has(Mod::FN2));
+  TEST_ASSERT_TRUE(ctx.has(Mod::POS));
+
+  KeyContext ctx_pos_only{};
+  ctx_pos_only.held_mask = Mod::POS;
+  TEST_ASSERT_FALSE(ctx_pos_only.has(Mod::LEN));
 }
 
 int main(int argc, char **argv) {
@@ -1168,6 +1206,7 @@ int main(int argc, char **argv) {
   RUN_TEST(test_voice_midi_note_swap);
   RUN_TEST(test_drum_rack_note_row_mapping);
   RUN_TEST(test_mode_manager_stack_transitions);
+  RUN_TEST(test_fn2_mod_len);
 
   return UNITY_END();
 }

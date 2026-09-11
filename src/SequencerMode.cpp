@@ -27,9 +27,9 @@ void SequencerMode::on_enter() {
     set_pixel(voice_index_to_key(i), voice_index_to_color(i));
   }
 
-  set_pixel(KEY_PATTERN_LEN, COLOR_PMOD);
   set_pixel(KEY_PATTERN_POS, COLOR_PMOD);
   set_pixel(KEY_FN1, COLOR_PMOD);
+  set_pixel(KEY_FN2, COLOR_PMOD);
   set_pixel(KEY_ACCENT, COLOR_PMOD);
 
   set_pixel(KEY_COPY, COLOR_PACT);
@@ -101,9 +101,20 @@ void SequencerMode::on_key(const KeyContext &ctx) {
         rewind_transport();
       }
       if (ctx.has(Mod::ALL)) {
-        mode_manager.push_mode(&fn_all_mode);
+        mode_manager.push_mode(&fn1_all_mode);
       } else {
-        mode_manager.push_mode(&fn_mode);
+        mode_manager.push_mode(&fn1_mode);
+      }
+    }
+    return;
+  }
+
+  if (ctx.key == KEY_FN2) {
+    if (ctx.pressed) {
+      if (ctx.has(Mod::ALL)) {
+        mode_manager.push_mode(&fn2_all_mode);
+      } else {
+        mode_manager.push_mode(&fn2_mode);
       }
     }
     return;

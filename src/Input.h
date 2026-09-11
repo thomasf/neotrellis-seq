@@ -13,10 +13,11 @@
 namespace Mod {
 static constexpr uint32_t NONE = 0;
 static constexpr uint32_t FN1 = (1UL << KEY_FN1);
+static constexpr uint32_t FN2 = (1UL << KEY_FN2);
 static constexpr uint32_t ALL = (1UL << KEY_VOICE_SELECT_ALL);
 static constexpr uint32_t ACCENT = (1UL << KEY_ACCENT);
-static constexpr uint32_t LEN = (1UL << KEY_PATTERN_LEN);
 static constexpr uint32_t POS = (1UL << KEY_PATTERN_POS);
+static constexpr uint32_t LEN = (FN2 | POS);
 static constexpr uint32_t MENU = (1UL << KEY_MENU);
 
 static constexpr uint32_t VOICE_0 = (1UL << KEY_VOICE_SELECT_0);

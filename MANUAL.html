@@ -704,8 +704,10 @@
       <a href="#page-front">Overview</a>
       <a href="#page-drum-rack">Drum Rack Map</a>
       <a href="#page-pad-map">Pad Map</a>
-      <a href="#page-fn1">Function (FN1)</a>
-      <a href="#page-fn1-all">Function (FN1 + ALL)</a>
+      <a href="#page-fn1">FN1</a>
+      <a href="#page-fn1-all">FN1+ALL</a>
+      <a href="#page-fn2">FN2</a>
+      <a href="#page-fn2-all">FN2+ALL</a>
       <a href="#page-menu">Menu</a>
       <a href="#page-voice-menu">Voice Menu</a>
       <a href="#page-kits">Presets &amp; Kits</a>
@@ -918,7 +920,7 @@
   <div class="step">STEP 15 <i>26</i></div>
   <div class="step">STEP 16 <i>27</i></div>
   <div class="mod">FN1 <i>28</i></div>
-  <div class="mod">LEN <i>29</i></div>
+  <div class="mod">FN2 <i>29</i></div>
   <div class="voc4">VOICE 4 <i>30</i></div>
   <div class="voc5">VOICE 5 <i>31</i></div>
 </div>
@@ -950,19 +952,21 @@
   <tr><th>Combination</th><th>Action</th><th>Description</th></tr>
   <tr><td class="k">ACCENT + STEP <i>n</i></td><td class="act-name">Accent Step</td><td>Accents step <i>n</i> (velocity 127). Toggles an accented step back to normal velocity (99); switches a silent step on accented.</td></tr>
   <tr><td class="k">ACCENT + CLEAR</td><td class="act-name">Clear Accents</td><td>Removes all accents from the selected pattern, leaving notes in place.</td></tr>
-  <tr><td class="k">LEN + STEP <i>n</i></td><td class="act-name">Set Length</td><td>Sets the selected pattern&rsquo;s loop length to <i>n</i> steps.</td></tr>
   <tr><td class="k">POS + STEP <i>n</i></td><td class="act-name">Set Position</td><td>Moves the selected voice&rsquo;s playhead to step <i>n</i>.</td></tr>
   <tr><td class="k">POS + ALL + STEP <i>n</i></td><td class="act-name">Set All Position</td><td>Moves every voice&rsquo;s playhead to step <i>n</i> simultaneously.</td></tr>
   <tr><td class="k">POS + FN1</td><td class="act-name">Rewind Transport</td><td>Resets playback position of all voices to step 0 and arms them to fire on next step/clock (can also be pressed as FN1 + POS).</td></tr>
   <tr><td class="k">VOICE <i>v</i> + STEP <i>n</i></td><td class="act-name">Select Pattern</td><td>Selects pattern slot <i>n</i> for voice <i>v</i> without modifying step data. Multiple voice pads can be held at once.</td></tr>
   <tr><td class="k">ALL + STEP <i>n</i></td><td class="act-name">Select All Patterns</td><td>Selects pattern slot <i>n</i> for all unprotected voices simultaneously (protected voices remain on their current slot).</td></tr>
-  <tr><td class="k">FN1 + &hellip;</td><td class="act-name">Function (FN1)</td><td>Accesses secondary functions: pattern transforms, presets, voice swap, rewind, redo, and paste all (see below).</td></tr>
-  <tr><td class="k">FN1 + ALL + &hellip;</td><td class="act-name">Function All</td><td>Applies functions across all unprotected voices simultaneously: all-voice transforms, kit presets, odd meters, and dropout (see below).</td></tr>
+  <tr><td class="k">FN1 + &hellip;</td><td class="act-name">FN1</td><td>Accesses secondary functions: pattern transforms, presets, voice swap, rewind, redo, and paste all (see below).</td></tr>
+  <tr><td class="k">FN1 + ALL + &hellip;</td><td class="act-name">FN1+ALL</td><td>Applies functions across all unprotected voices simultaneously: all-voice transforms, kit presets, odd meters, and dropout (see below).</td></tr>
+  <tr><td class="k">FN2 + POS + STEP <i>n</i></td><td class="act-name">Set Length</td><td>Sets the selected pattern&rsquo;s loop length to <i>n</i> steps (temporarily moved to FN2 + the button above it).</td></tr>
+  <tr><td class="k">FN2 + &hellip;</td><td class="act-name">FN2</td><td>Accesses secondary function mode 2 (see below).</td></tr>
+  <tr><td class="k">FN2 + ALL + &hellip;</td><td class="act-name">FN2+ALL</td><td>Applies secondary functions across all voices (see below).</td></tr>
 </table>
 </section>
 
 <section class="screen-page" id="page-fn1">
-<h2 class="screen-title">Function Key (FN1)</h2>
+<h2 class="screen-title">FN1</h2>
 <p class="note">
   The pad map while holding FN1. Applies single-voice transforms and utility
   shortcuts to the currently selected voice. Step transformations modify pattern
@@ -1003,7 +1007,7 @@
   <div class="off">&mdash; <i>STEP 15</i></div>
   <div class="off">&mdash; <i>STEP 16</i></div>
   <div class="mod held">FN1 <i>held</i></div>
-  <div class="off">&mdash; <i>LEN</i></div>
+  <div class="off">&mdash; <i>FN2</i></div>
   <div class="voc4">SWAP 4 <i>VOICE 4</i></div>
   <div class="voc5">SWAP 5 <i>VOICE 5</i></div>
 </div>
@@ -1038,7 +1042,7 @@
 </section>
 
 <section class="screen-page" id="page-fn1-all">
-<h2 class="screen-title">Function Key on all voices (FN1 + ALL)</h2>
+<h2 class="screen-title">FN1+ALL</h2>
 <p class="note">
   The pad map while FN1 and ALL are both held. Applies transforms across all six
   voices simultaneously. Voices with Voice Protect enabled are shielded from
@@ -1080,7 +1084,7 @@
   <div class="off">&mdash; <i>STEP 15</i></div>
   <div class="off">&mdash; <i>STEP 16</i></div>
   <div class="mod held">FN1 <i>held</i></div>
-  <div class="mod">ODD METERS <i>LEN</i></div>
+  <div class="mod">ODD METERS <i>FN2</i></div>
   <div class="voc4">SWAP 4 <i>VOICE 4</i></div>
   <div class="voc5">SWAP 5 <i>VOICE 5</i></div>
 </div>
@@ -1103,12 +1107,136 @@
   <tr><td class="k">STEP 12</td><td class="act-name">Life</td><td>Advances Conway&rsquo;s Game of Life across voices on the virtual board (protected voices do not change).</td></tr>
   <tr><td class="k">ACCENT + STEP <i>n</i></td><td class="act-name">Load Kit Preset</td><td>Loads pattern preset <i>n</i> (1&ndash;16) across all unprotected voices.</td></tr>
   <tr><td class="k">STEP 13</td><td class="act-name">Sync Lengths</td><td>Sets unprotected voice loop lengths to match the selected voice&rsquo;s current pattern length.</td></tr>
-  <tr><td class="k">LEN</td><td class="act-name">Odd Meters</td><td>Assigns odd lengths (5, 7, 9, 11, 13, 15) randomly across unprotected voices without altering step data.</td></tr>
+  <tr><td class="k">FN2</td><td class="act-name">Odd Meters</td><td>Assigns odd lengths (5, 7, 9, 11, 13, 15) randomly across unprotected voices without altering step data.</td></tr>
   <tr><td class="k">CLEAR</td><td class="act-name">Dropout</td><td>Silences half of currently sounding unprotected voices at random (minimum 1 voice per press).</td></tr>
   <tr><td class="k">POS</td><td class="act-name">Rewind</td><td>Resets playback position of all voices to step 0 and arms them to fire on next step/clock.</td></tr>
   <tr><td class="k">VOICE <i>v</i></td><td class="act-name">Swap Pattern</td><td>Swaps selected pattern with voice <i>v</i>&rsquo;s current pattern.</td></tr>
   <tr><td class="k">UNDO</td><td class="act-name">Redo</td><td>Redoes the last undone edit. Subsequent new edits clear redo history.</td></tr>
   <tr><td class="k">PASTE</td><td class="act-name">Paste All Slots</td><td>Overwrites all 16 pattern slots of the selected voice with the paste buffer.</td></tr>
+</table>
+</section>
+
+<section class="screen-page" id="page-fn2">
+<h2 class="screen-title">FN2</h2>
+<p class="note">
+  The pad map while holding FN2. Holding FN2 and the button above it (POS, pad 21) while tapping any step (1&ndash;16)
+  sets the active pattern's loop length (temporarily moved to FN2 + POS). With ALL held, sets loop lengths across all unprotected voices.
+</p>
+
+<div class="scroll">
+<div class="grid">
+  <div class="off">&mdash; <i>STEP 1</i></div>
+  <div class="off">&mdash; <i>STEP 2</i></div>
+  <div class="off">&mdash; <i>STEP 3</i></div>
+  <div class="off">&mdash; <i>STEP 4</i></div>
+  <div class="off">&mdash; <i>COPY</i></div>
+  <div class="off">&mdash; <i>PASTE</i></div>
+  <div class="off">&mdash; <i>MENU</i></div>
+  <div class="ppos">ALL &hellip; <i>ALL</i></div>
+
+  <div class="off">&mdash; <i>STEP 5</i></div>
+  <div class="off">&mdash; <i>STEP 6</i></div>
+  <div class="off">&mdash; <i>STEP 7</i></div>
+  <div class="off">&mdash; <i>STEP 8</i></div>
+  <div class="off">&mdash; <i>CLEAR</i></div>
+  <div class="off">&mdash; <i>UNDO</i></div>
+  <div class="voc0">VOICE 0 <i>select</i></div>
+  <div class="voc1">VOICE 1 <i>select</i></div>
+
+  <div class="off">&mdash; <i>STEP 9</i></div>
+  <div class="off">&mdash; <i>STEP 10</i></div>
+  <div class="off">&mdash; <i>STEP 11</i></div>
+  <div class="off">&mdash; <i>STEP 12</i></div>
+  <div class="off">&mdash; <i>ACCENT</i></div>
+  <div class="mod">SET LEN <i>POS</i></div>
+  <div class="voc2">VOICE 2 <i>select</i></div>
+  <div class="voc3">VOICE 3 <i>select</i></div>
+
+  <div class="off">&mdash; <i>STEP 13</i></div>
+  <div class="off">&mdash; <i>STEP 14</i></div>
+  <div class="off">&mdash; <i>STEP 15</i></div>
+  <div class="off">&mdash; <i>STEP 16</i></div>
+  <div class="off">&mdash; <i>FN1</i></div>
+  <div class="mod held">FN2 <i>held</i></div>
+  <div class="voc4">VOICE 4 <i>select</i></div>
+  <div class="voc5">VOICE 5 <i>select</i></div>
+</div>
+</div>
+
+<div class="print-legend">
+  <span class="legend-item"><span class="legend-box step-box"></span> Step</span>
+  <span class="legend-item"><span class="legend-box mod-box"></span> Modifier</span>
+  <span class="legend-item"><span class="legend-box held-box"></span> Held (FN2)</span>
+  <span class="legend-item"><span class="legend-box voc-box"></span> Voice</span>
+  <span class="legend-item"><span class="legend-box off-box"></span> Unassigned</span>
+</div>
+
+<table>
+  <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
+  <tr><td class="k">POS + STEP <i>n</i></td><td class="act-name">Set Length</td><td>Sets the active voice&rsquo;s pattern loop length to <i>n</i> steps (hold FN2 + POS, tap step 1&ndash;16).</td></tr>
+  <tr><td class="k">ALL + &hellip;</td><td class="act-name">Function 2 All</td><td>Applies secondary functions across all unprotected voices simultaneously (see below).</td></tr>
+</table>
+</section>
+
+<section class="screen-page" id="page-fn2-all">
+<h2 class="screen-title">FN2+ALL</h2>
+<p class="note">
+  The pad map while FN2 and ALL are both held. Applies secondary functions across all six
+  voices simultaneously. Voices with Voice Protect enabled are shielded from
+  global changes and retain their existing loop lengths.
+</p>
+
+<div class="scroll">
+<div class="grid">
+  <div class="off">&mdash; <i>STEP 1</i></div>
+  <div class="off">&mdash; <i>STEP 2</i></div>
+  <div class="off">&mdash; <i>STEP 3</i></div>
+  <div class="off">&mdash; <i>STEP 4</i></div>
+  <div class="off">&mdash; <i>COPY</i></div>
+  <div class="off">&mdash; <i>PASTE</i></div>
+  <div class="off">&mdash; <i>MENU</i></div>
+  <div class="ppos held">ALL <i>held</i></div>
+
+  <div class="off">&mdash; <i>STEP 5</i></div>
+  <div class="off">&mdash; <i>STEP 6</i></div>
+  <div class="off">&mdash; <i>STEP 7</i></div>
+  <div class="off">&mdash; <i>STEP 8</i></div>
+  <div class="off">&mdash; <i>CLEAR</i></div>
+  <div class="off">&mdash; <i>UNDO</i></div>
+  <div class="voc0">VOICE 0 <i>select</i></div>
+  <div class="voc1">VOICE 1 <i>select</i></div>
+
+  <div class="off">&mdash; <i>STEP 9</i></div>
+  <div class="off">&mdash; <i>STEP 10</i></div>
+  <div class="off">&mdash; <i>STEP 11</i></div>
+  <div class="off">&mdash; <i>STEP 12</i></div>
+  <div class="off">&mdash; <i>ACCENT</i></div>
+  <div class="mod">SET ALL LEN <i>POS</i></div>
+  <div class="voc2">VOICE 2 <i>select</i></div>
+  <div class="voc3">VOICE 3 <i>select</i></div>
+
+  <div class="off">&mdash; <i>STEP 13</i></div>
+  <div class="off">&mdash; <i>STEP 14</i></div>
+  <div class="off">&mdash; <i>STEP 15</i></div>
+  <div class="off">&mdash; <i>STEP 16</i></div>
+  <div class="off">&mdash; <i>FN1</i></div>
+  <div class="mod held">FN2 <i>held</i></div>
+  <div class="voc4">VOICE 4 <i>select</i></div>
+  <div class="voc5">VOICE 5 <i>select</i></div>
+</div>
+</div>
+
+<div class="print-legend">
+  <span class="legend-item"><span class="legend-box step-box"></span> Step</span>
+  <span class="legend-item"><span class="legend-box mod-box"></span> Modifier</span>
+  <span class="legend-item"><span class="legend-box held-box"></span> Held (FN2 / ALL)</span>
+  <span class="legend-item"><span class="legend-box voc-box"></span> Voice</span>
+  <span class="legend-item"><span class="legend-box off-box"></span> Unassigned</span>
+</div>
+
+<table>
+  <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
+  <tr><td class="k">POS + STEP <i>n</i></td><td class="act-name">Set All Lengths</td><td>Sets pattern loop lengths to <i>n</i> steps across all unprotected voices simultaneously (hold FN2 + ALL + POS, tap step 1&ndash;16). Protected voices remain unchanged.</td></tr>
 </table>
 </section>
 
@@ -1157,7 +1285,7 @@
   <div class="off">&mdash; <i>STEP 15</i></div>
   <div class="off">&mdash; <i>STEP 16</i></div>
   <div class="off">&mdash; <i>FN1</i></div>
-  <div class="off">&mdash; <i>LEN</i></div>
+  <div class="off">&mdash; <i>FN2</i></div>
   <div class="voc4">PAGE 4 <i>VOICE 4</i></div>
   <div class="voc5">PAGE 5 <i>VOICE 5</i></div>
 </div>
@@ -1221,7 +1349,7 @@
   <div class="voc1">38 Snare <i>STEP 15</i></div>
   <div class="off">39 Clap <i>STEP 16</i></div>
   <div class="off">&mdash; <i>FN1</i></div>
-  <div class="off">&mdash; <i>LEN</i></div>
+  <div class="off">&mdash; <i>FN2</i></div>
   <div class="voc4">VOICE 4 <i>select</i></div>
   <div class="voc5">VOICE 5 <i>select</i></div>
 </div>
