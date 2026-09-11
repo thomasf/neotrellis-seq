@@ -1170,6 +1170,112 @@ void test_fn2_mod_len(void) {
   TEST_ASSERT_FALSE(ctx_pos_only.has(Mod::LEN));
 }
 
+void test_pattern_64_steps(void) {
+  TEST_ASSERT_EQUAL_UINT32(64, PATTERN_STEPS);
+  TEST_ASSERT_EQUAL_UINT32(16, STEPS_PER_PAGE);
+  TEST_ASSERT_EQUAL_UINT32(4, MAX_PAGES);
+
+  Pattern p;
+  TEST_ASSERT_EQUAL_UINT32(16, p.length);
+  p.length = 64;
+
+  for (uint32_t i = 0; i < 64; i++) {
+    p.steps[i].vel = static_cast<uint8_t>(i + 1);
+  }
+
+  // Shift right by 4
+  p.shift(4);
+  TEST_ASSERT_EQUAL_UINT8(61, p.steps[0].vel);
+  TEST_ASSERT_EQUAL_UINT8(62, p.steps[1].vel);
+  TEST_ASSERT_EQUAL_UINT8(63, p.steps[2].vel);
+  TEST_ASSERT_EQUAL_UINT8(64, p.steps[3].vel);
+  TEST_ASSERT_EQUAL_UINT8(1, p.steps[4].vel);
+
+  // Shift back left by 4
+  p.shift(-4);
+  TEST_ASSERT_EQUAL_UINT8(1, p.steps[0].vel);
+  TEST_ASSERT_EQUAL_UINT8(64, p.steps[63].vel);
+
+  // Reverse across 64 steps
+  p.reverse();
+  TEST_ASSERT_EQUAL_UINT8(64, p.steps[0].vel);
+  TEST_ASSERT_EQUAL_UINT8(1, p.steps[63].vel);
+
+  // Echo across 64 steps
+  Pattern pe;
+  pe.length = 64;
+  pe.steps[0].vel = 100;
+  pe.echo(); // ECHO_STEPS = 2
+  TEST_ASSERT_EQUAL_UINT8(50, pe.steps[2].vel);
+
+  // Humanize across 64 steps
+  Pattern ph;
+  ph.length = 64;
+  for (uint32_t i = 0; i < 64; i++) {
+    ph.steps[i].vel = DEFAULT_VELOCITY;
+  }
+  ph.humanize(mock_random_zero);
+  TEST_ASSERT_TRUE(ph.has_sounding_notes());
+}
+
+void test_voice_pagination(void) {
+  Voice v;
+  TEST_ASSERT_EQUAL_UINT32(0, v.current_page);
+  TEST_ASSERT_EQUAL_UINT32(1, v.page_count()); // default len 16 -> 1 page
+
+  v.pattern()->length = 32;
+  TEST_ASSERT_EQUAL_UINT32(2, v.page_count());
+
+  v.pattern()->length = 48;
+  TEST_ASSERT_EQUAL_UINT32(3, v.page_count());
+
+  v.pattern()->length = 64;
+  TEST_ASSERT_EQUAL_UINT32(4, v.page_count());
+
+  // Non-multiple of 16 rounds up to next page
+  v.pattern()->length = 17;
+  TEST_ASSERT_EQUAL_UINT32(2, v.page_count());
+
+  v.pattern()->length = 1;
+  TEST_ASSERT_EQUAL_UINT32(1, v.page_count());
+
+  v.pattern()->length = 0;
+  TEST_ASSERT_EQUAL_UINT32(1, v.page_count());
+
+  // Clamping test
+  v.pattern()->length = 64;
+  v.current_page = 3; // viewing Page 4
+  Pattern p_short;
+  p_short.length = 16;
+  v.replace_pattern(p_short);
+  TEST_ASSERT_EQUAL_UINT32(0, v.current_page); // Clamped to Page 1
+}
+
+void test_sequencer_64_steps_declutter_and_drift(void) {
+  Sequencer s;
+  s.voice->pattern()->length = 64;
+  s.voices[1].pattern()->length = 64;
+
+  // Set overlapping notes at step 40 (Page 3)
+  s.voice->pattern()->steps[40].vel = DEFAULT_VELOCITY;
+  s.voices[1].pattern()->steps[40].vel = DEFAULT_VELOCITY;
+
+  s.declutter(mock_random_zero);
+  // One of the voices should have been silenced at step 40
+  uint32_t const sounding =
+      (s.voice->pattern()->steps[40].vel > 0) + (s.voices[1].pattern()->steps[40].vel > 0);
+  TEST_ASSERT_EQUAL_UINT32(1, sounding);
+
+  // Test sync_lengths with 64 steps
+  s.voices[0].pattern()->length = 64;
+  s.set_voice(0);
+  s.sync_lengths();
+  for (uint32_t i = 0; i < VOICES; i++) {
+    TEST_ASSERT_EQUAL_UINT32(64, s.voices[i].pattern()->length);
+    TEST_ASSERT_EQUAL_UINT32(4, s.voices[i].page_count());
+  }
+}
+
 int main(int argc, char **argv) {
   UNITY_BEGIN();
 
@@ -1232,6 +1338,9 @@ int main(int argc, char **argv) {
   RUN_TEST(test_drum_rack_note_row_mapping);
   RUN_TEST(test_mode_manager_stack_transitions);
   RUN_TEST(test_fn2_mod_len);
+  RUN_TEST(test_pattern_64_steps);
+  RUN_TEST(test_voice_pagination);
+  RUN_TEST(test_sequencer_64_steps_declutter_and_drift);
 
   return UNITY_END();
 }

@@ -37,7 +37,7 @@ void Pattern::reverse() {
 
 void Pattern::humanize(uint32_t (*random_below)(uint32_t n)) {
   uint32_t const len = std::min<uint32_t>(length, steps.size());
-  std::array<uint32_t, 16> sounding_indices;
+  std::array<uint32_t, PATTERN_STEPS> sounding_indices;
   uint32_t sounding_count = 0;
   for (uint32_t i = 0; i < len; i++) {
     if (steps[i].vel > 0) {
@@ -123,7 +123,7 @@ void Pattern::echo() {
   if (len == 0) {
     return;
   }
-  std::array<Step, 16> const before = steps;
+  auto const before = steps;
   for (uint32_t i = 0; i < len; i++) {
     uint8_t const vel = before[i].vel / 2;
     Step &target = steps[(i + ECHO_STEPS) % len];
@@ -328,7 +328,12 @@ void Voice::seek(uint32_t step) {
   seek_pending = true;
 }
 
-void Voice::replace_pattern(const Pattern &p) { patterns[pattern_idx] = p; }
+void Voice::replace_pattern(const Pattern &p) {
+  patterns[pattern_idx] = p;
+  if (current_page >= page_count()) {
+    current_page = page_count() - 1;
+  }
+}
 
 bool UndoBuffer::empty() const { return count == 0; }
 
@@ -414,7 +419,7 @@ void Sequencer::fill_empty(uint32_t voice, uint32_t (*random_below)(uint32_t n))
   // during the first pass of the target pattern. sparsest is the note count
   // of the other voice with the fewest notes, which sets how many notes a
   // fallback fill places.
-  std::array<uint32_t, 16> activity{};
+  std::array<uint32_t, PATTERN_STEPS> activity{};
   uint32_t sparsest = UINT32_MAX;
   for (uint32_t other = 0; other < VOICES; other++) {
     if (other == voice) {
@@ -527,7 +532,7 @@ void Sequencer::drift(uint32_t voice, uint32_t (*random_below)(uint32_t n)) {
   }
 
   // busy[i] is set when another voice that rests somewhere sounds on step i.
-  std::array<bool, 16> busy{};
+  std::array<bool, PATTERN_STEPS> busy{};
   for (uint32_t other = 0; other < VOICES; other++) {
     if (other == voice) {
       continue;
@@ -549,12 +554,12 @@ void Sequencer::drift(uint32_t voice, uint32_t (*random_below)(uint32_t n)) {
     }
   }
 
-  // Every note can move to either neighbour, so at most 32 moves.
+  // Every note can move to either neighbour, so at most PATTERN_STEPS * 2 moves.
   struct Move {
     uint8_t from;
     uint8_t to;
   };
-  std::array<Move, 32> moves;
+  std::array<Move, PATTERN_STEPS * 2> moves;
   uint32_t count = 0;
   for (uint32_t i = 0; i < len; i++) {
     if (target.steps[i].vel == 0) {
@@ -576,7 +581,7 @@ void Sequencer::drift(uint32_t voice, uint32_t (*random_below)(uint32_t n)) {
 }
 
 void Sequencer::declutter(uint32_t (*random_below)(uint32_t n)) {
-  for (uint32_t i = 0; i < 16; i++) {
+  for (uint32_t i = 0; i < PATTERN_STEPS; i++) {
     std::array<uint32_t, VOICES> sounding;
     uint32_t count = 0;
     uint32_t total_sounding = 0;
@@ -634,6 +639,9 @@ void Sequencer::sync_lengths() {
       continue;
     }
     voices[v].pattern()->length = len;
+    if (voices[v].current_page >= voices[v].page_count()) {
+      voices[v].current_page = voices[v].page_count() - 1;
+    }
   }
 }
 
@@ -647,6 +655,9 @@ void Sequencer::polymeter(uint32_t (*random_below)(uint32_t n)) {
       continue;
     }
     voices[v].pattern()->length = lengths[v % lengths.size()];
+    if (voices[v].current_page >= voices[v].page_count()) {
+      voices[v].current_page = voices[v].page_count() - 1;
+    }
   }
 }
 

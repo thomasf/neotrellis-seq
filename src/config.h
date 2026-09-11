@@ -23,6 +23,11 @@ constexpr uint32_t UNDO_LENGTH = 256;
 // Number of sequencer drum voices.
 #define VOICES 6
 
+// Maximum steps per sequence pattern and pagination constants
+constexpr uint32_t PATTERN_STEPS = 64;
+constexpr uint32_t STEPS_PER_PAGE = 16;
+constexpr uint32_t MAX_PAGES = PATTERN_STEPS / STEPS_PER_PAGE;
+
 // =============================================================================
 // MIDI Voice Mapping (Active mapping defined in pkg/midimap)
 // =============================================================================

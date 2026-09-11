@@ -19,8 +19,8 @@ public:
 // Pattern is a sequence of steps.
 class Pattern {
 public:
-  uint32_t length = 16;       // pattern length, up to 16 steps
-  std::array<Step, 16> steps; // pattern data
+  uint32_t length = 16;                  // pattern length, up to PATTERN_STEPS steps
+  std::array<Step, PATTERN_STEPS> steps; // pattern data
   // shift moves every step n places to the right (later in time) for n > 0, or
   // left for n < 0, wrapping within the pattern length. Steps past the length
   // are left alone.
@@ -70,14 +70,19 @@ PathModifier get_mutate_modifier(uint32_t bar4);
 class Voice {
 public:
   std::array<Pattern, 16> patterns;
-  bool is_playing = false;                // a note is currently being played
-  uint8_t playing_note = 0;               // the note is_playing refers to
-  uint8_t midi_note = 0;                  // assigned base MIDI note (36..51)
-  uint32_t pattern_idx = 0;               // current pattern index
-  uint32_t voice_idx = 0;                 // index of this voice (0..VOICES-1)
-  bool is_protected = false;              // voice protect flag
-  uint16_t path_modifiers = PATH_NONE;    // active playback path modifiers
-  uint32_t play_head = 0;                 // progression step counter
+  bool is_playing = false;             // a note is currently being played
+  uint8_t playing_note = 0;            // the note is_playing refers to
+  uint8_t midi_note = 0;               // assigned base MIDI note (36..51)
+  uint32_t pattern_idx = 0;            // current pattern index
+  uint32_t voice_idx = 0;              // index of this voice (0..VOICES-1)
+  bool is_protected = false;           // voice protect flag
+  uint16_t path_modifiers = PATH_NONE; // active playback path modifiers
+  uint32_t play_head = 0;              // progression step counter
+  uint32_t current_page = 0;           // currently visible page (0..MAX_PAGES-1)
+  uint32_t page_count() const {
+    uint32_t const p = (pattern()->length + STEPS_PER_PAGE - 1) / STEPS_PER_PAGE;
+    return p == 0 ? 1 : (p > MAX_PAGES ? MAX_PAGES : p);
+  }
   Pattern *pattern();                     // current pattern
   const Pattern *pattern() const;         // current pattern (const)
   void replace_pattern(const Pattern &p); // replace current pattern

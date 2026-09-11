@@ -427,6 +427,9 @@ uint32_t seq_color_accent = COLOR_VOC0_ACCENT;
 // select_voice makes voice `idx` the one the grid shows and edits.
 void select_voice(uint32_t idx) {
   seq.set_voice(idx);
+  if (seq.voice->current_page >= seq.voice->page_count()) {
+    seq.voice->current_page = seq.voice->page_count() - 1;
+  }
   seq_color_set = voice_index_to_set_color(idx);
   seq_color_bg = voice_index_to_unset_color(idx);
   seq_color_accent = voice_index_to_accent_color(idx);
@@ -515,6 +518,22 @@ void run_step() {
   midi_flush();
 }
 
+static uint32_t step_flash_until_ms = 0;
+static uint32_t step_flash_step = 0;
+static uint32_t step_flash_color = COLOR_RED;
+
+void trigger_step_flash(uint32_t step_idx, uint32_t color) {
+  step_flash_step = step_idx;
+  step_flash_color = color;
+  step_flash_until_ms = millis() + 180;
+}
+
+bool is_step_flashing() { return millis() < step_flash_until_ms; }
+
+uint32_t get_step_flash_step() { return step_flash_step; }
+
+uint32_t get_step_flash_color() { return step_flash_color; }
+
 // render_pixels repaints the step grid and clears an expired note highlight.
 // Nothing in here talks to MIDI, so it only needs to run at the UI frame rate.
 void render_pixels() {
@@ -528,20 +547,29 @@ void render_pixels() {
     }
   }
 
-  for (uint32_t i = 0; i < 16; i++) {
+  uint32_t const page = seq.voice->current_page;
+  uint32_t const page_start = page * STEPS_PER_PAGE;
 
-    if (i == seq.voice->pos) {
+  for (uint32_t i = 0; i < 16; i++) {
+    uint32_t const step_idx = page_start + i;
+
+    if (step_idx == seq.voice->pos) {
       set_pixel(step_key[i], COLOR_PPOS);
-    } else if (seq.voice->pattern()->length <= i) {
+    } else if (seq.voice->pattern()->length <= step_idx) {
       set_pixel(step_key[i], COLOR_OFF);
-    } else if (seq.voice->step(i).vel >= ACCENT_VELOCITY) {
+    } else if (seq.voice->step(step_idx).vel >= ACCENT_VELOCITY) {
       set_pixel(step_key[i], seq_color_accent);
-    } else if (seq.voice->step(i).vel > 0) {
+    } else if (seq.voice->step(step_idx).vel > 0) {
       set_pixel(step_key[i], seq_color_set);
     } else {
       set_pixel(step_key[i], seq_color_bg);
     }
   }
+
+  if (is_step_flashing() && step_flash_step < 16) {
+    set_pixel(step_key[step_flash_step], step_flash_color);
+  }
+
   interrupts();
 }
 

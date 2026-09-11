@@ -6,6 +6,7 @@
 #include <cstdint>
 
 #include "Sequencer.h"
+#include "colors.h"
 
 // -----------------------------------------------------------------------------
 // Types
@@ -25,6 +26,13 @@ void show_pixels();
 void render_pixels();
 void select_voice(uint32_t idx);
 bool is_voice_flashing(uint32_t voice);
+void trigger_step_flash(uint32_t step_idx, uint32_t color = COLOR_RED);
+inline void trigger_page_flash(uint32_t step_idx) { trigger_step_flash(step_idx, COLOR_RED); }
+bool is_step_flashing();
+inline bool is_page_flashing() { return is_step_flashing(); }
+uint32_t get_step_flash_step();
+inline uint32_t get_page_flash_step() { return get_step_flash_step(); }
+uint32_t get_step_flash_color();
 
 // -----------------------------------------------------------------------------
 // Setup & Initialization
