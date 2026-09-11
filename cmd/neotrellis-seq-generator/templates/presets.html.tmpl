@@ -13,14 +13,14 @@
   {{- range .Presets }}
   <tr>
     <td class="k">STEP {{ .Pad }}</td>
-    <td>{{ .Name }}</td>
+    <td>{{ .Name }}{{ if gt .Length 16 }} <span class="len-badge">({{ .Length }} steps)</span>{{ end }}</td>
     <td class="rhythm-cell">
       {{- if eq (len .Pages) 1 }}
       <code>{{ safeHTML (index .Pages 0).RhythmHTML }}</code>
       {{- else }}
       <div class="page-rows">
         {{- range .Pages }}
-        <div class="page-row"><code>{{ safeHTML .RhythmHTML }}</code></div>
+        <div class="page-row"><span class="plabel">P{{ .PageNum }}</span><code>{{ safeHTML .RhythmHTML }}</code></div>
         {{- end }}
       </div>
       {{- end }}

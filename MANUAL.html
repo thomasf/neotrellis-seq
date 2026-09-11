@@ -829,7 +829,7 @@
 <p class="note">
   Standalone 6-voice polyphonic USB-MIDI step sequencer for the Adafruit NeoTrellis M4
   (SAMD51 Cortex-M4 at 120&thinsp;MHz, 8&times;4 RGB elastomeric keypad). Features polymetric track
-  lengths, 4-level velocity dynamics, generative algorithmic transforms, and 256-step undo/redo.
+  lengths (up to 64 steps across 4 pages), 4-level velocity dynamics, generative algorithmic transforms, and 256-step undo/redo.
 </p>
 
 <div class="project-bar">
@@ -853,7 +853,7 @@
   <tr class="no-print"><td class="k">Firmware</td><td><a href="https://github.com/thomasf/neotrellis-seq/raw/master/neotrellis-seq.uf2">neotrellis-seq.uf2</a> &mdash; prebuilt UF2 image (SAMD51 drag-and-drop flash)</td></tr>
   <tr><td class="k">Voices</td><td>6 independent drum channels (Voice 0&ndash;5), mapped by default to General MIDI / Ableton Drum Rack (C1&ndash;D#2) on Channel 1.</td></tr>
   <tr><td class="k">Pattern Memory</td><td>16 pattern slots per voice (96 total), switchable on the fly without interrupting playback.</td></tr>
-  <tr><td class="k">Track Length</td><td>Independent length per voice (1&ndash;16 steps) for evolving polymeters and phase meters.</td></tr>
+  <tr><td class="k">Track Length</td><td>Independent length per voice (1&ndash;64 steps across up to 4 switchable 16-step pages) for evolving polymeters and extended phrases.</td></tr>
   <tr><td class="k">Velocities</td><td>4 expressive levels: Accent (127), Normal (99), Ghost / Muted (50), and Rest / Silence (0).</td></tr>
   <tr><td class="k">Undo / Redo</td><td>256 edits deep across all voices. Swaps and all-voice transforms undo/redo in a single press.</td></tr>
   <tr><td class="k">Transforms</td><td>Algorithmic generators: Game of Life, Shift, Echo, Invert, Humanize, Drift, Declutter, Fill Empty.</td></tr>
@@ -987,7 +987,8 @@
 <h2 class="screen-title">Default/Sequencer mode buttons</h2>
 <p class="note">
   The 8&times;4 keypad layout as wired in <code>src/config.h</code>. Each cell shows its
-  hardware key number.
+  hardware key number. Patterns support up to 64 steps displayed across four 16-step pages,
+  navigated with &larr; PAGE (pad 4) and PAGE &rarr; (pad 5).
 </p>
 
 <div class="scroll">
@@ -996,8 +997,8 @@
   <div class="step">STEP 2 <i>1</i></div>
   <div class="step">STEP 3 <i>2</i></div>
   <div class="step">STEP 4 <i>3</i></div>
-  <div class="off">&mdash; <i>4</i></div>
-  <div class="off">&mdash; <i>5</i></div>
+  <div class="mod">&larr; PAGE <i>4</i></div>
+  <div class="mod">PAGE &rarr; <i>5</i></div>
   <div class="act">MENU <i>6</i></div>
   <div class="ppos">ALL <i>7</i></div>
 
@@ -1033,7 +1034,7 @@
 <div class="print-legend">
   <span class="legend-item"><span class="legend-box step-box"></span> Step</span>
   <span class="legend-item"><span class="legend-box act-box"></span> Action</span>
-  <span class="legend-item"><span class="legend-box mod-box"></span> Modifier</span>
+  <span class="legend-item"><span class="legend-box mod-box"></span> Modifier / Nav</span>
   <span class="legend-item"><span class="legend-box held-box"></span> Held</span>
   <span class="legend-item"><span class="legend-box voc-box"></span> Voice</span>
   <span class="legend-item"><span class="legend-box off-box"></span> Unassigned</span>
@@ -1042,32 +1043,36 @@
 <h2>Presses</h2>
 <table>
   <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
-  <tr><td class="k">STEP <i>n</i></td><td class="act-name">Toggle Step</td><td>Toggles the note on step <i>n</i> of the selected pattern.</td></tr>
-  <tr><td class="k">VOICE <i>v</i></td><td class="act-name">Select Voice</td><td>Selects voice <i>v</i> for editing, and lights up while it fires.</td></tr>
-  <tr><td class="k">CLEAR</td><td class="act-name">Clear Pattern</td><td>Zeroes every step of the selected pattern.</td></tr>
+  <tr><td class="k">STEP <i>n</i></td><td class="act-name">Toggle Step</td><td>Toggles the note on step <i>n</i> of the selected pattern (on active page, up to 64 steps).</td></tr>
+  <tr><td class="k">VOICE <i>v</i></td><td class="act-name">Select Voice</td><td>Selects voice <i>v</i> for editing, flashes active page number in red on step grid, and lights up while it fires.</td></tr>
+  <tr><td class="k">&larr; PAGE</td><td class="act-name">Previous Page</td><td>Switches the 16-step grid view to the previous page (Page 1&ndash;4). Lights up (<code>COLOR_PMOD</code>) when a previous page exists. Briefly flashes the active page number on the step grid in red.</td></tr>
+  <tr><td class="k">PAGE &rarr;</td><td class="act-name">Next Page</td><td>Switches the 16-step grid view to the next page. Lights up (<code>COLOR_PMOD</code>) when the pattern extends into a subsequent page (up to 64 steps). Briefly flashes the active page number on the step grid in red.</td></tr>
+  <tr><td class="k">CLEAR</td><td class="act-name">Clear Pattern</td><td>Zeroes every step of the selected pattern across all pages.</td></tr>
   <tr><td class="k">MENU</td><td class="act-name">Menu Mode</td><td>Enters settings menu (Voice Protect, playback path modifiers, MIDI note assignment). Press MENU again to return to sequencer.</td></tr>
 </table>
 
 <h2>Held modifiers</h2>
 <table>
   <tr><th>Combination</th><th>Action</th><th>Description</th></tr>
-  <tr><td class="k">ACCENT + STEP <i>n</i></td><td class="act-name">Accent Step</td><td>Accents step <i>n</i> (velocity 127). Toggles an accented step back to normal velocity (99); switches a silent step on accented.</td></tr>
-  <tr><td class="k">ACCENT + CLEAR</td><td class="act-name">Clear Accents</td><td>Removes all accents from the selected pattern, leaving notes in place.</td></tr>
-  <tr><td class="k">POS + STEP <i>n</i></td><td class="act-name">Set Position</td><td>Moves the selected voice&rsquo;s playhead to step <i>n</i>.</td></tr>
-  <tr><td class="k">POS + ALL + STEP <i>n</i></td><td class="act-name">Set All Position</td><td>Moves every voice&rsquo;s playhead to step <i>n</i> simultaneously.</td></tr>
+  <tr><td class="k">&larr; PAGE + PAGE &rarr;</td><td class="act-name">Page Length Mode</td><td>Holding both page buttons enters page length set mode. Both buttons light white (<code>COLOR_PPOS</code>), and steps 1&ndash;4 illuminate in red up to current page count. Tap STEP 1, 2, 3, or 4 to set pattern length to 16, 32, 48, or 64 steps.</td></tr>
+  <tr><td class="k">&larr; PAGE + PAGE &rarr; + ALL</td><td class="act-name">Set All Page Lengths</td><td>Holding both page buttons with ALL, then tapping STEP 1&ndash;4 sets pattern length to 16, 32, 48, or 64 steps across all unprotected voices simultaneously.</td></tr>
+  <tr><td class="k">ACCENT + STEP <i>n</i></td><td class="act-name">Accent Step</td><td>Accents step <i>n</i> (velocity 127) on the active page. Toggles an accented step back to normal velocity (99); switches a silent step on accented.</td></tr>
+  <tr><td class="k">ACCENT + CLEAR</td><td class="act-name">Clear Accents</td><td>Removes all accents from the selected pattern across all pages, leaving notes in place.</td></tr>
+  <tr><td class="k">POS + STEP <i>n</i></td><td class="act-name">Set Position</td><td>Moves the selected voice&rsquo;s playhead to step <i>n</i> on the active page.</td></tr>
+  <tr><td class="k">POS + ALL + STEP <i>n</i></td><td class="act-name">Set All Position</td><td>Moves every voice&rsquo;s playhead to step <i>n</i> on the active page simultaneously.</td></tr>
   <tr><td class="k">POS + FN1</td><td class="act-name">Rewind Transport</td><td>Resets playback position of all voices to step 0 and arms them to fire on next step/clock (can also be pressed as FN1 + POS).</td></tr>
-  <tr><td class="k">VOICE <i>v</i> + STEP <i>n</i></td><td class="act-name">Select Pattern</td><td>Selects pattern slot <i>n</i> for voice <i>v</i> without modifying step data. Multiple voice pads can be held at once.</td></tr>
-  <tr><td class="k">ALL + STEP <i>n</i></td><td class="act-name">Select All Patterns</td><td>Selects pattern slot <i>n</i> for all unprotected voices simultaneously (protected voices remain on their current slot).</td></tr>
+  <tr><td class="k">VOICE <i>v</i> + STEP <i>n</i></td><td class="act-name">Select Pattern</td><td>Selects pattern slot <i>n</i> for voice <i>v</i> without modifying step data. Multiple voice pads can be held at once. Flashes active page in red.</td></tr>
+  <tr><td class="k">ALL + STEP <i>n</i></td><td class="act-name">Select All Patterns</td><td>Selects pattern slot <i>n</i> for all unprotected voices simultaneously (protected voices remain on their current slot). Flashes active page in red.</td></tr>
   <tr><td class="k">FN1 + &hellip;</td><td class="act-name">FN1</td><td>Accesses secondary functions: pattern transforms, presets, voice swap, and rewind (see below).</td></tr>
   <tr><td class="k">FN1 + ALL + &hellip;</td><td class="act-name">FN1+ALL</td><td>Applies functions across all unprotected voices simultaneously: all-voice transforms, kit presets, odd meters, and dropout (see below).</td></tr>
-  <tr><td class="k">FN2 + COPY</td><td class="act-name">Copy Pattern</td><td>Copies the selected pattern to the paste buffer.</td></tr>
-  <tr><td class="k">FN2 + PASTE</td><td class="act-name">Paste Pattern</td><td>Overwrites the selected pattern with the paste buffer.</td></tr>
-  <tr><td class="k">FN2 + CLEAR</td><td class="act-name">Undo</td><td>Steps back through pattern edits (256 deep). Restores to original voice and slot.</td></tr>
-  <tr><td class="k">FN2 + UNDO</td><td class="act-name">Redo</td><td>Redoes the last undone edit.</td></tr>
-  <tr><td class="k">FN2 + POS + STEP <i>n</i></td><td class="act-name">Set Length</td><td>Sets the selected pattern&rsquo;s loop length to <i>n</i> steps (temporarily moved to FN2 + the button above it).</td></tr>
+  <tr><td class="k">FN2 + COPY</td><td class="act-name">Copy Pattern</td><td>Copies the selected pattern to the paste buffer (pad 4).</td></tr>
+  <tr><td class="k">FN2 + PASTE</td><td class="act-name">Paste Pattern</td><td>Overwrites the selected pattern with the paste buffer (pad 5).</td></tr>
+  <tr><td class="k">FN2 + CLEAR</td><td class="act-name">Undo</td><td>Steps back through pattern edits (256 deep). Restores to original voice and slot (pad 12).</td></tr>
+  <tr><td class="k">FN2 + REDO</td><td class="act-name">Redo</td><td>Redoes the last undone edit (pad 13).</td></tr>
+  <tr><td class="k">FN2 + POS + STEP <i>n</i></td><td class="act-name">Set Length</td><td>Sets the selected pattern&rsquo;s loop length to step <i>n</i> on the active page (<code>current page &times; 16 + n</code>, up to 64 steps).</td></tr>
   <tr><td class="k">FN2 + &hellip;</td><td class="act-name">FN2</td><td>Accesses secondary function mode 2: copy, paste, undo, redo, loop length (see below).</td></tr>
   <tr><td class="k">FN2 + ALL + &hellip;</td><td class="act-name">FN2+ALL</td><td>Applies secondary functions across all voices (see below).</td></tr>
-  <tr><td class="k">FN1 + FN2 + PASTE</td><td class="act-name">Paste All Slots</td><td>Overwrites all 16 pattern slots of the selected voice with the paste buffer (see below).</td></tr>
+  <tr><td class="k">FN1 + FN2 + PASTE</td><td class="act-name">Paste All Slots</td><td>Overwrites all 16 pattern slots of the selected voice with the paste buffer (pad 5; see below).</td></tr>
 </table>
 </section>
 
@@ -1076,7 +1081,7 @@
 <p class="note">
   The pad map while holding FN1. Applies single-voice transforms and utility
   shortcuts to the currently selected voice. Step transformations modify pattern
-  data directly and are recorded in the undo history (use FN2 + CLEAR to undo).
+  data directly across active pattern length (up to 64 steps) and are recorded in the undo history (use FN2 + CLEAR to undo).
 </p>
 
 <div class="scroll">
@@ -1085,8 +1090,8 @@
   <div class="step">SHIFT &rarr;1 <i>STEP 2</i></div>
   <div class="step">SHIFT &larr;4 <i>STEP 3</i></div>
   <div class="step">SHIFT &rarr;4 <i>STEP 4</i></div>
-  <div class="off">&mdash; <i>COPY</i></div>
-  <div class="off">&mdash; <i>PASTE</i></div>
+  <div class="off">&mdash; <i>&larr; PAGE</i></div>
+  <div class="off">&mdash; <i>PAGE &rarr;</i></div>
   <div class="off">&mdash; <i>MENU</i></div>
   <div class="ppos">ALL &hellip; <i>ALL</i></div>
 
@@ -1095,7 +1100,7 @@
   <div class="step">HUMANIZE <i>STEP 7</i></div>
   <div class="step">FILL EMPTY <i>STEP 8</i></div>
   <div class="off">&mdash; <i>CLEAR</i></div>
-  <div class="off">&mdash; <i>UNDO</i></div>
+  <div class="off">&mdash; <i>13</i></div>
   <div class="voc0">SWAP 0 <i>VOICE 0</i></div>
   <div class="voc1">SWAP 1 <i>VOICE 1</i></div>
 
@@ -1160,8 +1165,8 @@
   <div class="step">SHIFT &rarr;1 <i>STEP 2</i></div>
   <div class="step">SHIFT &larr;4 <i>STEP 3</i></div>
   <div class="step">SHIFT &rarr;4 <i>STEP 4</i></div>
-  <div class="off">&mdash; <i>COPY</i></div>
-  <div class="off">&mdash; <i>PASTE</i></div>
+  <div class="off">&mdash; <i>&larr; PAGE</i></div>
+  <div class="off">&mdash; <i>PAGE &rarr;</i></div>
   <div class="off">&mdash; <i>MENU</i></div>
   <div class="ppos held">ALL <i>held</i></div>
 
@@ -1170,7 +1175,7 @@
   <div class="step">HUMANIZE <i>STEP 7</i></div>
   <div class="step">FILL EMPTY <i>STEP 8</i></div>
   <div class="act">DROPOUT <i>CLEAR</i></div>
-  <div class="off">&mdash; <i>UNDO</i></div>
+  <div class="off">&mdash; <i>13</i></div>
   <div class="voc0">SWAP 0 <i>VOICE 0</i></div>
   <div class="voc1">SWAP 1 <i>VOICE 1</i></div>
 
@@ -1210,7 +1215,7 @@
   <tr><td class="k">STEP 11</td><td class="act-name">Declutter</td><td>Silences one randomly chosen voice on steps where two or more voices collide (never silences protected voices).</td></tr>
   <tr><td class="k">STEP 12</td><td class="act-name">Life</td><td>Advances Conway&rsquo;s Game of Life across voices on the virtual board (protected voices do not change).</td></tr>
   <tr><td class="k">ACCENT + STEP <i>n</i></td><td class="act-name">Load Kit Preset</td><td>Loads pattern preset <i>n</i> (1&ndash;16) across all unprotected voices.</td></tr>
-  <tr><td class="k">STEP 13</td><td class="act-name">Sync Lengths</td><td>Sets unprotected voice loop lengths to match the selected voice&rsquo;s current pattern length.</td></tr>
+  <tr><td class="k">STEP 13</td><td class="act-name">Sync Lengths</td><td>Sets unprotected voice loop lengths to match the selected voice&rsquo;s current pattern length (up to 64 steps).</td></tr>
   <tr><td class="k">FN2</td><td class="act-name">Odd Meters</td><td>Assigns odd lengths (5, 7, 9, 11, 13, 15) randomly across unprotected voices without altering step data.</td></tr>
   <tr><td class="k">CLEAR</td><td class="act-name">Dropout</td><td>Silences half of currently sounding unprotected voices at random (minimum 1 voice per press).</td></tr>
   <tr><td class="k">POS</td><td class="act-name">Rewind</td><td>Resets playback position of all voices to step 0 and arms them to fire on next step/clock.</td></tr>
@@ -1224,7 +1229,7 @@
   The pad map while holding FN2. Tapping COPY (pad 4) copies the active pattern; tapping PASTE (pad 5) pastes it.
   Below them, UNDO (pad 12) steps backwards through edits and REDO (pad 13) redoes them.
   Holding FN2 and the button above it (POS, pad 21) while tapping any step (1&ndash;16)
-  sets the active pattern's loop length. With ALL held, sets loop lengths across all unprotected voices.
+  sets the active pattern's loop length on the active page (<code>page &times; 16 + n</code>, up to 64 steps). With ALL held, sets loop lengths across all unprotected voices.
 </p>
 
 <div class="scroll">
@@ -1233,8 +1238,8 @@
   <div class="off">&mdash; <i>STEP 2</i></div>
   <div class="off">&mdash; <i>STEP 3</i></div>
   <div class="off">&mdash; <i>STEP 4</i></div>
-  <div class="act">COPY <i>COPY</i></div>
-  <div class="act">PASTE <i>PASTE</i></div>
+  <div class="act">COPY <i>&larr; PAGE</i></div>
+  <div class="act">PASTE <i>PAGE &rarr;</i></div>
   <div class="off">&mdash; <i>MENU</i></div>
   <div class="ppos">ALL &hellip; <i>ALL</i></div>
 
@@ -1243,7 +1248,7 @@
   <div class="off">&mdash; <i>STEP 7</i></div>
   <div class="off">&mdash; <i>STEP 8</i></div>
   <div class="act">UNDO <i>CLEAR</i></div>
-  <div class="act">REDO <i>UNDO</i></div>
+  <div class="act">REDO <i>13</i></div>
   <div class="voc0">VOICE 0 <i>select</i></div>
   <div class="voc1">VOICE 1 <i>select</i></div>
 
@@ -1278,11 +1283,11 @@
 
 <table>
   <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
-  <tr><td class="k">COPY</td><td class="act-name">Copy Pattern</td><td>Copies the active voice&rsquo;s current pattern to the paste buffer.</td></tr>
-  <tr><td class="k">PASTE</td><td class="act-name">Paste Pattern</td><td>Overwrites the active voice&rsquo;s current pattern with the paste buffer.</td></tr>
-  <tr><td class="k">CLEAR</td><td class="act-name">Undo</td><td>Steps back through pattern edits (256 deep). Restores to original voice and slot.</td></tr>
-  <tr><td class="k">UNDO</td><td class="act-name">Redo</td><td>Redoes the last undone edit. Subsequent new edits clear redo history.</td></tr>
-  <tr><td class="k">POS + STEP <i>n</i></td><td class="act-name">Set Length</td><td>Sets the active voice&rsquo;s pattern loop length to <i>n</i> steps (hold FN2 + POS, tap step 1&ndash;16).</td></tr>
+  <tr><td class="k">COPY (pad 4)</td><td class="act-name">Copy Pattern</td><td>Copies the active voice&rsquo;s current pattern to the paste buffer.</td></tr>
+  <tr><td class="k">PASTE (pad 5)</td><td class="act-name">Paste Pattern</td><td>Overwrites the active voice&rsquo;s current pattern with the paste buffer.</td></tr>
+  <tr><td class="k">CLEAR (pad 12)</td><td class="act-name">Undo</td><td>Steps back through pattern edits (256 deep). Restores to original voice and slot.</td></tr>
+  <tr><td class="k">REDO (pad 13)</td><td class="act-name">Redo</td><td>Redoes the last undone edit. Subsequent new edits clear redo history.</td></tr>
+  <tr><td class="k">POS + STEP <i>n</i></td><td class="act-name">Set Length</td><td>Sets the active voice&rsquo;s pattern loop length to step <i>n</i> on the active page (<code>page &times; 16 + n</code>, up to 64 steps; hold FN2 + POS, tap step 1&ndash;16).</td></tr>
   <tr><td class="k">ALL + &hellip;</td><td class="act-name">Function 2 All</td><td>Applies secondary functions across all unprotected voices simultaneously (see below).</td></tr>
   <tr><td class="k">FN1 + &hellip;</td><td class="act-name">FN1+FN2</td><td>Accesses dual-modifier functions: paste to all pattern slots (see below).</td></tr>
 </table>
@@ -1302,8 +1307,8 @@
   <div class="off">&mdash; <i>STEP 2</i></div>
   <div class="off">&mdash; <i>STEP 3</i></div>
   <div class="off">&mdash; <i>STEP 4</i></div>
-  <div class="off">&mdash; <i>COPY</i></div>
-  <div class="off">&mdash; <i>PASTE</i></div>
+  <div class="off">&mdash; <i>&larr; PAGE</i></div>
+  <div class="off">&mdash; <i>PAGE &rarr;</i></div>
   <div class="off">&mdash; <i>MENU</i></div>
   <div class="ppos held">ALL <i>held</i></div>
 
@@ -1312,7 +1317,7 @@
   <div class="off">&mdash; <i>STEP 7</i></div>
   <div class="off">&mdash; <i>STEP 8</i></div>
   <div class="off">&mdash; <i>CLEAR</i></div>
-  <div class="off">&mdash; <i>UNDO</i></div>
+  <div class="off">&mdash; <i>13</i></div>
   <div class="voc0">VOICE 0 <i>select</i></div>
   <div class="voc1">VOICE 1 <i>select</i></div>
 
@@ -1346,7 +1351,7 @@
 
 <table>
   <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
-  <tr><td class="k">POS + STEP <i>n</i></td><td class="act-name">Set All Lengths</td><td>Sets pattern loop lengths to <i>n</i> steps across all unprotected voices simultaneously (hold FN2 + ALL + POS, tap step 1&ndash;16). Protected voices remain unchanged.</td></tr>
+  <tr><td class="k">POS + STEP <i>n</i></td><td class="act-name">Set All Lengths</td><td>Sets pattern loop lengths to step <i>n</i> on the active page (<code>current page &times; 16 + n</code>, up to 64 steps) across all unprotected voices simultaneously (hold FN2 + ALL + POS, tap step 1&ndash;16). Protected voices remain unchanged.</td></tr>
 </table>
 </section>
 
@@ -1363,8 +1368,8 @@
   <div class="off">&mdash; <i>STEP 2</i></div>
   <div class="off">&mdash; <i>STEP 3</i></div>
   <div class="off">&mdash; <i>STEP 4</i></div>
-  <div class="off">&mdash; <i>COPY</i></div>
-  <div class="act">PASTE ALL <i>PASTE</i></div>
+  <div class="off">&mdash; <i>&larr; PAGE</i></div>
+  <div class="act">PASTE ALL <i>PAGE &rarr;</i></div>
   <div class="off">&mdash; <i>MENU</i></div>
   <div class="off">&mdash; <i>ALL</i></div>
 
@@ -1373,7 +1378,7 @@
   <div class="off">&mdash; <i>STEP 7</i></div>
   <div class="off">&mdash; <i>STEP 8</i></div>
   <div class="off">&mdash; <i>CLEAR</i></div>
-  <div class="off">&mdash; <i>UNDO</i></div>
+  <div class="off">&mdash; <i>13</i></div>
   <div class="voc0">VOICE 0 <i>select</i></div>
   <div class="voc1">VOICE 1 <i>select</i></div>
 
@@ -1408,7 +1413,7 @@
 
 <table>
   <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
-  <tr><td class="k">PASTE</td><td class="act-name">Paste All Slots</td><td>Overwrites all 16 pattern slots of the selected voice with the paste buffer (hold FN1 + FN2, tap PASTE).</td></tr>
+  <tr><td class="k">PASTE (pad 5)</td><td class="act-name">Paste All Slots</td><td>Overwrites all 16 pattern slots of the selected voice with the paste buffer (hold FN1 + FN2, tap pad 5).</td></tr>
   <tr><td class="k">VOICE <i>v</i></td><td class="act-name">Select Voice</td><td>Selects voice <i>v</i> for editing.</td></tr>
 </table>
 </section>
@@ -1430,8 +1435,8 @@
   <div class="off">&mdash; <i>STEP 2</i></div>
   <div class="off">&mdash; <i>STEP 3</i></div>
   <div class="off">&mdash; <i>STEP 4</i></div>
-  <div class="off">&mdash; <i>COPY</i></div>
-  <div class="off">&mdash; <i>PASTE</i></div>
+  <div class="off">&mdash; <i>&larr; PAGE</i></div>
+  <div class="off">&mdash; <i>PAGE &rarr;</i></div>
   <div class="ppos">MENU <i>exit</i></div>
   <div class="off">&mdash; <i>ALL</i></div>
 
@@ -1440,7 +1445,7 @@
   <div class="green">PHASE <i>STEP 7</i></div>
   <div class="green">MUTATE <i>STEP 8</i></div>
   <div class="off">&mdash; <i>CLEAR</i></div>
-  <div class="off">&mdash; <i>UNDO</i></div>
+  <div class="off">&mdash; <i>13</i></div>
   <div class="voc0">PAGE 0 <i>VOICE 0</i></div>
   <div class="voc1">PAGE 1 <i>VOICE 1</i></div>
 
@@ -1494,8 +1499,8 @@
   <div class="voc5">49 Crash <i>STEP 2</i></div>
   <div class="off">50 High <i>STEP 3</i></div>
   <div class="off">51 Ride <i>STEP 4</i></div>
-  <div class="off">&mdash; <i>COPY</i></div>
-  <div class="off">&mdash; <i>PASTE</i></div>
+  <div class="off">&mdash; <i>&larr; PAGE</i></div>
+  <div class="off">&mdash; <i>PAGE &rarr;</i></div>
   <div class="ppos">MENU <i>exit</i></div>
   <div class="off">&mdash; <i>ALL</i></div>
 
@@ -1504,7 +1509,7 @@
   <div class="off">46 Open <i>STEP 7</i></div>
   <div class="off">47 Mid <i>STEP 8</i></div>
   <div class="off">&mdash; <i>CLEAR</i></div>
-  <div class="off">&mdash; <i>UNDO</i></div>
+  <div class="off">&mdash; <i>13</i></div>
   <div class="ppos held">VOICE 0 <i>held</i></div>
   <div class="voc1">VOICE 1 <i>select</i></div>
 
@@ -1567,11 +1572,11 @@
   </tr>
   <tr>
     <td class="k">STEP 2</td>
-    <td>Four on Floor Pickup</td>
+    <td>Four on Floor Pickup <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>■ · · ·  ● · · ·  ■ · · ·  ● · · ○</code></div>
-        <div class="page-row"><code>■ · · ·  ● · · ·  ■ · · ·  ● · ○ ■</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>■ · · ·  ● · · ·  ■ · · ·  ● · · ○</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>■ · · ·  ● · · ·  ■ · · ·  ● · ○ ■</code></div>
       </div>
     </td>
   </tr>
@@ -1584,11 +1589,11 @@
   </tr>
   <tr>
     <td class="k">STEP 4</td>
-    <td>Berlin Rumble 4/4</td>
+    <td>Berlin Rumble 4/4 <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>■ · · ·  ■ · · ·  ■ · · ·  ■ · ● ·</code></div>
-        <div class="page-row"><code>■ · · ·  ■ · · ·  ■ · · ·  ■ ● ● ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>■ · · ·  ■ · · ·  ■ · · ·  ■ · ● ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>■ · · ·  ■ · · ·  ■ · · ·  ■ ● ● ·</code></div>
       </div>
     </td>
   </tr>
@@ -1601,11 +1606,11 @@
   </tr>
   <tr>
     <td class="k">STEP 6</td>
-    <td>Tresillo 3-3-2</td>
+    <td>Tresillo 3-3-2 <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>■ · · ●  · · ■ ·  ■ · · ●  · · ■ ·</code></div>
-        <div class="page-row"><code>■ · · ●  · · ■ ·  · · ■ ·  · · ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>■ · · ●  · · ■ ·  ■ · · ●  · · ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>■ · · ●  · · ■ ·  · · ■ ·  · · ■ ·</code></div>
       </div>
     </td>
   </tr>
@@ -1618,11 +1623,11 @@
   </tr>
   <tr>
     <td class="k">STEP 8</td>
-    <td>Samba Surdo Bounce</td>
+    <td>Samba Surdo Bounce <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>■ · · ●  · · ■ ·  · · ■ ·  · ● · ·</code></div>
-        <div class="page-row"><code>■ · · ●  · · ■ ·  · · ■ ·  · ■ ● ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>■ · · ●  · · ■ ·  · · ■ ·  · ● · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>■ · · ●  · · ■ ·  · · ■ ·  · ■ ● ·</code></div>
       </div>
     </td>
   </tr>
@@ -1635,11 +1640,11 @@
   </tr>
   <tr>
     <td class="k">STEP 10</td>
-    <td>Electro 808 Sync</td>
+    <td>Electro 808 Sync <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>■ · · ●  · · · ·  ■ · · ●  · · ● ·</code></div>
-        <div class="page-row"><code>■ · · ●  · · · ·  ■ · · ●  ● · ● ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>■ · · ●  · · · ·  ■ · · ●  · · ● ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>■ · · ●  · · · ·  ■ · · ●  ● · ● ·</code></div>
       </div>
     </td>
   </tr>
@@ -1652,11 +1657,11 @@
   </tr>
   <tr>
     <td class="k">STEP 12</td>
-    <td>Baile Favela Drop</td>
+    <td>Baile Favela Drop <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>■ · · ●  · · ● ·  ■ · · ●  · · · ·</code></div>
-        <div class="page-row"><code>■ · · ●  · · ● ·  ■ · · ●  ● · ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>■ · · ●  · · ● ·  ■ · · ●  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>■ · · ●  · · ● ·  ■ · · ●  ● · ■ ·</code></div>
       </div>
     </td>
   </tr>
@@ -1669,13 +1674,13 @@
   </tr>
   <tr>
     <td class="k">STEP 14</td>
-    <td>Dub Techno Deep</td>
+    <td>Dub Techno Deep <span class="len-badge">(64 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>■ · · ·  · · · ·  ■ · · ·  · · · ·</code></div>
-        <div class="page-row"><code>■ · · ·  · · · ·  · · · ·  · · · ·</code></div>
-        <div class="page-row"><code>■ · · ·  · · · ·  ■ · · ·  · · · ○</code></div>
-        <div class="page-row"><code>■ · · ·  · · · ·  · · · ·  · · ● ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>■ · · ·  · · · ·  ■ · · ·  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>■ · · ·  · · · ·  · · · ·  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P3</span><code>■ · · ·  · · · ·  ■ · · ·  · · · ○</code></div>
+        <div class="page-row"><span class="plabel">P4</span><code>■ · · ·  · · · ·  · · · ·  · · ● ·</code></div>
       </div>
     </td>
   </tr>
@@ -1688,12 +1693,12 @@
   </tr>
   <tr>
     <td class="k">STEP 16</td>
-    <td>Dotted 8th Phasing</td>
+    <td>Dotted 8th Phasing <span class="len-badge">(48 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>■ · · ●  · · ■ ·  · ● · ·  ■ · · ·</code></div>
-        <div class="page-row"><code>· ● · ·  ■ · · ●  · · ■ ·  · ● · ·</code></div>
-        <div class="page-row"><code>■ · · ·  · ● · ·  ■ · · ●  · · ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>■ · · ●  · · ■ ·  · ● · ·  ■ · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· ● · ·  ■ · · ●  · · ■ ·  · ● · ·</code></div>
+        <div class="page-row"><span class="plabel">P3</span><code>■ · · ·  · ● · ·  ■ · · ●  · · ■ ·</code></div>
       </div>
     </td>
   </tr>
@@ -1711,11 +1716,11 @@
   </tr>
   <tr>
     <td class="k">STEP 2</td>
-    <td>Backbeat &amp; Flam</td>
+    <td>Backbeat &amp; Flam <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · · ·  ■ · · ·  · · · ·  ■ · · ○</code></div>
-        <div class="page-row"><code>· · · ·  ■ · · ·  · · · ·  ■ · ○ ■</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · · ·  ■ · · ·  · · · ·  ■ · · ○</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · · ·  ■ · · ·  · · · ·  ■ · ○ ■</code></div>
       </div>
     </td>
   </tr>
@@ -1728,11 +1733,11 @@
   </tr>
   <tr>
     <td class="k">STEP 4</td>
-    <td>House Backbeat Roll</td>
+    <td>House Backbeat Roll <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
-        <div class="page-row"><code>· · · ·  ■ · · ·  · · ○ ○  ■ · ● ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · · ·  ■ · · ·  · · ○ ○  ■ · ● ·</code></div>
       </div>
     </td>
   </tr>
@@ -1745,11 +1750,11 @@
   </tr>
   <tr>
     <td class="k">STEP 6</td>
-    <td>Tresillo Snare</td>
+    <td>Tresillo Snare <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · · ■  · · ■ ·  · · · ■  · · · ·</code></div>
-        <div class="page-row"><code>· · · ■  · · ■ ·  · · · ■  · ■ · ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · · ■  · · ■ ·  · · · ■  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · · ■  · · ■ ·  · · · ■  · ■ · ·</code></div>
       </div>
     </td>
   </tr>
@@ -1762,11 +1767,11 @@
   </tr>
   <tr>
     <td class="k">STEP 8</td>
-    <td>Samba Caixa Roll</td>
+    <td>Samba Caixa Roll <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · · ○  ■ · · ○  · · · ○  ■ · ○ ·</code></div>
-        <div class="page-row"><code>· · · ○  ■ · · ○  · ○ · ○  ■ ● ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · · ○  ■ · · ○  · · · ○  ■ · ○ ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · · ○  ■ · · ○  · ○ · ○  ■ ● ■ ·</code></div>
       </div>
     </td>
   </tr>
@@ -1779,11 +1784,11 @@
   </tr>
   <tr>
     <td class="k">STEP 10</td>
-    <td>Electro 808 Snare</td>
+    <td>Electro 808 Snare <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · · ·  ■ · · ○  · · · ·  ■ · · ·</code></div>
-        <div class="page-row"><code>· · · ·  ■ · · ○  · · ○ ·  ■ · ● ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · · ·  ■ · · ○  · · · ·  ■ · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · · ·  ■ · · ○  · · ○ ·  ■ · ● ·</code></div>
       </div>
     </td>
   </tr>
@@ -1796,11 +1801,11 @@
   </tr>
   <tr>
     <td class="k">STEP 12</td>
-    <td>Baile Funk Snare</td>
+    <td>Baile Funk Snare <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · · ·  ■ · · ■  · · · ·  ■ · · ·</code></div>
-        <div class="page-row"><code>· · · ·  ■ · · ■  · · · ·  ■ ● ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · · ·  ■ · · ■  · · · ·  ■ · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · · ·  ■ · · ■  · · · ·  ■ ● ■ ·</code></div>
       </div>
     </td>
   </tr>
@@ -1820,14 +1825,14 @@
   </tr>
   <tr>
     <td class="k">STEP 15</td>
-    <td>Roll Up-Down</td>
+    <td>Roll Up-Down <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <code><code>○&rarr;■&rarr;○ 2-bar swell</code></code>
     </td>
   </tr>
   <tr>
     <td class="k">STEP 16</td>
-    <td>Roll Down-Up</td>
+    <td>Roll Down-Up <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <code><code>■&rarr;○&rarr;■ 2-bar dip</code></code>
     </td>
@@ -1846,11 +1851,11 @@
   </tr>
   <tr>
     <td class="k">STEP 2</td>
-    <td>Offbeat &amp; Pickup</td>
+    <td>Offbeat &amp; Pickup <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code></div>
-        <div class="page-row"><code>· · ■ ·  · · ■ ·  · · ■ ·  · ○ ■ ○</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · ■ ·  · · ■ ·  · · ■ ·  · ○ ■ ○</code></div>
       </div>
     </td>
   </tr>
@@ -1863,13 +1868,13 @@
   </tr>
   <tr>
     <td class="k">STEP 4</td>
-    <td>Minimal Dub Ticks</td>
+    <td>Minimal Dub Ticks <span class="len-badge">(64 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · ■ ·  · · · ·  · · ■ ·  · · · ·</code></div>
-        <div class="page-row"><code>· · · ·  · · · ·  · · ■ ·  · · · ·</code></div>
-        <div class="page-row"><code>· · ■ ·  · · · ·  · · ■ ·  · · · ○</code></div>
-        <div class="page-row"><code>· · · ·  · · · ·  · · ■ ·  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · ■ ·  · · · ·  · · ■ ·  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · · ·  · · · ·  · · ■ ·  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P3</span><code>· · ■ ·  · · · ·  · · ■ ·  · · · ○</code></div>
+        <div class="page-row"><span class="plabel">P4</span><code>· · · ·  · · · ·  · · ■ ·  · · · ·</code></div>
       </div>
     </td>
   </tr>
@@ -1882,11 +1887,11 @@
   </tr>
   <tr>
     <td class="k">STEP 6</td>
-    <td>Breakbeat Swung 8ths</td>
+    <td>Breakbeat Swung 8ths <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>● · ■ ○  ● · ■ ·  ● · ■ ○  ● · ■ ·</code></div>
-        <div class="page-row"><code>● · ■ ○  ● · ■ ·  ● ○ ■ ○  ● · ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>● · ■ ○  ● · ■ ·  ● · ■ ○  ● · ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>● · ■ ○  ● · ■ ·  ● ○ ■ ○  ● · ■ ·</code></div>
       </div>
     </td>
   </tr>
@@ -1899,11 +1904,11 @@
   </tr>
   <tr>
     <td class="k">STEP 8</td>
-    <td>Afro Feathered Hat</td>
+    <td>Afro Feathered Hat <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · ■ ○  · · ■ ·  · · ■ ○  · · ■ ·</code></div>
-        <div class="page-row"><code>· · ■ ○  · · ■ ·  · ○ ■ ○  · · ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · ■ ○  · · ■ ·  · · ■ ○  · · ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · ■ ○  · · ■ ·  · ○ ■ ○  · · ■ ·</code></div>
       </div>
     </td>
   </tr>
@@ -1916,11 +1921,11 @@
   </tr>
   <tr>
     <td class="k">STEP 10</td>
-    <td>Microhouse Delicate</td>
+    <td>Microhouse Delicate <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · ■ ·  · · · ○  · · ■ ·  · · · ·</code></div>
-        <div class="page-row"><code>· · ■ ·  · · · ○  · · ■ ·  · ○ · ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · ■ ·  · · · ○  · · ■ ·  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · ■ ·  · · · ○  · · ■ ·  · ○ · ·</code></div>
       </div>
     </td>
   </tr>
@@ -1933,11 +1938,11 @@
   </tr>
   <tr>
     <td class="k">STEP 12</td>
-    <td>Half-Time Triplet</td>
+    <td>Half-Time Triplet <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>■ · · ●  · · ● ·  ■ · · ●  · · ● ·</code></div>
-        <div class="page-row"><code>■ · · ●  · · ● ·  ■ ● ● ●  · · ● ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>■ · · ●  · · ● ·  ■ · · ●  · · ● ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>■ · · ●  · · ● ·  ■ ● ● ●  · · ● ·</code></div>
       </div>
     </td>
   </tr>
@@ -1950,11 +1955,11 @@
   </tr>
   <tr>
     <td class="k">STEP 14</td>
-    <td>Detroit Electro 16ths</td>
+    <td>Detroit Electro 16ths <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>● ○ ● ■  ● ○ ● ■  ● ○ ● ■  ● ○ ● ■</code></div>
-        <div class="page-row"><code>● ○ ● ■  ● ○ ● ■  ● ○ ● ■  ■ ○ ■ ○</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>● ○ ● ■  ● ○ ● ■  ● ○ ● ■  ● ○ ● ■</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>● ○ ● ■  ● ○ ● ■  ● ○ ● ■  ■ ○ ■ ○</code></div>
       </div>
     </td>
   </tr>
@@ -1967,11 +1972,11 @@
   </tr>
   <tr>
     <td class="k">STEP 16</td>
-    <td>Batucada Samba Roll</td>
+    <td>Batucada Samba Roll <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○</code></div>
-        <div class="page-row"><code>■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○  ■ ■ ■ ■</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○  ■ ■ ■ ■</code></div>
       </div>
     </td>
   </tr>
@@ -1989,11 +1994,11 @@
   </tr>
   <tr>
     <td class="k">STEP 2</td>
-    <td>Low Conga Bounce</td>
+    <td>Low Conga Bounce <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · · ·  · · ■ ·  · · · ·  · ● · ·</code></div>
-        <div class="page-row"><code>· · · ·  · · ■ ·  · · · ·  · ● ● ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · · ·  · · ■ ·  · · · ·  · ● · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · · ·  · · ■ ·  · · · ·  · ● ● ·</code></div>
       </div>
     </td>
   </tr>
@@ -2006,11 +2011,11 @@
   </tr>
   <tr>
     <td class="k">STEP 4</td>
-    <td>Guaguanco Low Hit</td>
+    <td>Guaguanco Low Hit <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · ■ ·  · · · ●  · · ■ ·  · · · ·</code></div>
-        <div class="page-row"><code>· · ■ ·  · · · ●  · · ■ ·  · ● · ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · ■ ·  · · · ●  · · ■ ·  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · ■ ·  · · · ●  · · ■ ·  · ● · ·</code></div>
       </div>
     </td>
   </tr>
@@ -2023,11 +2028,11 @@
   </tr>
   <tr>
     <td class="k">STEP 6</td>
-    <td>Rolling Tribal Low</td>
+    <td>Rolling Tribal Low <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · ● ·  · · ● ·  · · ● ·  · · ● ·</code></div>
-        <div class="page-row"><code>· · ● ·  · · ● ·  · · ● ·  · ● ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · ● ·  · · ● ·  · · ● ·  · · ● ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · ● ·  · · ● ·  · · ● ·  · ● ■ ·</code></div>
       </div>
     </td>
   </tr>
@@ -2040,13 +2045,13 @@
   </tr>
   <tr>
     <td class="k">STEP 8</td>
-    <td>Dub Reso-Tom</td>
+    <td>Dub Reso-Tom <span class="len-badge">(64 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · · ·  ■ · · ·  · · · ·  · · · ·</code></div>
-        <div class="page-row"><code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
-        <div class="page-row"><code>· · · ·  ■ · · ·  · · · ·  · · · ·</code></div>
-        <div class="page-row"><code>· · · ·  · · · ·  · · · ·  ■ · · ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · · ·  ■ · · ·  · · · ·  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P3</span><code>· · · ·  ■ · · ·  · · · ·  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P4</span><code>· · · ·  · · · ·  · · · ·  ■ · · ·</code></div>
       </div>
     </td>
   </tr>
@@ -2059,11 +2064,11 @@
   </tr>
   <tr>
     <td class="k">STEP 10</td>
-    <td>Woodblock Clack 3:2</td>
+    <td>Woodblock Clack 3:2 <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>■ · · ●  · · · ■  · · ● ·  ■ · · ·</code></div>
-        <div class="page-row"><code>■ · · ●  · · · ■  · · ● ·  · · ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>■ · · ●  · · · ■  · · ● ·  ■ · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>■ · · ●  · · · ■  · · ● ·  · · ■ ·</code></div>
       </div>
     </td>
   </tr>
@@ -2076,11 +2081,11 @@
   </tr>
   <tr>
     <td class="k">STEP 12</td>
-    <td>Sub Bass 2-Step</td>
+    <td>Sub Bass 2-Step <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>■ · · ·  · · · ■  · · · ·  · · · ·</code></div>
-        <div class="page-row"><code>■ · · ·  · · · ■  · · · ·  · ● · ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>■ · · ·  · · · ■  · · · ·  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>■ · · ·  · · · ■  · · · ·  · ● · ·</code></div>
       </div>
     </td>
   </tr>
@@ -2093,11 +2098,11 @@
   </tr>
   <tr>
     <td class="k">STEP 14</td>
-    <td>Breakbeat Low Tom</td>
+    <td>Breakbeat Low Tom <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · · ·  · · · ·  ● · · ·  · · · ·</code></div>
-        <div class="page-row"><code>· · · ·  · · · ·  ● · · ·  · ● · ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · · ·  · · · ·  ● · · ·  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · · ·  · · · ·  ● · · ·  · ● · ·</code></div>
       </div>
     </td>
   </tr>
@@ -2110,12 +2115,12 @@
   </tr>
   <tr>
     <td class="k">STEP 16</td>
-    <td>Dotted 8th Low Pulse</td>
+    <td>Dotted 8th Low Pulse <span class="len-badge">(48 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>■ · · ●  · · ■ ·  · ● · ·  ■ · · ·</code></div>
-        <div class="page-row"><code>· ● · ·  ■ · · ●  · · ■ ·  · ● · ·</code></div>
-        <div class="page-row"><code>■ · · ·  · ● · ·  ■ · · ●  · · ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>■ · · ●  · · ■ ·  · ● · ·  ■ · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· ● · ·  ■ · · ●  · · ■ ·  · ● · ·</code></div>
+        <div class="page-row"><span class="plabel">P3</span><code>■ · · ·  · ● · ·  ■ · · ●  · · ■ ·</code></div>
       </div>
     </td>
   </tr>
@@ -2133,21 +2138,21 @@
   </tr>
   <tr>
     <td class="k">STEP 2</td>
-    <td>Afro Conga Slaps</td>
+    <td>Afro Conga Slaps <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · · ·  · · · ■  · · · ·  · ■ · ·</code></div>
-        <div class="page-row"><code>· · · ·  · · · ■  · · · ·  ■ · ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · · ·  · · · ■  · · · ·  · ■ · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · · ·  · · · ■  · · · ·  ■ · ■ ·</code></div>
       </div>
     </td>
   </tr>
   <tr>
     <td class="k">STEP 3</td>
-    <td>Rumba Clave 3:2</td>
+    <td>Rumba Clave 3:2 <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>■ · · ●  · · · ■  · · ● ·  ■ · · ·</code></div>
-        <div class="page-row"><code>■ · · ●  · · · ■  · · ● ·  ■ · ● ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>■ · · ●  · · · ■  · · ● ·  ■ · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>■ · · ●  · · · ■  · · ● ·  ■ · ● ·</code></div>
       </div>
     </td>
   </tr>
@@ -2167,11 +2172,11 @@
   </tr>
   <tr>
     <td class="k">STEP 6</td>
-    <td>Campana Cumbia Bell</td>
+    <td>Campana Cumbia Bell <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>■ · · ·  · · ■ ·  · · ■ ·  · · ■ ·</code></div>
-        <div class="page-row"><code>■ · · ·  · · ■ ·  · · ■ ·  ■ · ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>■ · · ·  · · ■ ·  · · ■ ·  · · ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>■ · · ·  · · ■ ·  · · ■ ·  ■ · ■ ·</code></div>
       </div>
     </td>
   </tr>
@@ -2184,11 +2189,11 @@
   </tr>
   <tr>
     <td class="k">STEP 8</td>
-    <td>Agogo Bell Mid/High</td>
+    <td>Agogo Bell Mid/High <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>■ · ● ·  ■ · · ■  · ● · ·  ● · ■ ·</code></div>
-        <div class="page-row"><code>■ · ● ·  ■ · · ■  · ● · ·  ■ ● ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>■ · ● ·  ■ · · ■  · ● · ·  ● · ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>■ · ● ·  ■ · · ■  · ● · ·  ■ ● ■ ·</code></div>
       </div>
     </td>
   </tr>
@@ -2201,11 +2206,11 @@
   </tr>
   <tr>
     <td class="k">STEP 10</td>
-    <td>UKG Rim Counter-Skip</td>
+    <td>UKG Rim Counter-Skip <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · · ●  · · · ·  · · · ·  · · · ●</code></div>
-        <div class="page-row"><code>· · · ●  · · · ·  · · ● ·  · · · ●</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · · ●  · · · ·  · · · ·  · · · ●</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · · ●  · · · ·  · · ● ·  · · · ●</code></div>
       </div>
     </td>
   </tr>
@@ -2218,11 +2223,11 @@
   </tr>
   <tr>
     <td class="k">STEP 12</td>
-    <td>Microhouse Org Pop</td>
+    <td>Microhouse Org Pop <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · · ·  · · ■ ·  · · · ·  · · · ·</code></div>
-        <div class="page-row"><code>· · · ·  · · · ·  · · ■ ·  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · · ·  · · ■ ·  · · · ·  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · · ·  · · · ·  · · ■ ·  · · · ·</code></div>
       </div>
     </td>
   </tr>
@@ -2235,21 +2240,21 @@
   </tr>
   <tr>
     <td class="k">STEP 14</td>
-    <td>Mid Tom Response</td>
+    <td>Mid Tom Response <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
-        <div class="page-row"><code>· · · ·  ■ · · ·  · · · ·  ■ ● · ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · · ·  ■ · · ·  · · · ·  ■ ● · ·</code></div>
       </div>
     </td>
   </tr>
   <tr>
     <td class="k">STEP 15</td>
-    <td>Timbale End Roll</td>
+    <td>Timbale End Roll <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
-        <div class="page-row"><code>· · · ·  · · · ·  · · · ·  ■ ■ ● ■</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · · ·  · · · ·  · · · ·  ■ ■ ● ■</code></div>
       </div>
     </td>
   </tr>
@@ -2274,11 +2279,11 @@
   </tr>
   <tr>
     <td class="k">STEP 2</td>
-    <td>Minimal Shaker Touch</td>
+    <td>Minimal Shaker Touch <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · · ●  · · · ●  · · · ●  · · · ●</code></div>
-        <div class="page-row"><code>· · · ●  · · · ●  · · · ●  · ○ · ●</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · · ●  · · · ●  · · · ●  · · · ●</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · · ●  · · · ●  · · · ●  · ○ · ●</code></div>
       </div>
     </td>
   </tr>
@@ -2291,11 +2296,11 @@
   </tr>
   <tr>
     <td class="k">STEP 4</td>
-    <td>Continuous 16th Shaker</td>
+    <td>Continuous 16th Shaker <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>○ ● ○ ●  ○ ● ○ ●  ○ ● ○ ●  ○ ● ○ ●</code></div>
-        <div class="page-row"><code>○ ● ○ ●  ○ ● ○ ●  ○ ● ○ ●  ○ ■ ○ ■</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>○ ● ○ ●  ○ ● ○ ●  ○ ● ○ ●  ○ ● ○ ●</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>○ ● ○ ●  ○ ● ○ ●  ○ ● ○ ●  ○ ■ ○ ■</code></div>
       </div>
     </td>
   </tr>
@@ -2315,21 +2320,21 @@
   </tr>
   <tr>
     <td class="k">STEP 7</td>
-    <td>Samba Repinique</td>
+    <td>Samba Repinique <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· ○ · ●  · ○ · ●  · ○ · ●  · ○ · ●</code></div>
-        <div class="page-row"><code>· ○ · ●  · ○ · ●  · ○ ● ○  ■ ● ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· ○ · ●  · ○ · ●  · ○ · ●  · ○ · ●</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· ○ · ●  · ○ · ●  · ○ ● ○  ■ ● ■ ·</code></div>
       </div>
     </td>
   </tr>
   <tr>
     <td class="k">STEP 8</td>
-    <td>Tamborim 16ths</td>
+    <td>Tamborim 16ths <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>■ ○ ● ○  ■ ○ ● ○  ■ ○ ● ○  ■ ○ ● ○</code></div>
-        <div class="page-row"><code>■ ○ ● ○  ■ ○ ● ○  ■ ○ ● ○  ■ ■ ● ■</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>■ ○ ● ○  ■ ○ ● ○  ■ ○ ● ○  ■ ○ ● ○</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>■ ○ ● ○  ■ ○ ● ○  ■ ○ ● ○  ■ ■ ● ■</code></div>
       </div>
     </td>
   </tr>
@@ -2349,11 +2354,11 @@
   </tr>
   <tr>
     <td class="k">STEP 11</td>
-    <td>Single Ride Accent</td>
+    <td>Single Ride Accent <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · · ·  · · ■ ·  · · · ·  · · · ·</code></div>
-        <div class="page-row"><code>· · · ·  · · · ·  · · · ·  · · ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · · ·  · · ■ ·  · · · ·  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · · ·  · · · ·  · · · ·  · · ■ ·</code></div>
       </div>
     </td>
   </tr>
@@ -2366,13 +2371,13 @@
   </tr>
   <tr>
     <td class="k">STEP 13</td>
-    <td>Vinyl Dust &amp; Clicks</td>
+    <td>Vinyl Dust &amp; Clicks <span class="len-badge">(64 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>○ · · ·  · · · ·  ○ · · ·  · · · ·</code></div>
-        <div class="page-row"><code>· · · ·  · · · ·  ○ · · ·  · · · ·</code></div>
-        <div class="page-row"><code>○ · · ·  · · · ·  · · · ·  · · · ·</code></div>
-        <div class="page-row"><code>· · · ·  · · · ·  ○ · · ·  · ○ · ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>○ · · ·  · · · ·  ○ · · ·  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · · ·  · · · ·  ○ · · ·  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P3</span><code>○ · · ·  · · · ·  · · · ·  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P4</span><code>· · · ·  · · · ·  ○ · · ·  · ○ · ·</code></div>
       </div>
     </td>
   </tr>
@@ -2385,21 +2390,21 @@
   </tr>
   <tr>
     <td class="k">STEP 15</td>
-    <td>High Tom Accent Roll</td>
+    <td>High Tom Accent Roll <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>■ · · ·  · · ■ ·  · · · ·  ■ · · ·</code></div>
-        <div class="page-row"><code>■ · · ·  · · ■ ·  · · · ·  ■ ● ■ ·</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>■ · · ·  · · ■ ·  · · · ·  ■ · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>■ · · ·  · · ■ ·  · · · ·  ■ ● ■ ·</code></div>
       </div>
     </td>
   </tr>
   <tr>
     <td class="k">STEP 16</td>
-    <td>Bongo Slap Flam</td>
+    <td>Bongo Slap Flam <span class="len-badge">(32 steps)</span></td>
     <td class="rhythm-cell">
       <div class="page-rows">
-        <div class="page-row"><code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
-        <div class="page-row"><code>· · · ·  · · · ·  · · · ·  · ○ ● ■</code></div>
+        <div class="page-row"><span class="plabel">P1</span><code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
+        <div class="page-row"><span class="plabel">P2</span><code>· · · ·  · · · ·  · · · ·  · ○ ● ■</code></div>
       </div>
     </td>
   </tr>
