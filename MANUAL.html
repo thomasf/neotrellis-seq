@@ -211,6 +211,67 @@
     padding-right: 1.2rem;
   }
 
+  .page-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .page-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .plabel {
+    display: inline-block;
+    font: 700 10px/1.2 ui-monospace, monospace;
+    color: #555550;
+    background: #e4e4e0;
+    border-radius: 3px;
+    padding: 1px 4px;
+    min-width: 38px;
+    text-align: center;
+  }
+  .poly-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: #e1ebff;
+    color: #1a56db;
+    border-radius: 3px;
+    padding: 1px 5px;
+    margin-top: 3px;
+  }
+  .len-badge {
+    font-size: 10px;
+    font-weight: 600;
+    color: #888880;
+    margin-left: 6px;
+  }
+  .loop-ref {
+    font-size: 11px !important;
+    color: #888880 !important;
+    font-style: italic;
+  }
+  .kit-page-block {
+    margin-bottom: 0.6rem;
+  }
+  .kit-page-block:last-child {
+    margin-bottom: 0;
+  }
+  .kit-page-title {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b6b66;
+    margin-bottom: 3px;
+    border-bottom: 1px dashed #dcdcd6;
+    padding-bottom: 1px;
+  }
+
   .print-legend { display: none; }
 
   /* Ableton Drum Rack 4x4 Pad Grid */
@@ -691,6 +752,48 @@
     .genre-tag {
       font-size: 8.2pt !important;
       color: #444444 !important;
+    }
+    .page-rows {
+      gap: 1.5pt !important;
+    }
+    .page-row {
+      gap: 3pt !important;
+      white-space: nowrap !important;
+    }
+    .plabel {
+      font-size: 7pt !important;
+      border: 0.5pt solid #888888 !important;
+      background: #f0f0f0 !important;
+      color: #000000 !important;
+      min-width: 26pt !important;
+      padding: 0 2pt !important;
+    }
+    .poly-badge {
+      font-size: 6.5pt !important;
+      border: 0.5pt solid #1a56db !important;
+      background: #f0f4ff !important;
+      color: #1a56db !important;
+      padding: 0 2pt !important;
+    }
+    .kit-page-block {
+      margin-bottom: 3pt !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    .kit-page-title {
+      font-size: 7.2pt !important;
+      color: #555555 !important;
+      border-bottom: 0.5pt dashed #cccccc !important;
+      margin-bottom: 1.5pt !important;
+    }
+    .len-badge {
+      font-size: 7pt !important;
+      color: #666666 !important;
+      margin-left: 3pt !important;
+    }
+    .loop-ref {
+      font-size: 7.5pt !important;
+      color: #777777 !important;
     }
   }
 
@@ -1448,133 +1551,858 @@
 <h2 class="screen-title presets-header">Single-Voice Pattern Presets (<code>FN1 + ACCENT + STEP n</code>)</h2>
 <p class="note">
   Applies preset <i>n</i> (1&ndash;16) to the active voice's current pattern.
+  Patterns longer than 16 steps are printed page by page (16 steps per row).
   Velocity symbols: <strong>■</strong> Accent (127), <strong>●</strong> Normal (99), <strong>○</strong> Ghost (50), <strong>·</strong> Rest.
 </p>
 
 <h3>Voice 0: Kick / Bass Drum Presets</h3>
 <table class="pattern-table">
-  <tr><th>Pad</th><th>Preset Name</th><th>Rhythm (16 Steps)</th></tr>
-  <tr><td class="k">STEP 1</td><td>Four on Floor</td><td><code>■ · · ·  ■ · · ·  ■ · · ·  ■ · · ·</code></td></tr>
-  <tr><td class="k">STEP 2</td><td>Four on Floor Pickup</td><td><code>■ · · ·  ● · · ·  ■ · · ·  ● · · ○</code></td></tr>
-  <tr><td class="k">STEP 3</td><td>Pumping 4/4 Drive</td><td><code>■ · · ○  ● · · ·  ■ · · ○  ● · · ·</code></td></tr>
-  <tr><td class="k">STEP 4</td><td>Berlin Rumble 4/4</td><td><code>■ · · ·  ■ · · ·  ■ · · ·  ■ · ● ·</code></td></tr>
-  <tr><td class="k">STEP 5</td><td>Dembow Reggaeton</td><td><code>■ · · ·  ■ · · ·  ■ · ● ·  ■ · · ·</code></td></tr>
-  <tr><td class="k">STEP 6</td><td>Tresillo 3-3-2</td><td><code>■ · · ●  · · ■ ·  ■ · · ●  · · ■ ·</code></td></tr>
-  <tr><td class="k">STEP 7</td><td>Afro-House Minimal</td><td><code>■ · · ·  · · ■ ·  ■ · · ·  ● · · ·</code></td></tr>
-  <tr><td class="k">STEP 8</td><td>Samba Surdo Bounce</td><td><code>■ · · ●  · · ■ ·  · · ■ ·  · ● · ·</code></td></tr>
-  <tr><td class="k">STEP 9</td><td>UK Garage 2-Step</td><td><code>■ · · ·  · · · ■  · · · ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 10</td><td>Electro 808 Sync</td><td><code>■ · · ●  · · · ·  ■ · · ●  · · ● ·</code></td></tr>
-  <tr><td class="k">STEP 11</td><td>Breakbeat Funk</td><td><code>■ · · ·  · · ■ ·  · · ■ ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 12</td><td>Baile Favela Drop</td><td><code>■ · · ●  · · ● ·  ■ · · ●  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 13</td><td>Offbeat Skip Kick</td><td><code>■ · · ·  ● · · ·  · · ■ ·  ● · · ·</code></td></tr>
-  <tr><td class="k">STEP 14</td><td>Dub Techno Deep</td><td><code>■ · · ·  · · · ·  ■ · · ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 15</td><td>Microhouse Minimal</td><td><code>■ · · ·  · · · ·  ● · · ·  · · · ○</code></td></tr>
-  <tr><td class="k">STEP 16</td><td>Dotted 8th Phasing</td><td><code>■ · · ●  · · ■ ·  · ● · ·  ■ · · ·</code></td></tr>
+  <tr><th>Pad</th><th>Preset Name</th><th>Rhythm Pattern (16 Steps / Row)</th></tr>
+  <tr>
+    <td class="k">STEP 1</td>
+    <td>Four on Floor</td>
+    <td class="rhythm-cell">
+      <code>■ · · ·  ■ · · ·  ■ · · ·  ■ · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 2</td>
+    <td>Four on Floor Pickup</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>■ · · ·  ● · · ·  ■ · · ·  ● · · ○</code></div>
+        <div class="page-row"><code>■ · · ·  ● · · ·  ■ · · ·  ● · ○ ■</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 3</td>
+    <td>Pumping 4/4 Drive</td>
+    <td class="rhythm-cell">
+      <code>■ · · ○  ● · · ·  ■ · · ○  ● · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 4</td>
+    <td>Berlin Rumble 4/4</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>■ · · ·  ■ · · ·  ■ · · ·  ■ · ● ·</code></div>
+        <div class="page-row"><code>■ · · ·  ■ · · ·  ■ · · ·  ■ ● ● ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 5</td>
+    <td>Dembow Reggaeton</td>
+    <td class="rhythm-cell">
+      <code>■ · · ·  ■ · · ·  ■ · ● ·  ■ · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 6</td>
+    <td>Tresillo 3-3-2</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>■ · · ●  · · ■ ·  ■ · · ●  · · ■ ·</code></div>
+        <div class="page-row"><code>■ · · ●  · · ■ ·  · · ■ ·  · · ■ ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 7</td>
+    <td>Afro-House Minimal</td>
+    <td class="rhythm-cell">
+      <code>■ · · ·  · · ■ ·  ■ · · ·  ● · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 8</td>
+    <td>Samba Surdo Bounce</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>■ · · ●  · · ■ ·  · · ■ ·  · ● · ·</code></div>
+        <div class="page-row"><code>■ · · ●  · · ■ ·  · · ■ ·  · ■ ● ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 9</td>
+    <td>UK Garage 2-Step</td>
+    <td class="rhythm-cell">
+      <code>■ · · ·  · · · ■  · · · ·  · · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 10</td>
+    <td>Electro 808 Sync</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>■ · · ●  · · · ·  ■ · · ●  · · ● ·</code></div>
+        <div class="page-row"><code>■ · · ●  · · · ·  ■ · · ●  ● · ● ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 11</td>
+    <td>Breakbeat Funk</td>
+    <td class="rhythm-cell">
+      <code>■ · · ·  · · ■ ·  · · ■ ·  · · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 12</td>
+    <td>Baile Favela Drop</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>■ · · ●  · · ● ·  ■ · · ●  · · · ·</code></div>
+        <div class="page-row"><code>■ · · ●  · · ● ·  ■ · · ●  ● · ■ ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 13</td>
+    <td>Offbeat Skip Kick</td>
+    <td class="rhythm-cell">
+      <code>■ · · ·  ● · · ·  · · ■ ·  ● · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 14</td>
+    <td>Dub Techno Deep</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>■ · · ·  · · · ·  ■ · · ·  · · · ·</code></div>
+        <div class="page-row"><code>■ · · ·  · · · ·  · · · ·  · · · ·</code></div>
+        <div class="page-row"><code>■ · · ·  · · · ·  ■ · · ·  · · · ○</code></div>
+        <div class="page-row"><code>■ · · ·  · · · ·  · · · ·  · · ● ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 15</td>
+    <td>Microhouse Minimal</td>
+    <td class="rhythm-cell">
+      <code>■ · · ·  · · · ·  ● · · ·  · · · ○</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 16</td>
+    <td>Dotted 8th Phasing</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>■ · · ●  · · ■ ·  · ● · ·  ■ · · ·</code></div>
+        <div class="page-row"><code>· ● · ·  ■ · · ●  · · ■ ·  · ● · ·</code></div>
+        <div class="page-row"><code>■ · · ·  · ● · ·  ■ · · ●  · · ■ ·</code></div>
+      </div>
+    </td>
+  </tr>
 </table>
 
 <h3>Voice 1: Snare / Clap Presets</h3>
 <table class="pattern-table">
-  <tr><th>Pad</th><th>Preset Name</th><th>Rhythm (16 Steps)</th></tr>
-  <tr><td class="k">STEP 1</td><td>Classic Backbeat</td><td><code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></td></tr>
-  <tr><td class="k">STEP 2</td><td>Backbeat &amp; Flam</td><td><code>· · · ·  ■ · · ·  · · · ·  ■ · · ○</code></td></tr>
-  <tr><td class="k">STEP 3</td><td>Double Clap Pump</td><td><code>· · · ·  ■ · · ·  · · · ·  ■ ● · ·</code></td></tr>
-  <tr><td class="k">STEP 4</td><td>House Backbeat Roll</td><td><code>· · · ·  ■ · · ·  · · ○ ○  ■ · · ·</code></td></tr>
-  <tr><td class="k">STEP 5</td><td>Dembow Syncopation</td><td><code>· · · ■  · · ■ ·  · · · ■  · · ■ ·</code></td></tr>
-  <tr><td class="k">STEP 6</td><td>Tresillo Snare</td><td><code>· · · ■  · · ■ ·  · · · ■  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 7</td><td>Afro Woodblock Drop</td><td><code>· · · ·  · · · ·  ■ · · ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 8</td><td>Samba Caixa Roll</td><td><code>· · · ○  ■ · · ○  · · · ○  ■ · ○ ·</code></td></tr>
-  <tr><td class="k">STEP 9</td><td>UKG 2-Step Snare</td><td><code>· · · ·  ■ · · ·  · · · ·  ■ · ● ·</code></td></tr>
-  <tr><td class="k">STEP 10</td><td>Electro 808 Snare</td><td><code>· · · ·  ■ · · ○  · · · ·  ■ · · ·</code></td></tr>
-  <tr><td class="k">STEP 11</td><td>Breakbeat Ghost</td><td><code>· · · ·  ■ · · ○  · ○ · ·  ■ · · ○</code></td></tr>
-  <tr><td class="k">STEP 12</td><td>Baile Funk Snare</td><td><code>· · · ·  ■ · · ■  · · · ·  ■ · · ·</code></td></tr>
-  <tr><td class="k">STEP 13</td><td>Roll Down</td><td><code>■&rarr;○ decrescendo</code></td></tr>
-  <tr><td class="k">STEP 14</td><td>Roll Up</td><td><code>○&rarr;■ crescendo</code></td></tr>
-  <tr><td class="k">STEP 15</td><td>Roll Up-Down</td><td><code>○&rarr;■&rarr;○ swell</code></td></tr>
-  <tr><td class="k">STEP 16</td><td>Roll Down-Up</td><td><code>■&rarr;○&rarr;■ dip</code></td></tr>
+  <tr><th>Pad</th><th>Preset Name</th><th>Rhythm Pattern (16 Steps / Row)</th></tr>
+  <tr>
+    <td class="k">STEP 1</td>
+    <td>Classic Backbeat</td>
+    <td class="rhythm-cell">
+      <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 2</td>
+    <td>Backbeat &amp; Flam</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · · ·  ■ · · ·  · · · ·  ■ · · ○</code></div>
+        <div class="page-row"><code>· · · ·  ■ · · ·  · · · ·  ■ · ○ ■</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 3</td>
+    <td>Double Clap Pump</td>
+    <td class="rhythm-cell">
+      <code>· · · ·  ■ · · ·  · · · ·  ■ ● · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 4</td>
+    <td>House Backbeat Roll</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
+        <div class="page-row"><code>· · · ·  ■ · · ·  · · ○ ○  ■ · ● ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 5</td>
+    <td>Dembow Syncopation</td>
+    <td class="rhythm-cell">
+      <code>· · · ■  · · ■ ·  · · · ■  · · ■ ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 6</td>
+    <td>Tresillo Snare</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · · ■  · · ■ ·  · · · ■  · · · ·</code></div>
+        <div class="page-row"><code>· · · ■  · · ■ ·  · · · ■  · ■ · ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 7</td>
+    <td>Afro Woodblock Drop</td>
+    <td class="rhythm-cell">
+      <code>· · · ·  · · · ·  ■ · · ·  · · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 8</td>
+    <td>Samba Caixa Roll</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · · ○  ■ · · ○  · · · ○  ■ · ○ ·</code></div>
+        <div class="page-row"><code>· · · ○  ■ · · ○  · ○ · ○  ■ ● ■ ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 9</td>
+    <td>UKG 2-Step Snare</td>
+    <td class="rhythm-cell">
+      <code>· · · ·  ■ · · ·  · · · ·  ■ · ● ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 10</td>
+    <td>Electro 808 Snare</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · · ·  ■ · · ○  · · · ·  ■ · · ·</code></div>
+        <div class="page-row"><code>· · · ·  ■ · · ○  · · ○ ·  ■ · ● ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 11</td>
+    <td>Breakbeat Ghost</td>
+    <td class="rhythm-cell">
+      <code>· · · ·  ■ · · ○  · ○ · ·  ■ · · ○</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 12</td>
+    <td>Baile Funk Snare</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · · ·  ■ · · ■  · · · ·  ■ · · ·</code></div>
+        <div class="page-row"><code>· · · ·  ■ · · ■  · · · ·  ■ ● ■ ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 13</td>
+    <td>Roll Down</td>
+    <td class="rhythm-cell">
+      <code><code>■&rarr;○ decrescendo</code></code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 14</td>
+    <td>Roll Up</td>
+    <td class="rhythm-cell">
+      <code><code>○&rarr;■ crescendo</code></code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 15</td>
+    <td>Roll Up-Down</td>
+    <td class="rhythm-cell">
+      <code><code>○&rarr;■&rarr;○ 2-bar swell</code></code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 16</td>
+    <td>Roll Down-Up</td>
+    <td class="rhythm-cell">
+      <code><code>■&rarr;○&rarr;■ 2-bar dip</code></code>
+    </td>
+  </tr>
 </table>
 
 <h3>Voice 2: Hi-Hat Presets</h3>
 <table class="pattern-table">
-  <tr><th>Pad</th><th>Preset Name</th><th>Rhythm (16 Steps)</th></tr>
-  <tr><td class="k">STEP 1</td><td>Classic Offbeat Open</td><td><code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code></td></tr>
-  <tr><td class="k">STEP 2</td><td>Offbeat &amp; Pickup</td><td><code>· · ■ ·  · · ■ ·  · · ■ ·  · ○ ■ ·</code></td></tr>
-  <tr><td class="k">STEP 3</td><td>Straight 8th Notes</td><td><code>● · ■ ·  ● · ■ ·  ● · ■ ·  ● · ■ ·</code></td></tr>
-  <tr><td class="k">STEP 4</td><td>Minimal Dub Ticks</td><td><code>· · ■ ·  · · · ·  · · ■ ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 5</td><td>UKG Swung Skip</td><td><code>● · ■ ·  · ○ ■ ·  ● · ■ ·  · ○ ■ ·</code></td></tr>
-  <tr><td class="k">STEP 6</td><td>Breakbeat Swung 8ths</td><td><code>● · ■ ○  ● · ■ ·  ● · ■ ○  ● · ■ ·</code></td></tr>
-  <tr><td class="k">STEP 7</td><td>Cumbia Guiro Scrape</td><td><code>· ● · ■  · ● · ■  · ● · ■  · ● · ■</code></td></tr>
-  <tr><td class="k">STEP 8</td><td>Afro Feathered Hat</td><td><code>· · ■ ○  · · ■ ·  · · ■ ○  · · ■ ·</code></td></tr>
-  <tr><td class="k">STEP 9</td><td>Dotted 8th Phasing</td><td><code>■ · · ●  · · ■ ·  · ● · ·  ■ · · ·</code></td></tr>
-  <tr><td class="k">STEP 10</td><td>Microhouse Delicate</td><td><code>· · ■ ·  · · · ○  · · ■ ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 11</td><td>Downbeat Ticks</td><td><code>■ · · ·  ● · · ·  ■ · · ·  ● · · ·</code></td></tr>
-  <tr><td class="k">STEP 12</td><td>Half-Time Triplet</td><td><code>■ · · ●  · · ● ·  ■ · · ●  · · ● ·</code></td></tr>
-  <tr><td class="k">STEP 13</td><td>Chicago 909 Groove</td><td><code>● ○ ■ ○  ● ○ ■ ○  ● ○ ■ ○  ● ○ ■ ○</code></td></tr>
-  <tr><td class="k">STEP 14</td><td>Detroit Electro 16ths</td><td><code>● ○ ● ■  ● ○ ● ■  ● ○ ● ■  ● ○ ● ■</code></td></tr>
-  <tr><td class="k">STEP 15</td><td>Berlin Peak 16ths</td><td><code>■ ○ ● ○  ■ ○ ● ○  ■ ○ ● ○  ■ ○ ● ○</code></td></tr>
-  <tr><td class="k">STEP 16</td><td>Batucada Samba Roll</td><td><code>■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○</code></td></tr>
+  <tr><th>Pad</th><th>Preset Name</th><th>Rhythm Pattern (16 Steps / Row)</th></tr>
+  <tr>
+    <td class="k">STEP 1</td>
+    <td>Classic Offbeat Open</td>
+    <td class="rhythm-cell">
+      <code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 2</td>
+    <td>Offbeat &amp; Pickup</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code></div>
+        <div class="page-row"><code>· · ■ ·  · · ■ ·  · · ■ ·  · ○ ■ ○</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 3</td>
+    <td>Straight 8th Notes</td>
+    <td class="rhythm-cell">
+      <code>● · ■ ·  ● · ■ ·  ● · ■ ·  ● · ■ ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 4</td>
+    <td>Minimal Dub Ticks</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · ■ ·  · · · ·  · · ■ ·  · · · ·</code></div>
+        <div class="page-row"><code>· · · ·  · · · ·  · · ■ ·  · · · ·</code></div>
+        <div class="page-row"><code>· · ■ ·  · · · ·  · · ■ ·  · · · ○</code></div>
+        <div class="page-row"><code>· · · ·  · · · ·  · · ■ ·  · · · ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 5</td>
+    <td>UKG Swung Skip</td>
+    <td class="rhythm-cell">
+      <code>● · ■ ·  · ○ ■ ·  ● · ■ ·  · ○ ■ ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 6</td>
+    <td>Breakbeat Swung 8ths</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>● · ■ ○  ● · ■ ·  ● · ■ ○  ● · ■ ·</code></div>
+        <div class="page-row"><code>● · ■ ○  ● · ■ ·  ● ○ ■ ○  ● · ■ ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 7</td>
+    <td>Cumbia Guiro Scrape</td>
+    <td class="rhythm-cell">
+      <code>· ● · ■  · ● · ■  · ● · ■  · ● · ■</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 8</td>
+    <td>Afro Feathered Hat</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · ■ ○  · · ■ ·  · · ■ ○  · · ■ ·</code></div>
+        <div class="page-row"><code>· · ■ ○  · · ■ ·  · ○ ■ ○  · · ■ ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 9</td>
+    <td>Dotted 8th Phasing</td>
+    <td class="rhythm-cell">
+      <code>■ · · ●  · · ■ ·  · ● · ·  ■ · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 10</td>
+    <td>Microhouse Delicate</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · ■ ·  · · · ○  · · ■ ·  · · · ·</code></div>
+        <div class="page-row"><code>· · ■ ·  · · · ○  · · ■ ·  · ○ · ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 11</td>
+    <td>Downbeat Ticks</td>
+    <td class="rhythm-cell">
+      <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 12</td>
+    <td>Half-Time Triplet</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>■ · · ●  · · ● ·  ■ · · ●  · · ● ·</code></div>
+        <div class="page-row"><code>■ · · ●  · · ● ·  ■ ● ● ●  · · ● ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 13</td>
+    <td>Chicago 909 Groove</td>
+    <td class="rhythm-cell">
+      <code>● ○ ■ ○  ● ○ ■ ○  ● ○ ■ ○  ● ○ ■ ○</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 14</td>
+    <td>Detroit Electro 16ths</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>● ○ ● ■  ● ○ ● ■  ● ○ ● ■  ● ○ ● ■</code></div>
+        <div class="page-row"><code>● ○ ● ■  ● ○ ● ■  ● ○ ● ■  ■ ○ ■ ○</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 15</td>
+    <td>Berlin Peak 16ths</td>
+    <td class="rhythm-cell">
+      <code>■ ○ ● ○  ■ ○ ● ○  ■ ○ ● ○  ■ ○ ● ○</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 16</td>
+    <td>Batucada Samba Roll</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○</code></div>
+        <div class="page-row"><code>■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○  ■ ■ ■ ■</code></div>
+      </div>
+    </td>
+  </tr>
 </table>
 
 <h3>Voice 3: Percussion 1 Presets (Low/Mid)</h3>
 <table class="pattern-table">
-  <tr><th>Pad</th><th>Preset Name</th><th>Rhythm (16 Steps)</th></tr>
-  <tr><td class="k">STEP 1</td><td>Low Conga Tumbao</td><td><code>· · · ·  · · ■ ·  · · · ·  · · ● ·</code></td></tr>
-  <tr><td class="k">STEP 2</td><td>Low Conga Bounce</td><td><code>· · · ·  · · ■ ·  · · · ·  · ● · ·</code></td></tr>
-  <tr><td class="k">STEP 3</td><td>Afro Low Tumbadora</td><td><code>■ · · ●  · · ■ ·  · · ● ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 4</td><td>Guaguanco Low Hit</td><td><code>· · ■ ·  · · · ●  · · ■ ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 5</td><td>Low Tom Downbeat</td><td><code>■ · · ·  · · · ·  ■ · · ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 6</td><td>Rolling Tribal Low</td><td><code>· · ● ·  · · ● ·  · · ● ·  · · ● ·</code></td></tr>
-  <tr><td class="k">STEP 7</td><td>808 Low Tom Sync</td><td><code>· · · ·  · · ■ ·  · · · ·  · · ■ ·</code></td></tr>
-  <tr><td class="k">STEP 8</td><td>Dub Reso-Tom</td><td><code>· · · ·  ■ · · ·  · · · ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 9</td><td>Afro Woodblock Beat 3</td><td><code>· · · ·  · · · ·  ■ · · ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 10</td><td>Woodblock Clack 3:2</td><td><code>■ · · ●  · · · ■  · · ● ·  ■ · · ·</code></td></tr>
-  <tr><td class="k">STEP 11</td><td>Sub Bass Drop 1</td><td><code>■ · · ·  · · · ·  · · · ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 12</td><td>Sub Bass 2-Step</td><td><code>■ · · ·  · · · ■  · · · ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 13</td><td>Cumbia Low Tumbao</td><td><code>· · · ·  · · ● ·  · · · ·  · · ● ·</code></td></tr>
-  <tr><td class="k">STEP 14</td><td>Breakbeat Low Tom</td><td><code>· · · ·  · · · ·  ● · · ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 15</td><td>Microhouse Low Wood</td><td><code>· · · ·  · ● · ·  · · · ·  · ● · ·</code></td></tr>
-  <tr><td class="k">STEP 16</td><td>Dotted 8th Low Pulse</td><td><code>■ · · ●  · · ■ ·  · ● · ·  ■ · · ·</code></td></tr>
+  <tr><th>Pad</th><th>Preset Name</th><th>Rhythm Pattern (16 Steps / Row)</th></tr>
+  <tr>
+    <td class="k">STEP 1</td>
+    <td>Low Conga Tumbao</td>
+    <td class="rhythm-cell">
+      <code>· · · ·  · · ■ ·  · · · ·  · · ● ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 2</td>
+    <td>Low Conga Bounce</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · · ·  · · ■ ·  · · · ·  · ● · ·</code></div>
+        <div class="page-row"><code>· · · ·  · · ■ ·  · · · ·  · ● ● ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 3</td>
+    <td>Afro Low Tumbadora</td>
+    <td class="rhythm-cell">
+      <code>■ · · ●  · · ■ ·  · · ● ·  · · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 4</td>
+    <td>Guaguanco Low Hit</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · ■ ·  · · · ●  · · ■ ·  · · · ·</code></div>
+        <div class="page-row"><code>· · ■ ·  · · · ●  · · ■ ·  · ● · ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 5</td>
+    <td>Low Tom Downbeat</td>
+    <td class="rhythm-cell">
+      <code>■ · · ·  · · · ·  ■ · · ·  · · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 6</td>
+    <td>Rolling Tribal Low</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · ● ·  · · ● ·  · · ● ·  · · ● ·</code></div>
+        <div class="page-row"><code>· · ● ·  · · ● ·  · · ● ·  · ● ■ ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 7</td>
+    <td>808 Low Tom Sync</td>
+    <td class="rhythm-cell">
+      <code>· · · ·  · · ■ ·  · · · ·  · · ■ ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 8</td>
+    <td>Dub Reso-Tom</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · · ·  ■ · · ·  · · · ·  · · · ·</code></div>
+        <div class="page-row"><code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
+        <div class="page-row"><code>· · · ·  ■ · · ·  · · · ·  · · · ·</code></div>
+        <div class="page-row"><code>· · · ·  · · · ·  · · · ·  ■ · · ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 9</td>
+    <td>Afro Woodblock Beat 3</td>
+    <td class="rhythm-cell">
+      <code>· · · ·  · · · ·  ■ · · ·  · · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 10</td>
+    <td>Woodblock Clack 3:2</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>■ · · ●  · · · ■  · · ● ·  ■ · · ·</code></div>
+        <div class="page-row"><code>■ · · ●  · · · ■  · · ● ·  · · ■ ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 11</td>
+    <td>Sub Bass Drop 1</td>
+    <td class="rhythm-cell">
+      <code>■ · · ·  · · · ·  · · · ·  · · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 12</td>
+    <td>Sub Bass 2-Step</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>■ · · ·  · · · ■  · · · ·  · · · ·</code></div>
+        <div class="page-row"><code>■ · · ·  · · · ■  · · · ·  · ● · ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 13</td>
+    <td>Cumbia Low Tumbao</td>
+    <td class="rhythm-cell">
+      <code>· · · ·  · · ● ·  · · · ·  · · ● ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 14</td>
+    <td>Breakbeat Low Tom</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · · ·  · · · ·  ● · · ·  · · · ·</code></div>
+        <div class="page-row"><code>· · · ·  · · · ·  ● · · ·  · ● · ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 15</td>
+    <td>Microhouse Low Wood</td>
+    <td class="rhythm-cell">
+      <code>· · · ·  · ● · ·  · · · ·  · ● · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 16</td>
+    <td>Dotted 8th Low Pulse</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>■ · · ●  · · ■ ·  · ● · ·  ■ · · ·</code></div>
+        <div class="page-row"><code>· ● · ·  ■ · · ●  · · ■ ·  · ● · ·</code></div>
+        <div class="page-row"><code>■ · · ·  · ● · ·  ■ · · ●  · · ■ ·</code></div>
+      </div>
+    </td>
+  </tr>
 </table>
 
 <h3>Voice 4: Percussion 2 Presets (Mid/High)</h3>
 <table class="pattern-table">
-  <tr><th>Pad</th><th>Preset Name</th><th>Rhythm (16 Steps)</th></tr>
-  <tr><td class="k">STEP 1</td><td>High Conga Slap</td><td><code>· · · ·  ■ · · ·  · · · ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 2</td><td>Afro Conga Slaps</td><td><code>· · · ·  · · · ■  · · · ·  · ■ · ·</code></td></tr>
-  <tr><td class="k">STEP 3</td><td>Rumba Clave 3:2</td><td><code>■ · · ●  · · · ■  · · ● ·  ■ · · ·</code></td></tr>
-  <tr><td class="k">STEP 4</td><td>Son Clave 3:2</td><td><code>■ · · ●  · · ■ ·  · · ● ·  ■ · · ·</code></td></tr>
-  <tr><td class="k">STEP 5</td><td>Syncopated Cowbell</td><td><code>· · ■ ·  · · ■ ·  · · ■ ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 6</td><td>Campana Cumbia Bell</td><td><code>■ · · ·  · · ■ ·  · · ■ ·  · · ■ ·</code></td></tr>
-  <tr><td class="k">STEP 7</td><td>808 Cowbell Sync</td><td><code>■ · · ·  · · · ·  ■ · · ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 8</td><td>Agogo Bell Mid/High</td><td><code>■ · ● ·  ■ · · ■  · ● · ·  ● · ■ ·</code></td></tr>
-  <tr><td class="k">STEP 9</td><td>House Rimshot Sync</td><td><code>· · · ·  · · · ·  · · ● ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 10</td><td>UKG Rim Counter-Skip</td><td><code>· · · ●  · · · ·  · · · ·  · · · ●</code></td></tr>
-  <tr><td class="k">STEP 11</td><td>Dembow Clack Accent</td><td><code>· · · ·  · · · ·  · ● · ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 12</td><td>Microhouse Org Pop</td><td><code>· · · ·  · · ■ ·  · · · ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 13</td><td>Dub Techno Stabs</td><td><code>· · ■ ·  · · · ·  · ● · ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 14</td><td>Mid Tom Response</td><td><code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></td></tr>
-  <tr><td class="k">STEP 15</td><td>Timbale End Roll</td><td><code>· · · ·  · · · ·  · · · ·  · ■ ● ■</code></td></tr>
-  <tr><td class="k">STEP 16</td><td>Industrial Metal Anvil</td><td><code>· · · ·  ● · · ·  · · · ·  ● · · ·</code></td></tr>
+  <tr><th>Pad</th><th>Preset Name</th><th>Rhythm Pattern (16 Steps / Row)</th></tr>
+  <tr>
+    <td class="k">STEP 1</td>
+    <td>High Conga Slap</td>
+    <td class="rhythm-cell">
+      <code>· · · ·  ■ · · ·  · · · ·  · · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 2</td>
+    <td>Afro Conga Slaps</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · · ·  · · · ■  · · · ·  · ■ · ·</code></div>
+        <div class="page-row"><code>· · · ·  · · · ■  · · · ·  ■ · ■ ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 3</td>
+    <td>Rumba Clave 3:2</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>■ · · ●  · · · ■  · · ● ·  ■ · · ·</code></div>
+        <div class="page-row"><code>■ · · ●  · · · ■  · · ● ·  ■ · ● ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 4</td>
+    <td>Son Clave 3:2</td>
+    <td class="rhythm-cell">
+      <code>■ · · ●  · · ■ ·  · · ● ·  ■ · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 5</td>
+    <td>Syncopated Cowbell</td>
+    <td class="rhythm-cell">
+      <code>· · ■ ·  · · ■ ·  · · ■ ·  · · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 6</td>
+    <td>Campana Cumbia Bell</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>■ · · ·  · · ■ ·  · · ■ ·  · · ■ ·</code></div>
+        <div class="page-row"><code>■ · · ·  · · ■ ·  · · ■ ·  ■ · ■ ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 7</td>
+    <td>808 Cowbell Sync</td>
+    <td class="rhythm-cell">
+      <code>■ · · ·  · · · ·  ■ · · ·  · · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 8</td>
+    <td>Agogo Bell Mid/High</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>■ · ● ·  ■ · · ■  · ● · ·  ● · ■ ·</code></div>
+        <div class="page-row"><code>■ · ● ·  ■ · · ■  · ● · ·  ■ ● ■ ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 9</td>
+    <td>House Rimshot Sync</td>
+    <td class="rhythm-cell">
+      <code>· · · ·  · · · ·  · · ● ·  · · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 10</td>
+    <td>UKG Rim Counter-Skip</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · · ●  · · · ·  · · · ·  · · · ●</code></div>
+        <div class="page-row"><code>· · · ●  · · · ·  · · ● ·  · · · ●</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 11</td>
+    <td>Dembow Clack Accent</td>
+    <td class="rhythm-cell">
+      <code>· · · ·  · · · ·  · ● · ·  · · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 12</td>
+    <td>Microhouse Org Pop</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · · ·  · · ■ ·  · · · ·  · · · ·</code></div>
+        <div class="page-row"><code>· · · ·  · · · ·  · · ■ ·  · · · ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 13</td>
+    <td>Dub Techno Stabs</td>
+    <td class="rhythm-cell">
+      <code>· · ■ ·  · · · ·  · ● · ·  · · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 14</td>
+    <td>Mid Tom Response</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
+        <div class="page-row"><code>· · · ·  ■ · · ·  · · · ·  ■ ● · ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 15</td>
+    <td>Timbale End Roll</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
+        <div class="page-row"><code>· · · ·  · · · ·  · · · ·  ■ ■ ● ■</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 16</td>
+    <td>Industrial Metal Anvil</td>
+    <td class="rhythm-cell">
+      <code>· · · ·  ● · · ·  · · · ·  ● · · ·</code>
+    </td>
+  </tr>
 </table>
 
 <h3>Voice 5: Percussion 3 Presets (High/Texture)</h3>
 <table class="pattern-table">
-  <tr><th>Pad</th><th>Preset Name</th><th>Rhythm (16 Steps)</th></tr>
-  <tr><td class="k">STEP 1</td><td>Gentle 8th Shaker</td><td><code>· ○ · ●  · ○ · ●  · ○ · ●  · ○ · ●</code></td></tr>
-  <tr><td class="k">STEP 2</td><td>Minimal Shaker Touch</td><td><code>· · · ●  · · · ●  · · · ●  · · · ●</code></td></tr>
-  <tr><td class="k">STEP 3</td><td>Afro Seed Shaker</td><td><code>· ○ · ●  · ○ · ●  · ○ · ●  · ○ · ●</code></td></tr>
-  <tr><td class="k">STEP 4</td><td>Continuous 16th Shaker</td><td><code>○ ● ○ ●  ○ ● ○ ●  ○ ● ○ ●  ○ ● ○ ●</code></td></tr>
-  <tr><td class="k">STEP 5</td><td>Backbeat Tambourine</td><td><code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></td></tr>
-  <tr><td class="k">STEP 6</td><td>Offbeat Tambourine</td><td><code>· · ● ·  · · ● ·  · · ● ·  · · ● ·</code></td></tr>
-  <tr><td class="k">STEP 7</td><td>Samba Repinique</td><td><code>· ○ · ●  · ○ · ●  · ○ · ●  · ○ · ●</code></td></tr>
-  <tr><td class="k">STEP 8</td><td>Tamborim 16ths</td><td><code>■ ○ ● ○  ■ ○ ● ○  ■ ○ ● ○  ■ ○ ● ○</code></td></tr>
-  <tr><td class="k">STEP 9</td><td>Offbeat Ride Cymbal</td><td><code>· · ● ·  · · ● ·  · · ● ·  · · ● ·</code></td></tr>
-  <tr><td class="k">STEP 10</td><td>Downbeat Ride Ping</td><td><code>■ · · ·  · · · ·  ■ · · ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 11</td><td>Single Ride Accent</td><td><code>· · · ·  · · ■ ·  · · · ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 12</td><td>Ride Cymbal 8ths</td><td><code>● · ● ·  ● · ● ·  ● · ● ·  ● · ● ·</code></td></tr>
-  <tr><td class="k">STEP 13</td><td>Vinyl Dust &amp; Clicks</td><td><code>○ · · ·  · · · ·  ○ · · ·  · · · ·</code></td></tr>
-  <tr><td class="k">STEP 14</td><td>Tape Crackle Echo</td><td><code>· · · ·  · · · ·  · · · ·  ○ · · ·</code></td></tr>
-  <tr><td class="k">STEP 15</td><td>High Tom Accent Roll</td><td><code>■ · · ·  · · ■ ·  · · · ·  ■ · · ·</code></td></tr>
-  <tr><td class="k">STEP 16</td><td>Bongo Slap Flam</td><td><code>· · · ·  · · · ·  · · · ·  · · ● ■</code></td></tr>
+  <tr><th>Pad</th><th>Preset Name</th><th>Rhythm Pattern (16 Steps / Row)</th></tr>
+  <tr>
+    <td class="k">STEP 1</td>
+    <td>Gentle 8th Shaker</td>
+    <td class="rhythm-cell">
+      <code>· ○ · ●  · ○ · ●  · ○ · ●  · ○ · ●</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 2</td>
+    <td>Minimal Shaker Touch</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · · ●  · · · ●  · · · ●  · · · ●</code></div>
+        <div class="page-row"><code>· · · ●  · · · ●  · · · ●  · ○ · ●</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 3</td>
+    <td>Afro Seed Shaker</td>
+    <td class="rhythm-cell">
+      <code>· ○ · ●  · ○ · ●  · ○ · ●  · ○ · ●</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 4</td>
+    <td>Continuous 16th Shaker</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>○ ● ○ ●  ○ ● ○ ●  ○ ● ○ ●  ○ ● ○ ●</code></div>
+        <div class="page-row"><code>○ ● ○ ●  ○ ● ○ ●  ○ ● ○ ●  ○ ■ ○ ■</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 5</td>
+    <td>Backbeat Tambourine</td>
+    <td class="rhythm-cell">
+      <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 6</td>
+    <td>Offbeat Tambourine</td>
+    <td class="rhythm-cell">
+      <code>· · ● ·  · · ● ·  · · ● ·  · · ● ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 7</td>
+    <td>Samba Repinique</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· ○ · ●  · ○ · ●  · ○ · ●  · ○ · ●</code></div>
+        <div class="page-row"><code>· ○ · ●  · ○ · ●  · ○ ● ○  ■ ● ■ ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 8</td>
+    <td>Tamborim 16ths</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>■ ○ ● ○  ■ ○ ● ○  ■ ○ ● ○  ■ ○ ● ○</code></div>
+        <div class="page-row"><code>■ ○ ● ○  ■ ○ ● ○  ■ ○ ● ○  ■ ■ ● ■</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 9</td>
+    <td>Offbeat Ride Cymbal</td>
+    <td class="rhythm-cell">
+      <code>· · ● ·  · · ● ·  · · ● ·  · · ● ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 10</td>
+    <td>Downbeat Ride Ping</td>
+    <td class="rhythm-cell">
+      <code>■ · · ·  · · · ·  ■ · · ·  · · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 11</td>
+    <td>Single Ride Accent</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · · ·  · · ■ ·  · · · ·  · · · ·</code></div>
+        <div class="page-row"><code>· · · ·  · · · ·  · · · ·  · · ■ ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 12</td>
+    <td>Ride Cymbal 8ths</td>
+    <td class="rhythm-cell">
+      <code>● · ● ·  ● · ● ·  ● · ● ·  ● · ● ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 13</td>
+    <td>Vinyl Dust &amp; Clicks</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>○ · · ·  · · · ·  ○ · · ·  · · · ·</code></div>
+        <div class="page-row"><code>· · · ·  · · · ·  ○ · · ·  · · · ·</code></div>
+        <div class="page-row"><code>○ · · ·  · · · ·  · · · ·  · · · ·</code></div>
+        <div class="page-row"><code>· · · ·  · · · ·  ○ · · ·  · ○ · ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 14</td>
+    <td>Tape Crackle Echo</td>
+    <td class="rhythm-cell">
+      <code>· · · ·  · · · ·  · · · ·  ○ · · ·</code>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 15</td>
+    <td>High Tom Accent Roll</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>■ · · ·  · · ■ ·  · · · ·  ■ · · ·</code></div>
+        <div class="page-row"><code>■ · · ·  · · ■ ·  · · · ·  ■ ● ■ ·</code></div>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td class="k">STEP 16</td>
+    <td>Bongo Slap Flam</td>
+    <td class="rhythm-cell">
+      <div class="page-rows">
+        <div class="page-row"><code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
+        <div class="page-row"><code>· · · ·  · · · ·  · · · ·  · ○ ● ■</code></div>
+      </div>
+    </td>
+  </tr>
 </table>
 <!-- END_PATTERNS_PRESETS -->
 
@@ -1583,231 +2411,927 @@
 <h2 class="screen-title kits-header">Full 6-Voice Kits (<code>FN1 + ALL + ACCENT + STEP n</code>)</h2>
 <p class="note">
   Loads a coordinated 6-voice arrangement across the entire drum machine simultaneously.
-  Each kit includes all 6 tracks formatted in 16-step columns.
+  Multi-page and polymetric patterns are printed page by page (16 steps per row) matching the hardware page navigation.
 </p>
 <table class="kits-table">
-  <tr><th>Pad</th><th>Kit Name &amp; Genre</th><th>6-Voice Patterns (16 Steps)</th></tr>
+  <tr><th>Pad</th><th>Kit Name &amp; Genre</th><th>6-Voice Patterns (16 Steps / Row)</th></tr>
   <tr>
     <td class="k">STEP 1</td>
-    <td><strong>Classic Chicago House</strong><br><span class="genre-tag">House</span></td>
+    <td>
+      <strong>Classic Chicago House</strong><br>
+      <span class="genre-tag">House</span>
+    </td>
     <td class="kit-pattern">
-      <div class="kit-voices">
-        <div class="kit-v"><span class="vtag v0">KICK</span> <code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
-        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code></div>
-        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  · · ■ ·  · · · ·  · ● · ·</code></div>
-        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ·  · · · ·  · · ● ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
+      <div class="kit-page-block">
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>· · · ·  · · · ·  · · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· · · ·  · · ■ ·  · · · ·  · ● · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · · ·  · · · ·  · · ● ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· · · ·  · · · ·  · · · ·  · · · ·</code>
+          </div>
+        </div>
       </div>
     </td>
   </tr>
   <tr>
     <td class="k">STEP 2</td>
-    <td><strong>French Touch Disco</strong><br><span class="genre-tag">Nu-Disco</span></td>
+    <td>
+      <strong>French Touch Disco</strong><br>
+      <span class="genre-tag">Nu-Disco</span>
+    </td>
     <td class="kit-pattern">
-      <div class="kit-voices">
-        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  ■ · · ·  ■ · · ·  ■ · · ·</code></div>
-        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
-        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>● · ■ ·  ● · ■ ·  ● · ■ ·  ● · ■ ·</code></div>
-        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  · · · ·  · · · ·  · · · ●</code></div>
-        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · ■ ·  · · · ·  · · ■ ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  ● · · ·  · · · ·  ● · · ·</code></div>
+      <div class="kit-page-block">
+        <div class="kit-page-title">Steps 1&ndash;16</div>
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ·  ■ · · ·  ■ · · ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>● · ■ ·  ● · ■ ·  ● · ■ ·  ● · ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· · · ·  · · · ·  · · · ·  · · · ●</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· · · ·  ● · · ·  · · · ·  ● · · ·</code>
+          </div>
+        </div>
+      </div>
+      <div class="kit-page-block">
+        <div class="kit-page-title">Steps 17&ndash;32</div>
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ·  ■ · · ·  ■ · · ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ · · ○</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>● · ■ ·  ● · ■ ·  ● · ■ ·  ● · ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· · · ·  · · · ·  · · · ·  · · ● ■</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· · · ·  ● · · ·  · · · ·  ● · · ·</code>
+          </div>
+        </div>
       </div>
     </td>
   </tr>
   <tr>
     <td class="k">STEP 3</td>
-    <td><strong>Deep House Sunset</strong><br><span class="genre-tag">Deep House</span></td>
+    <td>
+      <strong>Deep House Sunset</strong><br>
+      <span class="genre-tag">Deep House</span>
+    </td>
     <td class="kit-pattern">
-      <div class="kit-voices">
-        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ○</code></div>
-        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
-        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code></div>
-        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  · · ■ ·  · · · ·  · · ● ·</code></div>
-        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ·  · · · ·  · · ■ ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
+      <div class="kit-page-block">
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ○</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· · · ·  · · ■ ·  · · ● ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · · ·  · · · ·  · · ■ ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· · · ·  · · · ·  · · · ·  · · · ·</code>
+          </div>
+        </div>
       </div>
     </td>
   </tr>
   <tr>
     <td class="k">STEP 4</td>
-    <td><strong>Garage House Shuffle</strong><br><span class="genre-tag">Garage House</span></td>
+    <td>
+      <strong>Garage House Shuffle</strong><br>
+      <span class="genre-tag">Garage House</span>
+    </td>
     <td class="kit-pattern">
-      <div class="kit-voices">
-        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ·</code></div>
-        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · ● ·</code></div>
-        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>● · ■ ·  · ○ ■ ·  ● · ■ ·  · ○ ■ ·</code></div>
-        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  · · ● ·  · · · ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ●  · · · ·  · · · ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
+      <div class="kit-page-block">
+        <div class="kit-page-title">Steps 1&ndash;16</div>
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ · ● ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>● · ■ ·  · ○ ■ ·  ● · ■ ·  · ○ ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· · · ·  · · ● ·  · · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · · ●  · · · ·  · · ● ·  · · · ●</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· · · ·  · · · ·  · · · ·  · · · ·</code>
+          </div>
+        </div>
+      </div>
+      <div class="kit-page-block">
+        <div class="kit-page-title">Steps 17&ndash;32</div>
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ○</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ · ○ ■</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>● · ■ ·  · ○ ■ ·  ● · ■ ·  · ○ ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· · · ·  · · ● ·  · · · ·  · ● · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · · ·  · · ● ·  · · · ●  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· · · ·  · · · ·  · · · ·  · · · ·</code>
+          </div>
+        </div>
       </div>
     </td>
   </tr>
   <tr>
     <td class="k">STEP 5</td>
-    <td><strong>Afro-House Keinemusik</strong><br><span class="genre-tag">Afro-House</span></td>
+    <td>
+      <strong>Afro-House Keinemusik</strong><br>
+      <span class="genre-tag">Afro-House</span>
+    </td>
     <td class="kit-pattern">
-      <div class="kit-voices">
-        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ·</code></div>
-        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  · · · ·  ■ · · ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code></div>
-        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>■ · · ●  · · ■ ·  · · ● ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ·  · · · ■  · · · ·  · ■ · ·</code></div>
-        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· ○ · ●  · ○ · ●  · ○ · ●  · ○ · ●</code></div>
+      <div class="kit-page-block">
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  · · · ·  ■ · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>■ · · ●  · · ■ ·  · · ● ·  ■ · · ●</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · · ·  · · · ■  · ■ · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· ○ · ●  · ○ · ●  · ○ · ●  · ○ · ●</code>
+          </div>
+        </div>
       </div>
     </td>
   </tr>
   <tr>
     <td class="k">STEP 6</td>
-    <td><strong>Electro-Cumbia</strong><br><span class="genre-tag">Cumbia</span></td>
+    <td>
+      <strong>Electro-Cumbia</strong><br>
+      <span class="genre-tag">Cumbia</span>
+    </td>
     <td class="kit-pattern">
-      <div class="kit-voices">
-        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ·</code></div>
-        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
-        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>· ● · ■  · ● · ■  · ● · ■  · ● · ■</code></div>
-        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  · · ● ·  · · · ·  · · ● ·</code></div>
-        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>■ · · ·  · · ■ ·  · · ■ ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  · · · ·  · · · ·  · · ■ ·</code></div>
+      <div class="kit-page-block">
+        <div class="kit-page-title">Steps 1&ndash;16</div>
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>· ● · ■  · ● · ■  · ● · ■  · ● · ■</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· · · ·  · · ● ·  · · · ·  · · ● ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>■ · · ·  · · ■ ·  · · ■ ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· · · ·  · · · ·  · · · ·  · · ■ ·</code>
+          </div>
+        </div>
+      </div>
+      <div class="kit-page-block">
+        <div class="kit-page-title">Steps 17&ndash;32</div>
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ · · ○</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>· ● · ■  · ● · ■  · ● · ■  · ● · ■</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· · · ·  · · ● ·  · · · ·  · · ● ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · ■ ·  · · ■ ·  ■ · · ·  · · ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· · · ·  · · · ·  · · · ·  · ■ ● ■</code>
+          </div>
+        </div>
       </div>
     </td>
   </tr>
   <tr>
     <td class="k">STEP 7</td>
-    <td><strong>Dembow Latin Club</strong><br><span class="genre-tag">Dembow</span></td>
+    <td>
+      <strong>Dembow Latin Club</strong><br>
+      <span class="genre-tag">Dembow</span>
+    </td>
     <td class="kit-pattern">
-      <div class="kit-voices">
-        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  ■ · · ·  ■ · · ·  ■ · · ·</code></div>
-        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ■  · · ■ ·  · · · ■  · · ■ ·</code></div>
-        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code></div>
-        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>■ · · ·  · · · ·  · · · ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ·  · · · ·  · ● · ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
+      <div class="kit-page-block">
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ·  ■ · · ·  ■ · · ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ■  · · ■ ·  · · · ■  · · ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>■ · · ·  · · · ·  · · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · · ·  · · · ·  · ● · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· · · ·  · · · ·  · · · ·  · · · ·</code>
+          </div>
+        </div>
       </div>
     </td>
   </tr>
   <tr>
     <td class="k">STEP 8</td>
-    <td><strong>Batucada Carnival</strong><br><span class="genre-tag">Samba</span></td>
+    <td>
+      <strong>Batucada Carnival</strong><br>
+      <span class="genre-tag">Samba</span>
+    </td>
     <td class="kit-pattern">
-      <div class="kit-voices">
-        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ●  · · ■ ·  · · ■ ·  · ● · ·</code></div>
-        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ○  ■ · · ○  · · · ○  ■ · ○ ·</code></div>
-        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○</code></div>
-        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
-        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>■ · ● ·  ■ · · ■  · ● · ·  ● · ■ ·</code></div>
-        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· ○ · ●  · ○ · ●  · ○ · ●  · ○ · ●</code></div>
+      <div class="kit-page-block">
+        <div class="kit-page-title">Steps 1&ndash;16</div>
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ●  · · ■ ·  · · ■ ·  · ● · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ○  ■ · · ○  · · · ○  ■ · ○ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>■ · ● ·  ■ · · ■  · ● · ·  ■ · ● ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· ○ · ●  · ○ · ●  · ○ · ●  · ○ · ●</code>
+          </div>
+        </div>
+      </div>
+      <div class="kit-page-block">
+        <div class="kit-page-title">Steps 17&ndash;32</div>
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ●  · · ■ ·  · · ■ ·  · ■ ● ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ○  ■ · · ○  · ○ · ○  ■ ● ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ · ● ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>■ · · ■  · ● · ·  ■ · ● ·  ■ · · ■</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· ○ · ●  · ○ · ●  · ○ ● ○  ■ ● ■ ·</code>
+          </div>
+        </div>
       </div>
     </td>
   </tr>
   <tr>
     <td class="k">STEP 9</td>
-    <td><strong>UK Garage 2-Step</strong><br><span class="genre-tag">UKG</span></td>
+    <td>
+      <strong>UK Garage 2-Step</strong><br>
+      <span class="genre-tag">UKG</span>
+    </td>
     <td class="kit-pattern">
-      <div class="kit-voices">
-        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  · · · ■  · · · ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
-        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>● · ■ ·  · ○ ■ ·  ● · ■ ·  · ○ ■ ·</code></div>
-        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  · · · ·  · · ● ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ●  · · · ·  · · · ·  · · ● ·</code></div>
-        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  · · ■ ·  · · · ·  · · · ·</code></div>
+      <div class="kit-page-block">
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ·  · · · ■  · · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>● · ■ ·  · ○ ■ ·  ● · ■ ·  · ○ ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· · · ·  · · · ·  · · ● ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · · ●  · · · ·  · · ● ·  · · · ●</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· · · ·  · · ■ ·  · · · ·  · · · ·</code>
+          </div>
+        </div>
       </div>
     </td>
   </tr>
   <tr>
     <td class="k">STEP 10</td>
-    <td><strong>Detroit Electro 808</strong><br><span class="genre-tag">Electro</span></td>
+    <td>
+      <strong>Detroit Electro 808</strong><br>
+      <span class="genre-tag">Electro</span>
+    </td>
     <td class="kit-pattern">
-      <div class="kit-voices">
-        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ●  · ○ · ·  ■ · · ●  · · ● ·</code></div>
-        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
-        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>● ○ ● ■  ● ○ ● ■  ● ○ ● ■  ● ○ ● ■</code></div>
-        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  · · ■ ·  · · · ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>■ · · ·  · · · ·  ■ · · ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
+      <div class="kit-page-block">
+        <div class="kit-page-title">Steps 1&ndash;16</div>
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ●  · ○ · ·  ■ · · ●  · · ● ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>● ○ ● ■  ● ○ ● ■  ● ○ ● ■  ● ○ ● ■</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· · · ·  · · ■ ·  · · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>■ · · ·  · · · ·  ■ · · ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· · · ·  · · · ·  · · · ·  · · · ·</code>
+          </div>
+        </div>
+      </div>
+      <div class="kit-page-block">
+        <div class="kit-page-title">Steps 17&ndash;32</div>
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ●  · ○ · ·  ■ · · ●  ● · ● ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ · ○ ■</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>● ○ ● ■  ● ○ ● ■  ● ○ ● ■  ● ○ ● ■</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· · · ·  · · ■ ·  · · · ·  · ● ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · · ·  ■ · · ·  ■ · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· · · ·  · · · ·  · · · ·  · · · ·</code>
+          </div>
+        </div>
       </div>
     </td>
   </tr>
   <tr>
     <td class="k">STEP 11</td>
-    <td><strong>Breakbeat Shuffle</strong><br><span class="genre-tag">Breaks</span></td>
+    <td>
+      <strong>Breakbeat Shuffle</strong><br>
+      <span class="genre-tag">Breaks</span>
+    </td>
     <td class="kit-pattern">
-      <div class="kit-voices">
-        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  · · ■ ·  · · ■ ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ○  ■ · · ○  · ○ · ·  ■ · · ○</code></div>
-        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>● · ■ ○  ● · ■ ·  ● · ■ ○  ● · ■ ·</code></div>
-        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  · · · ·  ● · · ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ●  · · · ·  · · · ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
+      <div class="kit-page-block">
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ·  · · ■ ·  · · ■ ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ○  ■ · · ○  · ○ · ·  ■ · · ○</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>● · ■ ○  ● · ■ ·  ● · ■ ○  ● · ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· · · ·  · · · ·  ● · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · · ●  · · · ·  · · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· · · ·  · · · ·  · · · ·  · · · ·</code>
+          </div>
+        </div>
       </div>
     </td>
   </tr>
   <tr>
     <td class="k">STEP 12</td>
-    <td><strong>Baile Funk Bounce</strong><br><span class="genre-tag">Bass</span></td>
+    <td>
+      <strong>Baile Funk Bounce</strong><br>
+      <span class="genre-tag">Bass</span>
+    </td>
     <td class="kit-pattern">
-      <div class="kit-voices">
-        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ●  · · ● ·  ■ · · ●  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
-        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code></div>
-        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>■ · · ·  · · · ·  ■ · · ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ■  · · ■ ·  · · · ■  · · ■ ·</code></div>
-        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  · · · ·  · · · ·  · · · ·</code></div>
+      <div class="kit-page-block">
+        <div class="kit-page-title">Steps 1&ndash;16</div>
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ●  · · ● ·  ■ · · ●  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>■ · · ·  · · · ·  ■ · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · · ■  · · ■ ·  · · · ■  · · ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· · · ·  · · · ·  · · · ·  · · · ·</code>
+          </div>
+        </div>
+      </div>
+      <div class="kit-page-block">
+        <div class="kit-page-title">Steps 17&ndash;32</div>
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ●  · · ● ·  ■ · · ●  ● · ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ ● ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>· · ■ ·  · · ■ ·  · · ■ ·  · · ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>■ · · ·  · · · ·  ■ · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · · ■  · · ■ ·  · · · ■  · · ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· · · ·  · · · ·  · · · ·  · · · ·</code>
+          </div>
+        </div>
       </div>
     </td>
   </tr>
   <tr>
     <td class="k">STEP 13</td>
-    <td><strong>Berlin Peak Techno</strong><br><span class="genre-tag">Techno</span></td>
+    <td>
+      <strong>Berlin Peak Techno</strong><br>
+      <span class="genre-tag">Techno</span>
+    </td>
     <td class="kit-pattern">
-      <div class="kit-voices">
-        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  ■ · · ·  ■ · · ·  ■ · · ·</code></div>
-        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
-        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>● ○ ■ ○  ● ○ ■ ○  ● ○ ■ ○  ● ○ ■ ○</code></div>
-        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ■  · · · ·  · ■ · ·  · · ■ ·</code></div>
-        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ·  ● · · ·  · · · ·  ● · · ·</code></div>
-        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · ● ·  · · ● ·  · · ● ·  · · ● ·</code></div>
+      <div class="kit-page-block">
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ·  ■ · · ·  ■ · · ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>● ○ ■ ○  ● ○ ■ ○  ● ○ ■ ○  ● ○ ■ ○</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· · · ■  · · · ·  · ■ · ·  · · ■ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · · ·  ● · · ·  · · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· · ● ·  · · ● ·  · · ● ·  · · ● ·</code>
+          </div>
+        </div>
       </div>
     </td>
   </tr>
   <tr>
     <td class="k">STEP 14</td>
-    <td><strong>Dub Techno Echo</strong><br><span class="genre-tag">Dub Techno</span></td>
+    <td>
+      <strong>Dub Techno Echo</strong><br>
+      <span class="genre-tag">Dub Techno</span>
+    </td>
     <td class="kit-pattern">
-      <div class="kit-voices">
-        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ·</code></div>
-        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  · · · ·  ■ · · ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>· · ■ ·  · · · ·  · · ■ ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  ■ · · ·  · · · ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · ■ ·  · · · ·  · ● · ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>· · · ·  · · · ·  · · · ·  ○ · · ·</code></div>
+      <div class="kit-page-block">
+        <div class="kit-page-title">Steps 1&ndash;16</div>
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  · · · ·  ■ · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>· · ■ ·  · · · ·  · · ■ ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· · · ·  ■ · · ·  · · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · ■ ·  · · · ·  · ● · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· · · ·  · · · ·  · · · ·  ○ · · ·</code>
+          </div>
+        </div>
+      </div>
+      <div class="kit-page-block">
+        <div class="kit-page-title">Steps 17&ndash;32</div>
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ·  · · · ·  ■ · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  · · · ·  · · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>· · · ·  · · · ·  · · ■ ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>■ · · ·  · · · ·  · · · ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · · ·  · · · ·  · · ■ ·  · ● · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· · · ·  · · · ·  · · · ·  · · · ·</code>
+          </div>
+        </div>
+      </div>
+      <div class="kit-page-block">
+        <div class="kit-page-title">Steps 33&ndash;48</div>
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  · · · ·  ■ · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>· · ■ ·  · · · ·  · · ■ ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· · · ·  · · · ·  ■ · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · ■ ·  · · · ·  · ● · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· · · ·  · · · ·  · · · ·  ○ · · ·</code>
+          </div>
+        </div>
+      </div>
+      <div class="kit-page-block">
+        <div class="kit-page-title">Steps 49&ndash;64</div>
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ·  · · · ·  · · · ·  · · ○ ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  · · · ·  ■ · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>· · · ·  · · · ·  · · ■ ·  · · · ○</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· · · ·  ■ · · ·  · · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · · ·  · · · ·  · · ■ ·  · ● · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· · · ·  · · · ·  · · · ·  ○ · · ·</code>
+          </div>
+        </div>
       </div>
     </td>
   </tr>
   <tr>
     <td class="k">STEP 15</td>
-    <td><strong>Romanian Microhouse</strong><br><span class="genre-tag">Microhouse</span></td>
+    <td>
+      <strong>Romanian Microhouse</strong><br>
+      <span class="genre-tag">Microhouse</span>
+    </td>
     <td class="kit-pattern">
-      <div class="kit-voices">
-        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ·</code></div>
-        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
-        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>· · ■ ·  · · · ○  · · ■ ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · · ·  · ● · ·  · · · ·  · ● · ·</code></div>
-        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ·  · · ■ ·  · · · ·  · · · ·</code></div>
-        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>○ · · ·  · · · ·  ○ · · ·  · · · ·</code></div>
+      <div class="kit-page-block">
+        <div class="kit-page-title">Steps 1&ndash;16</div>
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>· · ■ ·  · · · ○  · · ■ ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· · · ·  · ● · ·  · · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · · ·  · · ■ ·  · · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>○ · · ·  · · · ·  ○ · · ·  · · · ·</code>
+          </div>
+        </div>
+      </div>
+      <div class="kit-page-block">
+        <div class="kit-page-title">Steps 17&ndash;32</div>
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ·  ● · · ·  ■ · · ·  ● · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>· · ■ ·  · · · ○  · · ■ ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· ● · ·  · · · ·  · · · ·  · ● · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · · ·  ■ · · ·  · · · ·  · · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>· · · ·  · · · ·  ○ · · ·  · ○ · ·</code>
+          </div>
+        </div>
       </div>
     </td>
   </tr>
   <tr>
     <td class="k">STEP 16</td>
-    <td><strong>Driving Hardgroove</strong><br><span class="genre-tag">Hardgroove</span></td>
+    <td>
+      <strong>Driving Hardgroove</strong><br>
+      <span class="genre-tag">Hardgroove</span>
+    </td>
     <td class="kit-pattern">
-      <div class="kit-voices">
-        <div class="kit-v"><span class="vtag v0">KICK</span> <code>■ · · ·  ■ · · ·  ■ · · ·  ■ · · ·</code></div>
-        <div class="kit-v"><span class="vtag v1">SNARE</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
-        <div class="kit-v"><span class="vtag v2">HIHAT</span> <code>■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○</code></div>
-        <div class="kit-v"><span class="vtag v3">PERC1</span> <code>· · ● ·  · · ● ·  · · ● ·  · · ● ·</code></div>
-        <div class="kit-v"><span class="vtag v4">PERC2</span> <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code></div>
-        <div class="kit-v"><span class="vtag v5">PERC3</span> <code>■ · · ·  · · ■ ·  · · · ·  ■ · · ·</code></div>
+      <div class="kit-page-block">
+        <div class="kit-page-title">Steps 1&ndash;16</div>
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ·  ■ · · ·  ■ · · ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· · ● ·  · · ● ·  · · ● ·  · · ● ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>■ · · ·  · · ■ ·  · · · ·  ■ · · ·</code>
+          </div>
+        </div>
+      </div>
+      <div class="kit-page-block">
+        <div class="kit-page-title">Steps 17&ndash;32</div>
+        <div class="kit-voices">
+          <div class="kit-v">
+            <span class="vtag v0">KICK</span>
+            <code>■ · · ·  ■ · · ·  ■ · · ·  ■ · · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v1">SNARE</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ · · ○</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v2">HIHAT</span>
+            <code>■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○  ■ ○ ■ ○</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v3">PERC1</span>
+            <code>· · ● ·  · · ● ·  · · ● ·  · · ● ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v4">PERC2</span>
+            <code>· · · ·  ■ · · ·  · · · ·  ■ ● · ·</code>
+          </div>
+          <div class="kit-v">
+            <span class="vtag v5">PERC3</span>
+            <code>■ · · ·  · · ■ ·  · · · ·  ■ ● ■ ·</code>
+          </div>
+        </div>
       </div>
     </td>
   </tr>

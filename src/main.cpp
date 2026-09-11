@@ -202,6 +202,9 @@ void load_kit_preset(uint32_t kit_index) {
     }
     record_undo(voice);
     PatternPresets::apply_kit_voice(voice, kit_index, seq.voices[voice].pattern());
+    if (seq.voices[voice].current_page >= seq.voices[voice].page_count()) {
+      seq.voices[voice].current_page = seq.voices[voice].page_count() - 1;
+    }
   }
 }
 
@@ -282,6 +285,9 @@ bool apply_accent_transform(uint32_t voice, uint32_t index) {
     return false;
   }
   PatternPresets::apply_preset(voice, seq.voices[voice].pattern(), index);
+  if (seq.voices[voice].current_page >= seq.voices[voice].page_count()) {
+    seq.voices[voice].current_page = seq.voices[voice].page_count() - 1;
+  }
   return true;
 }
 

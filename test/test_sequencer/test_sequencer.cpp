@@ -510,7 +510,7 @@ void test_sequencer_drift(void) {
 
 void test_pattern_presets_voice_and_kits(void) {
   Pattern p;
-  // Apply preset 0 (Four on Floor) to voice 0
+  // Apply preset 0 (Four on Floor) to voice 0 (16 steps)
   PatternPresets::apply_preset(0, &p, 0);
   TEST_ASSERT_EQUAL_UINT32(16, p.length);
   TEST_ASSERT_EQUAL_UINT8(ACCENT_VELOCITY, p.steps[0].vel);
@@ -519,8 +519,23 @@ void test_pattern_presets_voice_and_kits(void) {
   TEST_ASSERT_EQUAL_UINT8(ACCENT_VELOCITY, p.steps[8].vel);
   TEST_ASSERT_EQUAL_UINT8(ACCENT_VELOCITY, p.steps[12].vel);
 
-  // Apply preset 0 (Classic Backbeat) to voice 1
+  // Apply preset 1 (Four on Floor Pickup) to voice 0 (32 steps)
+  PatternPresets::apply_preset(0, &p, 1);
+  TEST_ASSERT_EQUAL_UINT32(32, p.length);
+  TEST_ASSERT_EQUAL_UINT8(ACCENT_VELOCITY, p.steps[0].vel);
+  TEST_ASSERT_EQUAL_UINT8(ACCENT_VELOCITY, p.steps[31].vel);
+
+  // Apply preset 13 (Dub Techno Deep) to voice 0 (64 steps)
+  PatternPresets::apply_preset(0, &p, 13);
+  TEST_ASSERT_EQUAL_UINT32(64, p.length);
+
+  // Apply preset 15 (Dotted 8th Phasing) to voice 0 (48 steps)
+  PatternPresets::apply_preset(0, &p, 15);
+  TEST_ASSERT_EQUAL_UINT32(48, p.length);
+
+  // Apply preset 0 (Classic Backbeat) to voice 1 (16 steps)
   PatternPresets::apply_preset(1, &p, 0);
+  TEST_ASSERT_EQUAL_UINT32(16, p.length);
   TEST_ASSERT_EQUAL_UINT8(0, p.steps[0].vel);
   TEST_ASSERT_EQUAL_UINT8(ACCENT_VELOCITY, p.steps[4].vel);
   TEST_ASSERT_EQUAL_UINT8(ACCENT_VELOCITY, p.steps[12].vel);
@@ -535,13 +550,17 @@ void test_pattern_presets_voice_and_kits(void) {
 
   PatternPresets::apply_preset(0, nullptr, 0); // No crash
 
-  // Apply kit 1 (French Touch Disco), voice 0 (Four on the Floor)
+  // Apply kit 1 (French Touch Disco), voice 0 (Four on the Floor - 32 steps)
   PatternPresets::apply_kit_voice(0, 1, &p);
-  TEST_ASSERT_EQUAL_UINT32(16, p.length);
+  TEST_ASSERT_EQUAL_UINT32(32, p.length);
   TEST_ASSERT_EQUAL_UINT8(ACCENT_VELOCITY, p.steps[0].vel);
   TEST_ASSERT_EQUAL_UINT8(ACCENT_VELOCITY, p.steps[4].vel);
 
-  // Apply kit 0 (Classic Chicago House), voice 1 (Clap on 4 and 12)
+  // Apply kit 13 (Dub Techno Echo), voice 0 (64 steps)
+  PatternPresets::apply_kit_voice(0, 13, &p);
+  TEST_ASSERT_EQUAL_UINT32(64, p.length);
+
+  // Apply kit 0 (Classic Chicago House), voice 1 (Clap on 4 and 12 - 16 steps)
   PatternPresets::apply_kit_voice(1, 0, &p);
   TEST_ASSERT_EQUAL_UINT32(16, p.length);
   TEST_ASSERT_EQUAL_UINT8(0, p.steps[0].vel);

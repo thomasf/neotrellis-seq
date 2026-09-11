@@ -2,15 +2,30 @@
 <h2 class="screen-title presets-header">Single-Voice Pattern Presets (<code>FN1 + ACCENT + STEP n</code>)</h2>
 <p class="note">
   Applies preset <i>n</i> (1&ndash;16) to the active voice's current pattern.
+  Patterns longer than 16 steps are printed page by page (16 steps per row).
   Velocity symbols: <strong>■</strong> Accent (127), <strong>●</strong> Normal (99), <strong>○</strong> Ghost (50), <strong>·</strong> Rest.
 </p>
 {{- range .PresetVoices }}
 
 <h3>{{ .Title }}</h3>
 <table class="pattern-table">
-  <tr><th>Pad</th><th>Preset Name</th><th>Rhythm (16 Steps)</th></tr>
+  <tr><th>Pad</th><th>Preset Name</th><th>Rhythm Pattern (16 Steps / Row)</th></tr>
   {{- range .Presets }}
-  <tr><td class="k">STEP {{ .Pad }}</td><td>{{ .Name }}</td><td>{{ safeHTML .RhythmHTML }}</td></tr>
+  <tr>
+    <td class="k">STEP {{ .Pad }}</td>
+    <td>{{ .Name }}</td>
+    <td class="rhythm-cell">
+      {{- if eq (len .Pages) 1 }}
+      <code>{{ safeHTML (index .Pages 0).RhythmHTML }}</code>
+      {{- else }}
+      <div class="page-rows">
+        {{- range .Pages }}
+        <div class="page-row"><code>{{ safeHTML .RhythmHTML }}</code></div>
+        {{- end }}
+      </div>
+      {{- end }}
+    </td>
+  </tr>
   {{- end }}
 </table>
 {{- end }}

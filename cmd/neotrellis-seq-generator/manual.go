@@ -52,22 +52,60 @@ type PresetVoiceView struct {
 }
 
 type PresetItemView struct {
-	Pad        int
-	Name       string
+	Pad    int
+	Name   string
+	Length int
+	Pages  []PresetPageView
+}
+
+type PresetPageView struct {
+	PageNum    int
+	StartStep  int
+	EndStep    int
 	RhythmHTML string
 }
 
 type KitView struct {
-	Pad    int
-	Name   string
-	Genre  string
-	Voices []KitVoiceView
+	Pad      int
+	Name     string
+	Genre    string
+	IsPoly   bool
+	MaxPages int
+	Pages    []KitPageView
 }
 
-type KitVoiceView struct {
+type KitPageView struct {
+	PageNum   int
+	StartStep int
+	EndStep   int
+	Voices    []KitVoicePageView
+}
+
+type KitVoicePageView struct {
 	VoiceIndex int
 	VoiceLabel string
+	Length     int
+	IsPoly     bool
 	Rhythm     string
+}
+
+func formatHTMLStepSlice(velocities []uint8) string {
+	if len(velocities) == 0 {
+		return ""
+	}
+	var beats []string
+	for i := 0; i < len(velocities); i += 4 {
+		end := i + 4
+		if end > len(velocities) {
+			end = len(velocities)
+		}
+		var beatToks []string
+		for _, v := range velocities[i:end] {
+			beatToks = append(beatToks, formatHTMLVelocityToken(v))
+		}
+		beats = append(beats, strings.Join(beatToks, " "))
+	}
+	return strings.Join(beats, "  ")
 }
 
 func buildManualData(rootDir string) (*ManualData, error) {
@@ -150,16 +188,39 @@ func buildManualData(rootDir string) (*ManualData, error) {
 	for v := 0; v < 6; v++ {
 		var items []PresetItemView
 		for _, preset := range bank.Voices[v] {
-			rhythm := preset.Display
-			if rhythm == "" {
-				rhythm = fmt.Sprintf("<code>%s</code>", formatHTMLRhythmString(preset.Velocities))
-			} else if !strings.HasPrefix(rhythm, "<") {
-				rhythm = fmt.Sprintf("<code>%s</code>", rhythm)
+			var pages []PresetPageView
+			if preset.Display != "" {
+				rhythm := preset.Display
+				if !strings.HasPrefix(rhythm, "<") {
+					rhythm = fmt.Sprintf("<code>%s</code>", rhythm)
+				}
+				pages = append(pages, PresetPageView{
+					PageNum:    1,
+					StartStep:  1,
+					EndStep:    len(preset.Velocities),
+					RhythmHTML: rhythm,
+				})
+			} else {
+				numPages := (len(preset.Velocities) + 15) / 16
+				for p := 0; p < numPages; p++ {
+					start := p * 16
+					end := (p + 1) * 16
+					if end > len(preset.Velocities) {
+						end = len(preset.Velocities)
+					}
+					pages = append(pages, PresetPageView{
+						PageNum:    p + 1,
+						StartStep:  start + 1,
+						EndStep:    end,
+						RhythmHTML: formatHTMLStepSlice(preset.Velocities[start:end]),
+					})
+				}
 			}
 			items = append(items, PresetItemView{
-				Pad:        preset.Pad,
-				Name:       escapeHTML(preset.Name),
-				RhythmHTML: rhythm,
+				Pad:    preset.Pad,
+				Name:   escapeHTML(preset.Name),
+				Length: len(preset.Velocities),
+				Pages:  pages,
 			})
 		}
 		presetVoices = append(presetVoices, PresetVoiceView{
@@ -171,20 +232,64 @@ func buildManualData(rootDir string) (*ManualData, error) {
 	voiceLabels := [6]string{"KICK", "SNARE", "HIHAT", "PERC1", "PERC2", "PERC3"}
 	var kits []KitView
 	for _, kit := range bank.Kits {
-		var kvoices []KitVoiceView
+		maxPages := 1
 		for v := 0; v < 6; v++ {
-			rhythm := formatHTMLRhythmString(kit.Voices[v])
-			kvoices = append(kvoices, KitVoiceView{
-				VoiceIndex: v,
-				VoiceLabel: voiceLabels[v],
-				Rhythm:     rhythm,
+			p := (len(kit.Voices[v]) + 15) / 16
+			if p > maxPages {
+				maxPages = p
+			}
+		}
+
+		isPoly := false
+		firstLen := len(kit.Voices[0])
+		for v := 1; v < 6; v++ {
+			if len(kit.Voices[v]) != firstLen {
+				isPoly = true
+				break
+			}
+		}
+
+		var kitPages []KitPageView
+		for p := 0; p < maxPages; p++ {
+			startStep := p*16 + 1
+			endStep := (p + 1) * 16
+
+			var vViews []KitVoicePageView
+			for v := 0; v < 6; v++ {
+				vLen := len(kit.Voices[v])
+				if vLen == 0 {
+					vLen = 16
+				}
+				playedSteps := make([]uint8, 16)
+				for i := 0; i < 16; i++ {
+					stepTick := p*16 + i
+					playedSteps[i] = kit.Voices[v][stepTick%vLen]
+				}
+				rhythm := formatHTMLStepSlice(playedSteps)
+				vViews = append(vViews, KitVoicePageView{
+					VoiceIndex: v,
+					VoiceLabel: voiceLabels[v],
+					Length:     vLen,
+					IsPoly:     vLen%16 != 0,
+					Rhythm:     rhythm,
+				})
+			}
+
+			kitPages = append(kitPages, KitPageView{
+				PageNum:   p + 1,
+				StartStep: startStep,
+				EndStep:   endStep,
+				Voices:    vViews,
 			})
 		}
+
 		kits = append(kits, KitView{
-			Pad:    kit.Pad,
-			Name:   escapeHTML(kit.Name),
-			Genre:  escapeHTML(kit.Genre),
-			Voices: kvoices,
+			Pad:      kit.Pad,
+			Name:     escapeHTML(kit.Name),
+			Genre:    escapeHTML(kit.Genre),
+			IsPoly:   isPoly,
+			MaxPages: maxPages,
+			Pages:    kitPages,
 		})
 	}
 

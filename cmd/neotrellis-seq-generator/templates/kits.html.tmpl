@@ -2,20 +2,34 @@
 <h2 class="screen-title kits-header">Full 6-Voice Kits (<code>FN1 + ALL + ACCENT + STEP n</code>)</h2>
 <p class="note">
   Loads a coordinated 6-voice arrangement across the entire drum machine simultaneously.
-  Each kit includes all 6 tracks formatted in 16-step columns.
+  Multi-page and polymetric patterns are printed page by page (16 steps per row) matching the hardware page navigation.
 </p>
 <table class="kits-table">
-  <tr><th>Pad</th><th>Kit Name &amp; Genre</th><th>6-Voice Patterns (16 Steps)</th></tr>
+  <tr><th>Pad</th><th>Kit Name &amp; Genre</th><th>6-Voice Patterns (16 Steps / Row)</th></tr>
   {{- range .Kits }}
+  {{- $kit := . }}
   <tr>
     <td class="k">STEP {{ .Pad }}</td>
-    <td><strong>{{ .Name }}</strong><br><span class="genre-tag">{{ .Genre }}</span></td>
+    <td>
+      <strong>{{ .Name }}</strong><br>
+      <span class="genre-tag">{{ .Genre }}</span>
+    </td>
     <td class="kit-pattern">
-      <div class="kit-voices">
-        {{- range .Voices }}
-        <div class="kit-v"><span class="vtag v{{ .VoiceIndex }}">{{ .VoiceLabel }}</span> <code>{{ .Rhythm }}</code></div>
+      {{- range .Pages }}
+      <div class="kit-page-block">
+        {{- if gt $kit.MaxPages 1 }}
+        <div class="kit-page-title">Steps {{ .StartStep }}&ndash;{{ .EndStep }}</div>
         {{- end }}
+        <div class="kit-voices">
+          {{- range .Voices }}
+          <div class="kit-v">
+            <span class="vtag v{{ .VoiceIndex }}">{{ .VoiceLabel }}</span>
+            <code>{{ safeHTML .Rhythm }}</code>
+          </div>
+          {{- end }}
+        </div>
       </div>
+      {{- end }}
     </td>
   </tr>
   {{- end }}

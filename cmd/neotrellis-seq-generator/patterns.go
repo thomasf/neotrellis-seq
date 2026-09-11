@@ -15,15 +15,16 @@ type VoicePreset struct {
 	Name       string
 	Desc       string
 	Display    string
-	Velocities [16]uint8
+	Velocities []uint8
 }
 
 type Kit struct {
-	Pad    int
-	Name   string
-	Genre  string
-	Desc   string
-	Voices [6][16]uint8
+	Pad     int
+	Name    string
+	Genre   string
+	Desc    string
+	Voices  [6][]uint8
+	Lengths [6]uint8
 }
 
 type PatternBank struct {
@@ -74,24 +75,43 @@ func parsePatternsFile(filename string) (*PatternBank, error) {
 		currentVoiceIdx    int
 		currentKit         *Kit
 		currentPreset      *VoicePreset
+		lastKitVoice       int = -1
 	)
 
 	voiceHeaderRegex := regexp.MustCompile(`^\[voice\.([0-5]):?\s*(.*)\]$`)
 	kitHeaderRegex := regexp.MustCompile(`^\[kit\.([0-9]+)\]$`)
 	presetHeaderRegex := regexp.MustCompile(`^([0-9]+):\s*([^|]+)(?:\|\s*(.*))?$`)
 
-	flushCurrentKit := func() {
+	flushCurrentKit := func() error {
 		if currentKit != nil {
+			for v := 0; v < 6; v++ {
+				if len(currentKit.Voices[v]) == 0 {
+					return fmt.Errorf("kit %d %q: voice %d has no steps", currentKit.Pad, currentKit.Name, v)
+				}
+				if len(currentKit.Voices[v]) > 64 {
+					return fmt.Errorf("kit %d %q: voice %d has invalid length %d (must be <= 64)", currentKit.Pad, currentKit.Name, v, len(currentKit.Voices[v]))
+				}
+				currentKit.Lengths[v] = uint8(len(currentKit.Voices[v]))
+			}
 			bank.Kits = append(bank.Kits, *currentKit)
 			currentKit = nil
+			lastKitVoice = -1
 		}
+		return nil
 	}
 
-	flushCurrentPreset := func() {
+	flushCurrentPreset := func() error {
 		if currentPreset != nil {
+			if len(currentPreset.Velocities) == 0 {
+				return fmt.Errorf("preset %d %q has no steps", currentPreset.Pad, currentPreset.Name)
+			}
+			if len(currentPreset.Velocities) > 64 {
+				return fmt.Errorf("preset %d %q has invalid length %d (must be <= 64)", currentPreset.Pad, currentPreset.Name, len(currentPreset.Velocities))
+			}
 			bank.Voices[currentVoiceIdx] = append(bank.Voices[currentVoiceIdx], *currentPreset)
 			currentPreset = nil
 		}
+		return nil
 	}
 
 	for scanner.Scan() {
@@ -99,14 +119,27 @@ func parsePatternsFile(filename string) (*PatternBank, error) {
 		rawLine := scanner.Text()
 		line := strings.TrimSpace(rawLine)
 
-		if line == "" || strings.HasPrefix(line, "#") {
+		if line == "" {
+			if currentSectionType == "voice" {
+				if err := flushCurrentPreset(); err != nil {
+					return nil, fmt.Errorf("line %d: %w", lineNum, err)
+				}
+			}
+			continue
+		}
+
+		if strings.HasPrefix(line, "#") {
 			continue
 		}
 
 		// Section header: [voice.X: Name]
 		if m := voiceHeaderRegex.FindStringSubmatch(line); m != nil {
-			flushCurrentKit()
-			flushCurrentPreset()
+			if err := flushCurrentKit(); err != nil {
+				return nil, fmt.Errorf("line %d: %w", lineNum, err)
+			}
+			if err := flushCurrentPreset(); err != nil {
+				return nil, fmt.Errorf("line %d: %w", lineNum, err)
+			}
 			currentSectionType = "voice"
 			idx, _ := strconv.Atoi(m[1])
 			currentVoiceIdx = idx
@@ -115,13 +148,18 @@ func parsePatternsFile(filename string) (*PatternBank, error) {
 
 		// Section header: [kit.X]
 		if m := kitHeaderRegex.FindStringSubmatch(line); m != nil {
-			flushCurrentKit()
-			flushCurrentPreset()
+			if err := flushCurrentKit(); err != nil {
+				return nil, fmt.Errorf("line %d: %w", lineNum, err)
+			}
+			if err := flushCurrentPreset(); err != nil {
+				return nil, fmt.Errorf("line %d: %w", lineNum, err)
+			}
 			currentSectionType = "kit"
 			pad, _ := strconv.Atoi(m[1])
 			currentKit = &Kit{
 				Pad: pad,
 			}
+			lastKitVoice = -1
 			continue
 		}
 
@@ -137,7 +175,9 @@ func parsePatternsFile(filename string) (*PatternBank, error) {
 
 			// Check for preset header: <pad>: <name> [| <desc>]
 			if m := presetHeaderRegex.FindStringSubmatch(line); m != nil {
-				flushCurrentPreset()
+				if err := flushCurrentPreset(); err != nil {
+					return nil, fmt.Errorf("line %d: %w", lineNum, err)
+				}
 				pad, _ := strconv.Atoi(m[1])
 				name := strings.TrimSpace(m[2])
 				desc := ""
@@ -152,7 +192,7 @@ func parsePatternsFile(filename string) (*PatternBank, error) {
 				continue
 			}
 
-			// Otherwise, this line should contain the 16 steps
+			// Otherwise, this line should contain steps
 			if currentPreset == nil {
 				return nil, fmt.Errorf("line %d: unexpected line outside of preset: %s", lineNum, line)
 			}
@@ -161,8 +201,7 @@ func parsePatternsFile(filename string) (*PatternBank, error) {
 			if err != nil {
 				return nil, fmt.Errorf("line %d (preset %s): %w", lineNum, currentPreset.Name, err)
 			}
-			currentPreset.Velocities = steps
-			flushCurrentPreset()
+			currentPreset.Velocities = append(currentPreset.Velocities, steps...)
 			continue
 		}
 
@@ -173,6 +212,15 @@ func parsePatternsFile(filename string) (*PatternBank, error) {
 
 			parts := strings.SplitN(line, ":", 2)
 			if len(parts) != 2 {
+				// Check for continuation of previous voice
+				if lastKitVoice >= 0 {
+					steps, err := parseSteps(line)
+					if err != nil {
+						return nil, fmt.Errorf("line %d (kit %d voice %d continuation): %w", lineNum, currentKit.Pad, lastKitVoice, err)
+					}
+					currentKit.Voices[lastKitVoice] = append(currentKit.Voices[lastKitVoice], steps...)
+					continue
+				}
 				return nil, fmt.Errorf("line %d: expected 'key: value', got %q", lineNum, line)
 			}
 			key := strings.ToLower(strings.TrimSpace(parts[0]))
@@ -190,37 +238,43 @@ func parsePatternsFile(filename string) (*PatternBank, error) {
 				if err != nil {
 					return nil, fmt.Errorf("line %d (kit %d kick): %w", lineNum, currentKit.Pad, err)
 				}
-				currentKit.Voices[0] = steps
+				currentKit.Voices[0] = append(currentKit.Voices[0], steps...)
+				lastKitVoice = 0
 			case "snare", "voice1", "v1", "1":
 				steps, err := parseSteps(val)
 				if err != nil {
 					return nil, fmt.Errorf("line %d (kit %d snare): %w", lineNum, currentKit.Pad, err)
 				}
-				currentKit.Voices[1] = steps
+				currentKit.Voices[1] = append(currentKit.Voices[1], steps...)
+				lastKitVoice = 1
 			case "hihat", "hat", "voice2", "v2", "2":
 				steps, err := parseSteps(val)
 				if err != nil {
 					return nil, fmt.Errorf("line %d (kit %d hihat): %w", lineNum, currentKit.Pad, err)
 				}
-				currentKit.Voices[2] = steps
+				currentKit.Voices[2] = append(currentKit.Voices[2], steps...)
+				lastKitVoice = 2
 			case "perc1", "perc_1", "voice3", "v3", "3":
 				steps, err := parseSteps(val)
 				if err != nil {
 					return nil, fmt.Errorf("line %d (kit %d perc1): %w", lineNum, currentKit.Pad, err)
 				}
-				currentKit.Voices[3] = steps
+				currentKit.Voices[3] = append(currentKit.Voices[3], steps...)
+				lastKitVoice = 3
 			case "perc2", "perc_2", "voice4", "v4", "4":
 				steps, err := parseSteps(val)
 				if err != nil {
 					return nil, fmt.Errorf("line %d (kit %d perc2): %w", lineNum, currentKit.Pad, err)
 				}
-				currentKit.Voices[4] = steps
+				currentKit.Voices[4] = append(currentKit.Voices[4], steps...)
+				lastKitVoice = 4
 			case "perc3", "perc_3", "voice5", "v5", "5":
 				steps, err := parseSteps(val)
 				if err != nil {
 					return nil, fmt.Errorf("line %d (kit %d perc3): %w", lineNum, currentKit.Pad, err)
 				}
-				currentKit.Voices[5] = steps
+				currentKit.Voices[5] = append(currentKit.Voices[5], steps...)
+				lastKitVoice = 5
 			default:
 				return nil, fmt.Errorf("line %d: unknown kit key %q", lineNum, key)
 			}
@@ -230,8 +284,12 @@ func parsePatternsFile(filename string) (*PatternBank, error) {
 		return nil, fmt.Errorf("line %d: content found before any section header: %s", lineNum, line)
 	}
 
-	flushCurrentKit()
-	flushCurrentPreset()
+	if err := flushCurrentKit(); err != nil {
+		return nil, err
+	}
+	if err := flushCurrentPreset(); err != nil {
+		return nil, err
+	}
 
 	if err := scanner.Err(); err != nil {
 		return nil, err
@@ -240,14 +298,24 @@ func parsePatternsFile(filename string) (*PatternBank, error) {
 	return bank, nil
 }
 
-func parseSteps(str string) ([16]uint8, error) {
-	var result [16]uint8
+func parseSteps(str string) ([]uint8, error) {
 	tokens := strings.Fields(str)
-	if len(tokens) != 16 {
-		return result, fmt.Errorf("expected 16 steps, got %d (tokens: %v)", len(tokens), tokens)
+	var filtered []string
+	for _, tok := range tokens {
+		if tok == "|" || tok == "/" {
+			continue
+		}
+		filtered = append(filtered, tok)
+	}
+	if len(filtered) == 0 {
+		return nil, fmt.Errorf("no steps found")
+	}
+	if len(filtered) > 64 {
+		return nil, fmt.Errorf("expected up to 64 steps, got %d", len(filtered))
 	}
 
-	for i, tok := range tokens {
+	result := make([]uint8, len(filtered))
+	for i, tok := range filtered {
 		switch tok {
 		case "_", ".", "0", "·":
 			result[i] = 0
@@ -260,7 +328,7 @@ func parseSteps(str string) ([16]uint8, error) {
 		default:
 			v, err := strconv.Atoi(tok)
 			if err != nil || v < 0 || v > 127 {
-				return result, fmt.Errorf("step %d invalid token %q (must be _, ., g, N, A, or 0..127)", i+1, tok)
+				return nil, fmt.Errorf("step %d invalid token %q (must be _, ., g, N, A, or 0..127)", i+1, tok)
 			}
 			result[i] = uint8(v)
 		}
@@ -309,16 +377,29 @@ func formatVelocityToken(v uint8) string {
 	}
 }
 
-func formatRhythmString(velocities [16]uint8) string {
-	var parts [4]string
-	for bar := 0; bar < 4; bar++ {
-		var beat [4]string
-		for step := 0; step < 4; step++ {
-			beat[step] = formatVelocityToken(velocities[bar*4+step])
-		}
-		parts[bar] = strings.Join(beat[:], " ")
+func formatRhythmString(velocities []uint8) string {
+	numBars := len(velocities) / 16
+	if numBars == 0 {
+		numBars = 1
 	}
-	return strings.Join(parts[:], "  ")
+	var barStrings []string
+	for bar := 0; bar < numBars; bar++ {
+		var parts [4]string
+		for beat := 0; beat < 4; beat++ {
+			var beatToks [4]string
+			for step := 0; step < 4; step++ {
+				idx := bar*16 + beat*4 + step
+				if idx < len(velocities) {
+					beatToks[step] = formatVelocityToken(velocities[idx])
+				} else {
+					beatToks[step] = "_"
+				}
+			}
+			parts[beat] = strings.Join(beatToks[:], " ")
+		}
+		barStrings = append(barStrings, strings.Join(parts[:], "  "))
+	}
+	return strings.Join(barStrings, " | ")
 }
 
 func formatHTMLVelocityToken(v uint8) string {
@@ -334,16 +415,29 @@ func formatHTMLVelocityToken(v uint8) string {
 	}
 }
 
-func formatHTMLRhythmString(velocities [16]uint8) string {
-	var parts [4]string
-	for bar := 0; bar < 4; bar++ {
-		var beat [4]string
-		for step := 0; step < 4; step++ {
-			beat[step] = formatHTMLVelocityToken(velocities[bar*4+step])
-		}
-		parts[bar] = strings.Join(beat[:], " ")
+func formatHTMLRhythmString(velocities []uint8) string {
+	numBars := len(velocities) / 16
+	if numBars == 0 {
+		numBars = 1
 	}
-	return strings.Join(parts[:], "  ")
+	var barStrings []string
+	for bar := 0; bar < numBars; bar++ {
+		var parts [4]string
+		for beat := 0; beat < 4; beat++ {
+			var beatToks [4]string
+			for step := 0; step < 4; step++ {
+				idx := bar*16 + beat*4 + step
+				if idx < len(velocities) {
+					beatToks[step] = formatHTMLVelocityToken(velocities[idx])
+				} else {
+					beatToks[step] = "·"
+				}
+			}
+			parts[beat] = strings.Join(beatToks[:], " ")
+		}
+		barStrings = append(barStrings, strings.Join(parts[:], "  "))
+	}
+	return strings.Join(barStrings, " | ")
 }
 
 func updatePatternPresetsH(filePath string, bank *PatternBank) error {
@@ -369,7 +463,8 @@ static constexpr uint8_t _ = 0;                // 0:   Rest / silence
 
 struct Preset {
   const char *name;
-  uint8_t velocities[16];
+  uint8_t length;
+  uint8_t velocities[PATTERN_STEPS];
 };
 
 // -----------------------------------------------------------------------------
@@ -419,31 +514,22 @@ struct Preset {
 
 			for p := 0; p < 4; p++ {
 				preset := bank.Voices[v][row*4+p]
-				allStandard := true
+				var toks []string
 				for _, vel := range preset.Velocities {
-					if vel != 0 && vel != 50 && vel != 99 && vel != 127 {
-						allStandard = false
-						break
-					}
+					toks = append(toks, formatVelocityToken(vel))
 				}
-
-				if allStandard {
-					var toks []string
-					for _, vel := range preset.Velocities {
-						toks = append(toks, formatVelocityToken(vel))
+				var velLines []string
+				for i := 0; i < len(toks); i += 16 {
+					end := i + 16
+					if end > len(toks) {
+						end = len(toks)
 					}
-					line := fmt.Sprintf("    {\"%s\", {%s}},", preset.Name, strings.Join(toks, ", "))
-					if len(line) > 80 {
-						sb.WriteString(fmt.Sprintf("    {\"%s\",\n     {%s}},\n", preset.Name, strings.Join(toks, ", ")))
-					} else {
-						sb.WriteString(line + "\n")
-					}
+					velLines = append(velLines, strings.Join(toks[i:end], ", "))
+				}
+				if len(velLines) == 1 {
+					sb.WriteString(fmt.Sprintf("    {\"%s\", %d, {%s}},\n", preset.Name, len(preset.Velocities), velLines[0]))
 				} else {
-					var toks []string
-					for _, vel := range preset.Velocities {
-						toks = append(toks, strconv.Itoa(int(vel)))
-					}
-					sb.WriteString(fmt.Sprintf("    {\"%s\",\n     {%s}},\n", preset.Name, strings.Join(toks, ", ")))
+					sb.WriteString(fmt.Sprintf("    {\"%s\",\n     %d,\n     {%s}},\n", preset.Name, len(preset.Velocities), strings.Join(velLines, ",\n      ")))
 				}
 			}
 			if row < 3 {
@@ -482,10 +568,14 @@ inline void apply_preset(uint32_t voice, Pattern *p, uint32_t preset_index) {
     return;
   }
   const Preset &preset = preset_list[preset_index];
-  p->length = 16;
-  for (uint32_t i = 0; i < 16; ++i) {
+  p->length = preset.length;
+  for (uint32_t i = 0; i < PATTERN_STEPS; ++i) {
     p->steps[i] = Step(preset.velocities[i]);
   }
+}
+
+inline void apply_preset_voice(uint32_t voice, uint32_t preset_index, Pattern *p) {
+  apply_preset(voice, p, preset_index);
 }
 
 // -----------------------------------------------------------------------------
@@ -504,7 +594,8 @@ inline void apply_preset(uint32_t voice, Pattern *p, uint32_t preset_index) {
 struct KitPreset {
   const char *name;
   const char *genre;
-  uint8_t voices[VOICES][16];
+  uint8_t lengths[VOICES];
+  uint8_t voices[VOICES][PATTERN_STEPS];
 };
 
 static constexpr KitPreset KITS[16] = {
@@ -538,13 +629,30 @@ static constexpr KitPreset KITS[16] = {
 		sb.WriteString(fmt.Sprintf("    // Kit %d (Step %d): %s\n", i, pad, kit.Name))
 		sb.WriteString(fmt.Sprintf("    {\"%s\",\n", kit.Name))
 		sb.WriteString(fmt.Sprintf("     \"%s\",\n", kit.Genre))
+		var lenStrs []string
+		for v := 0; v < 6; v++ {
+			lenStrs = append(lenStrs, strconv.Itoa(int(kit.Lengths[v])))
+		}
+		sb.WriteString(fmt.Sprintf("     {%s},\n", strings.Join(lenStrs, ", ")))
 		sb.WriteString("     {\n")
 		for v := 0; v < 6; v++ {
 			var toks []string
 			for _, vel := range kit.Voices[v] {
 				toks = append(toks, formatVelocityToken(vel))
 			}
-			sb.WriteString(fmt.Sprintf("         {%s},\n", strings.Join(toks, ", ")))
+			var velLines []string
+			for i := 0; i < len(toks); i += 16 {
+				end := i + 16
+				if end > len(toks) {
+					end = len(toks)
+				}
+				velLines = append(velLines, strings.Join(toks[i:end], ", "))
+			}
+			if len(velLines) == 1 {
+				sb.WriteString(fmt.Sprintf("         {%s},\n", velLines[0]))
+			} else {
+				sb.WriteString(fmt.Sprintf("         {%s},\n", strings.Join(velLines, ",\n          ")))
+			}
 		}
 		sb.WriteString("     }},\n")
 		if i < len(bank.Kits)-1 {
@@ -559,10 +667,14 @@ inline void apply_kit_voice(uint32_t voice, uint32_t kit_index, Pattern *p) {
   if (!p || voice >= VOICES || kit_index >= 16) {
     return;
   }
-  const auto &pattern_data = KITS[kit_index].voices[voice];
-  p->length = 16;
-  for (uint32_t i = 0; i < 16; ++i) {
-    p->steps[i] = Step(pattern_data[i]);
+  const auto &kit = KITS[kit_index];
+  uint32_t len = kit.lengths[voice];
+  if (len == 0 || len > PATTERN_STEPS) {
+    len = 16;
+  }
+  p->length = len;
+  for (uint32_t i = 0; i < PATTERN_STEPS; ++i) {
+    p->steps[i] = Step(kit.voices[voice][i]);
   }
 }
 
