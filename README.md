@@ -24,7 +24,7 @@ General MIDI C1–D#2 range (notes 36–51 on `MIDI_CHANNEL`):
 Kick (36/C1), Snare (38/D1), Closed Hi-Hat (42/F#1), Low Floor Tom (41/F1),
 Low Tom (45/A1), and Crash Cymbal (49/C#2). MIDI notes can be interactively
 reassigned or swapped across all 16 drum rack pads in Menu Mode (`Hold VOICE + tap step`).
-In Function mode (`FN`), holding `FN + VOICE` swaps pattern sequences between voices.
+In Function mode (`FN1`), holding `FN1 + VOICE` swaps pattern sequences between voices.
 
 A legacy sequential note mode (notes 36–41) is also supported by selecting
 `Default = Consecutive` in `pkg/midimap/midimap.go` and running the generator.

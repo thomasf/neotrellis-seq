@@ -12,7 +12,7 @@ constexpr uint8_t DEFAULT_VELOCITY = 99;
 constexpr uint8_t ACCENT_VELOCITY = 127;
 // Velocity given to a ghost / muted step.
 constexpr uint8_t GHOST_VELOCITY = 50;
-// FN + STEP 10 (echo) copies every note this many steps later at half
+// FN1 + STEP 10 (echo) copies every note this many steps later at half
 // its velocity. 2 is an eighth note at sixteenth-note steps.
 constexpr uint32_t ECHO_STEPS = 2;
 
@@ -121,7 +121,7 @@ constexpr uint32_t KEY_PASTE = 5;
 constexpr uint32_t KEY_MENU = 6;
 constexpr uint32_t KEY_CLEAR = 12;
 constexpr uint32_t KEY_UNDO = 13;
-constexpr uint32_t KEY_FN = 28;
+constexpr uint32_t KEY_FN1 = 28;
 constexpr uint32_t KEY_ACCENT = 20;
 
 constexpr uint32_t KEY_SEQ_POS_0 = 0;

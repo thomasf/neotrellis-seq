@@ -17,8 +17,8 @@
       <a href="#page-front">Overview</a>
       <a href="#page-drum-rack">Drum Rack Map</a>
       <a href="#page-pad-map">Pad Map</a>
-      <a href="#page-fn">Function (FN)</a>
-      <a href="#page-fn-all">Function (FN + ALL)</a>
+      <a href="#page-fn1">Function (FN1)</a>
+      <a href="#page-fn1-all">Function (FN1 + ALL)</a>
       <a href="#page-menu">Menu</a>
       <a href="#page-voice-menu">Voice Menu</a>
       <a href="#page-kits">Presets &amp; Kits</a>
@@ -112,7 +112,7 @@
   <div class="step">STEP 14 <i>25</i></div>
   <div class="step">STEP 15 <i>26</i></div>
   <div class="step">STEP 16 <i>27</i></div>
-  <div class="mod">FN <i>28</i></div>
+  <div class="mod">FN1 <i>28</i></div>
   <div class="mod">LEN <i>29</i></div>
   <div class="voc4">VOICE 4 <i>30</i></div>
   <div class="voc5">VOICE 5 <i>31</i></div>
@@ -136,7 +136,7 @@
   <tr><td class="k">COPY</td><td class="act-name">Copy Pattern</td><td>Copies the selected pattern to the paste buffer.</td></tr>
   <tr><td class="k">PASTE</td><td class="act-name">Paste Pattern</td><td>Overwrites the selected pattern with the paste buffer.</td></tr>
   <tr><td class="k">CLEAR</td><td class="act-name">Clear Pattern</td><td>Zeroes every step of the selected pattern.</td></tr>
-  <tr><td class="k">UNDO</td><td class="act-name">Undo / Redo</td><td>Steps back through pattern edits (256 deep). Restores to original voice and slot. FN + UNDO redoes.</td></tr>
+  <tr><td class="k">UNDO</td><td class="act-name">Undo / Redo</td><td>Steps back through pattern edits (256 deep). Restores to original voice and slot. FN1 + UNDO redoes.</td></tr>
   <tr><td class="k">MENU</td><td class="act-name">Menu Mode</td><td>Enters settings menu (Voice Protect, playback path modifiers, MIDI note assignment). Press MENU again to return to sequencer.</td></tr>
 </table>
 
@@ -148,18 +148,18 @@
   <tr><td class="k">LEN + STEP <i>n</i></td><td class="act-name">Set Length</td><td>Sets the selected pattern&rsquo;s loop length to <i>n</i> steps.</td></tr>
   <tr><td class="k">POS + STEP <i>n</i></td><td class="act-name">Set Position</td><td>Moves the selected voice&rsquo;s playhead to step <i>n</i>.</td></tr>
   <tr><td class="k">POS + ALL + STEP <i>n</i></td><td class="act-name">Set All Position</td><td>Moves every voice&rsquo;s playhead to step <i>n</i> simultaneously.</td></tr>
-  <tr><td class="k">POS + FN</td><td class="act-name">Rewind Transport</td><td>Resets playback position of all voices to step 0 and arms them to fire on next step/clock (can also be pressed as FN + POS).</td></tr>
+  <tr><td class="k">POS + FN1</td><td class="act-name">Rewind Transport</td><td>Resets playback position of all voices to step 0 and arms them to fire on next step/clock (can also be pressed as FN1 + POS).</td></tr>
   <tr><td class="k">VOICE <i>v</i> + STEP <i>n</i></td><td class="act-name">Select Pattern</td><td>Selects pattern slot <i>n</i> for voice <i>v</i> without modifying step data. Multiple voice pads can be held at once.</td></tr>
   <tr><td class="k">ALL + STEP <i>n</i></td><td class="act-name">Select All Patterns</td><td>Selects pattern slot <i>n</i> for all unprotected voices simultaneously (protected voices remain on their current slot).</td></tr>
-  <tr><td class="k">FN + &hellip;</td><td class="act-name">Function (FN)</td><td>Accesses secondary functions: pattern transforms, presets, voice swap, rewind, redo, and paste all (see below).</td></tr>
-  <tr><td class="k">FN + ALL + &hellip;</td><td class="act-name">Function All</td><td>Applies functions across all unprotected voices simultaneously: all-voice transforms, kit presets, odd meters, and dropout (see below).</td></tr>
+  <tr><td class="k">FN1 + &hellip;</td><td class="act-name">Function (FN1)</td><td>Accesses secondary functions: pattern transforms, presets, voice swap, rewind, redo, and paste all (see below).</td></tr>
+  <tr><td class="k">FN1 + ALL + &hellip;</td><td class="act-name">Function All</td><td>Applies functions across all unprotected voices simultaneously: all-voice transforms, kit presets, odd meters, and dropout (see below).</td></tr>
 </table>
 </section>
 
-<section class="screen-page" id="page-fn">
-<h2 class="screen-title">Function Key (FN)</h2>
+<section class="screen-page" id="page-fn1">
+<h2 class="screen-title">Function Key (FN1)</h2>
 <p class="note">
-  The pad map while holding FN. Applies single-voice transforms and utility
+  The pad map while holding FN1. Applies single-voice transforms and utility
   shortcuts to the currently selected voice. Step transformations modify pattern
   data directly and are recorded in the undo history. Press UNDO to step backwards.
 </p>
@@ -197,7 +197,7 @@
   <div class="off">&mdash; <i>STEP 14</i></div>
   <div class="off">&mdash; <i>STEP 15</i></div>
   <div class="off">&mdash; <i>STEP 16</i></div>
-  <div class="mod held">FN <i>held</i></div>
+  <div class="mod held">FN1 <i>held</i></div>
   <div class="off">&mdash; <i>LEN</i></div>
   <div class="voc4">SWAP 4 <i>VOICE 4</i></div>
   <div class="voc5">SWAP 5 <i>VOICE 5</i></div>
@@ -208,7 +208,7 @@
   <span class="legend-item"><span class="legend-box step-box"></span> Step</span>
   <span class="legend-item"><span class="legend-box act-box"></span> Action</span>
   <span class="legend-item"><span class="legend-box mod-box"></span> Modifier</span>
-  <span class="legend-item"><span class="legend-box held-box"></span> Held (FN)</span>
+  <span class="legend-item"><span class="legend-box held-box"></span> Held (FN1)</span>
   <span class="legend-item"><span class="legend-box voc-box"></span> Voice Swap</span>
   <span class="legend-item"><span class="legend-box off-box"></span> Unassigned</span>
 </div>
@@ -232,10 +232,10 @@
 </table>
 </section>
 
-<section class="screen-page" id="page-fn-all">
-<h2 class="screen-title">Function Key on all voices (FN + ALL)</h2>
+<section class="screen-page" id="page-fn1-all">
+<h2 class="screen-title">Function Key on all voices (FN1 + ALL)</h2>
 <p class="note">
-  The pad map while FN and ALL are both held. Applies transforms across all six
+  The pad map while FN1 and ALL are both held. Applies transforms across all six
   voices simultaneously. Voices with Voice Protect enabled are shielded from
   all-voice transforms and retain their existing patterns and lengths.
   Evaluates voices in order, enabling generative interlocking variations across all drum tracks.
@@ -274,7 +274,7 @@
   <div class="off">&mdash; <i>STEP 14</i></div>
   <div class="off">&mdash; <i>STEP 15</i></div>
   <div class="off">&mdash; <i>STEP 16</i></div>
-  <div class="mod held">FN <i>held</i></div>
+  <div class="mod held">FN1 <i>held</i></div>
   <div class="mod">ODD METERS <i>LEN</i></div>
   <div class="voc4">SWAP 4 <i>VOICE 4</i></div>
   <div class="voc5">SWAP 5 <i>VOICE 5</i></div>
@@ -285,7 +285,7 @@
   <span class="legend-item"><span class="legend-box step-box"></span> Step</span>
   <span class="legend-item"><span class="legend-box act-box"></span> Action</span>
   <span class="legend-item"><span class="legend-box mod-box"></span> Modifier</span>
-  <span class="legend-item"><span class="legend-box held-box"></span> Held (FN / ALL)</span>
+  <span class="legend-item"><span class="legend-box held-box"></span> Held (FN1 / ALL)</span>
   <span class="legend-item"><span class="legend-box voc-box"></span> Voice Swap</span>
   <span class="legend-item"><span class="legend-box off-box"></span> Unassigned</span>
 </div>
@@ -351,7 +351,7 @@
   <div class="off">&mdash; <i>STEP 14</i></div>
   <div class="off">&mdash; <i>STEP 15</i></div>
   <div class="off">&mdash; <i>STEP 16</i></div>
-  <div class="off">&mdash; <i>FN</i></div>
+  <div class="off">&mdash; <i>FN1</i></div>
   <div class="off">&mdash; <i>LEN</i></div>
   <div class="voc4">PAGE 4 <i>VOICE 4</i></div>
   <div class="voc5">PAGE 5 <i>VOICE 5</i></div>
@@ -362,7 +362,7 @@
   <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
   <tr><td class="k">VOICE 0&ndash;5 (tap)</td><td class="act-name">Select Voice Page</td><td>Selects which voice&rsquo;s settings page is displayed. Active voice button lights in white. Voice buttons continue to flash in sync with playback (inverted: turning off briefly instead of turning white when a note plays).</td></tr>
   <tr><td class="k">Hold VOICE 0&ndash;5</td><td class="act-name">Voice Menu</td><td>Hold a voice pad (or tap a step while holding) to enter the Voice Menu and reassign its MIDI note on the 4&times;4 drum rack grid. Release to return.</td></tr>
-  <tr><td class="k">STEP 1 (Row 1)</td><td class="act-name">Toggle Voice Protect</td><td>Protects the voice from all global actions (<code>ALL</code> and <code>FN + ALL</code> transforms, kits, and length changes). Its pattern stays untouched unless edited directly.</td></tr>
+  <tr><td class="k">STEP 1 (Row 1)</td><td class="act-name">Toggle Voice Protect</td><td>Protects the voice from all global actions (<code>ALL</code> and <code>FN1 + ALL</code> transforms, kits, and length changes). Its pattern stays untouched unless edited directly.</td></tr>
   <tr><td class="k">STEP 5 (Row 2)</td><td class="act-name">Ping-Pong Path</td><td>Forward-then-reverse bounce without repeating ends (e.g. <code>0 &rarr; 1 &rarr; 2 &rarr; 3 &rarr; 2 &rarr; 1</code>). Lights green when active, red when inactive.</td></tr>
   <tr><td class="k">STEP 6 (Row 2)</td><td class="act-name">Spiral Path</td><td>Outside-in clockwise grid traversal (<code>0, 1, 2, 3, 7, 11, 15, 14, 13, 12, 8, 4, 5, 6, 10, 9</code>). Lights green when active, red when inactive.</td></tr>
   <tr><td class="k">STEP 7 (Row 2)</td><td class="act-name">Phase Slip Path</td><td>Rotational phase slip (+1 step offset each completed cycle, staggered by +2 steps per voice). Lights green when active, red when inactive.</td></tr>
@@ -415,7 +415,7 @@
   <div class="off">37 Rim <i>STEP 14</i></div>
   <div class="voc1">38 Snare <i>STEP 15</i></div>
   <div class="off">39 Clap <i>STEP 16</i></div>
-  <div class="off">&mdash; <i>FN</i></div>
+  <div class="off">&mdash; <i>FN1</i></div>
   <div class="off">&mdash; <i>LEN</i></div>
   <div class="voc4">VOICE 4 <i>select</i></div>
   <div class="voc5">VOICE 5 <i>select</i></div>

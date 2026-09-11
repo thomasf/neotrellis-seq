@@ -1082,13 +1082,13 @@ void test_mode_manager_stack_transitions(void) {
   TEST_ASSERT_EQUAL_PTR(&seq_m, mm.current_mode());
   TEST_ASSERT_EQUAL_INT(1, seq_m.enters);
 
-  // Press FN -> push fn_m
+  // Press FN1 -> push fn_m
   mm.push_mode(&fn_m);
   TEST_ASSERT_EQUAL_PTR(&fn_m, mm.current_mode());
   TEST_ASSERT_EQUAL_INT(1, seq_m.exits);
   TEST_ASSERT_EQUAL_INT(1, fn_m.enters);
 
-  // Press ALL while in FN -> push fn_all_m
+  // Press ALL while in FN1 -> push fn_all_m
   mm.push_mode(&fn_all_m);
   TEST_ASSERT_EQUAL_PTR(&fn_all_m, mm.current_mode());
   TEST_ASSERT_EQUAL_INT(1, fn_m.exits);
@@ -1100,7 +1100,7 @@ void test_mode_manager_stack_transitions(void) {
   TEST_ASSERT_EQUAL_INT(1, fn_all_m.exits);
   TEST_ASSERT_EQUAL_INT(2, fn_m.enters);
 
-  // Release FN -> pop back to seq_m
+  // Release FN1 -> pop back to seq_m
   mm.pop_mode();
   TEST_ASSERT_EQUAL_PTR(&seq_m, mm.current_mode());
   TEST_ASSERT_EQUAL_INT(2, fn_m.exits);

@@ -3,7 +3,7 @@
 
 #include "UIMode.h"
 
-// FnMode: momentary mode active while holding the FN key.
+// FnMode: momentary mode active while holding the FN1 key.
 // Handles single-voice transforms, pattern preset loading, pattern swaps, redo, and paste all.
 class FnMode : public UIMode {
 public:
@@ -17,7 +17,7 @@ private:
   void handle_voice(const KeyContext &ctx);
 };
 
-// FnAllMode: momentary mode active while holding both FN and ALL keys.
+// FnAllMode: momentary mode active while holding both FN1 and ALL keys.
 // Handles all-voice transforms, interlocking fill, declutter, life, sync lengths,
 // kit presets, polymeter, and dropout.
 class FnAllMode : public UIMode {

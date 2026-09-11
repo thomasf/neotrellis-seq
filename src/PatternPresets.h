@@ -23,7 +23,7 @@ struct Preset {
 
 // -----------------------------------------------------------------------------
 // Voice-Specific Pattern Presets (16 patterns each, mapped to STEP 1..16)
-// Triggered via: FN + ACCENT + STEP n (for the selected voice)
+// Triggered via: FN1 + ACCENT + STEP n (for the selected voice)
 //
 // Voice 0: Kick / Bass Drum
 // Voice 1: Snare / Clap
@@ -229,7 +229,7 @@ inline void apply_preset(uint32_t voice, Pattern *p, uint32_t preset_index) {
 
 // -----------------------------------------------------------------------------
 // 16 Full 6-Voice Coordinated Kits
-// Triggered via: FN + ALL + ACCENT + STEP n (for the entire kit)
+// Triggered via: FN1 + ALL + ACCENT + STEP n (for the entire kit)
 //
 // Voices:
 //   Voice 0: Kick / Bass Drum

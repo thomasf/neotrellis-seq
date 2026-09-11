@@ -29,7 +29,7 @@ void SequencerMode::on_enter() {
 
   set_pixel(KEY_PATTERN_LEN, COLOR_PMOD);
   set_pixel(KEY_PATTERN_POS, COLOR_PMOD);
-  set_pixel(KEY_FN, COLOR_PMOD);
+  set_pixel(KEY_FN1, COLOR_PMOD);
   set_pixel(KEY_ACCENT, COLOR_PMOD);
 
   set_pixel(KEY_COPY, COLOR_PACT);
@@ -95,7 +95,7 @@ void SequencerMode::handle_voice(const KeyContext &ctx) {
 }
 
 void SequencerMode::on_key(const KeyContext &ctx) {
-  if (ctx.key == KEY_FN) {
+  if (ctx.key == KEY_FN1) {
     if (ctx.pressed) {
       if (ctx.has(Mod::POS)) {
         rewind_transport();

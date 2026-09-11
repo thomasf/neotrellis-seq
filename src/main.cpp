@@ -216,7 +216,7 @@ constexpr uint32_t KEY_DRIFT_INDEX = 10;
 constexpr uint32_t KEY_LIFE_INDEX = 11;
 constexpr uint32_t KEY_SYNC_INDEX = 12;
 
-// apply_transform applies the FN + STEP action for the step key at
+// apply_transform applies the FN1 + STEP action for the step key at
 // `index` (0-15, row major) to voice `voice`'s current pattern and reports
 // whether the key is assigned:
 //
@@ -274,7 +274,7 @@ bool apply_transform(uint32_t voice, uint32_t index) {
   return true;
 }
 
-// apply_accent_transform applies the FN + ACCENT + STEP action for
+// apply_accent_transform applies the FN1 + ACCENT + STEP action for
 // the step key at `index` to voice `voice`'s current pattern: loads the
 // corresponding pattern preset.
 bool apply_accent_transform(uint32_t voice, uint32_t index) {
@@ -301,7 +301,7 @@ void transform_pattern(Transform transform, uint32_t index) {
 }
 
 // transform_all_patterns applies `transform` for step key `index` to every
-// voice's current pattern (FN + ALL + STEP) as one undo group.
+// voice's current pattern (FN1 + ALL + STEP) as one undo group.
 void transform_all_patterns(Transform transform, uint32_t index) {
   seed_random();
   begin_edit();
@@ -317,7 +317,7 @@ void transform_all_patterns(Transform transform, uint32_t index) {
   }
 }
 
-// transform_board applies the FN + ALL + STEP action for the keys
+// transform_board applies the FN1 + ALL + STEP action for the keys
 // whose all-voice version acts on the board as a whole, declutter, life and
 // sync lengths, as one undo group, and reports whether `index` is one of
 // them. They do not go through transform_all_patterns because they are not a
@@ -346,7 +346,7 @@ bool transform_board(uint32_t index) {
 }
 
 // dropout_patterns silences half of the sounding voices' current patterns
-// (FN + ALL + CLEAR) as one undo group.
+// (FN1 + ALL + CLEAR) as one undo group.
 void dropout_patterns() {
   seed_random();
   begin_edit();
@@ -359,7 +359,7 @@ void dropout_patterns() {
 }
 
 // polymeter_patterns deals a different odd length to every voice's current
-// pattern (FN + ALL + LEN) as one undo group.
+// pattern (FN1 + ALL + LEN) as one undo group.
 void polymeter_patterns() {
   seed_random();
   begin_edit();
@@ -372,7 +372,7 @@ void polymeter_patterns() {
 }
 
 // swap_pattern exchanges the selected voice's current pattern with voice
-// `other`'s current pattern (FN + VOICE) as one undo group.
+// `other`'s current pattern (FN1 + VOICE) as one undo group.
 void swap_pattern(uint32_t other) {
   if (other >= VOICES || other == seq.voice_idx) {
     return;
