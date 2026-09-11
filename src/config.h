@@ -29,6 +29,13 @@ constexpr uint32_t STEPS_PER_PAGE = 16;
 constexpr uint32_t MAX_PAGES = PATTERN_STEPS / STEPS_PER_PAGE;
 
 // =============================================================================
+// UI Button Hold Durations
+// =============================================================================
+constexpr uint32_t HOLD_SHORT_MS = 200;   // Submenu / secondary preview
+constexpr uint32_t HOLD_MEDIUM_MS = 1000; // Confirmation / stop playback
+constexpr uint32_t HOLD_LONG_MS = 2000;   // System / sleep mode
+
+// =============================================================================
 // MIDI Voice Mapping (Active mapping defined in pkg/midimap)
 // =============================================================================
 #include "midimap.h"

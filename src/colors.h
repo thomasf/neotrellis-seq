@@ -4,6 +4,7 @@
 #ifndef COLORS_H
 #define COLORS_H
 
+uint32_t static const COLOR_DIM_ALL = 0x707070;
 uint32_t static const COLOR_GREEN = 0x20D020;
 uint32_t static const COLOR_OFF = 0x000000;
 uint32_t static const COLOR_PACT = 0x8080B0;

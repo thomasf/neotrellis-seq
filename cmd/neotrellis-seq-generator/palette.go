@@ -24,6 +24,7 @@ var (
 	defaultTheme = Theme{
 		Off:             "#000000",
 		PlayPosition:    "#d0d0d0",
+		DimAll:          "#707070",
 		Voice0:          "#2050e0",
 		Voice1:          "#ad8920",
 		Voice2:          "#20bcaf",
@@ -49,6 +50,7 @@ var (
 	gruvboxTheme = Theme{
 		Off:          GruvboxDark0Hard,
 		PlayPosition: GruvboxLight0,
+		DimAll:       GruvboxDark3,
 		Voice0:       GruvboxBlue,
 		Voice1:       GruvboxYellow,
 		Voice2:       GruvboxAqua,
@@ -73,6 +75,7 @@ var (
 type Theme struct {
 	Off             HexColor
 	PlayPosition    HexColor
+	DimAll          HexColor
 	Voice0          HexColor
 	Voice1          HexColor
 	Voice2          HexColor
@@ -92,6 +95,7 @@ type Theme struct {
 func (b *Theme) modifyColors(fn func(c *HexColor)) {
 	fn(&b.Off)
 	fn(&b.PlayPosition)
+	fn(&b.DimAll)
 	fn(&b.Voice0)
 	fn(&b.Voice1)
 	fn(&b.Voice2)
@@ -127,19 +131,20 @@ func (b Theme) ChangeSaturation(amount float64) Theme {
 
 func (p Theme) NamedColors() NamedColors {
 	return NamedColors{
-		"OFF":   HexColor(p.Off),
-		"PPOS":  HexColor(p.PlayPosition),
-		"VOC0":  HexColor(p.Voice0),
-		"VOC1":  HexColor(p.Voice1),
-		"VOC2":  HexColor(p.Voice2),
-		"VOC3":  HexColor(p.Voice3),
-		"VOC4":  HexColor(p.Voice4),
-		"VOC5":  HexColor(p.Voice5),
-		"TOOL":  HexColor(p.Tool),
-		"RED":   HexColor(p.Red),
-		"GREEN": HexColor(p.Green),
-		"PMOD":  HexColor(p.PatternModifier),
-		"PACT":  HexColor(p.PatternAction),
+		"OFF":     HexColor(p.Off),
+		"PPOS":    HexColor(p.PlayPosition),
+		"DIM_ALL": HexColor(p.DimAll),
+		"VOC0":    HexColor(p.Voice0),
+		"VOC1":    HexColor(p.Voice1),
+		"VOC2":    HexColor(p.Voice2),
+		"VOC3":    HexColor(p.Voice3),
+		"VOC4":    HexColor(p.Voice4),
+		"VOC5":    HexColor(p.Voice5),
+		"TOOL":    HexColor(p.Tool),
+		"RED":     HexColor(p.Red),
+		"GREEN":   HexColor(p.Green),
+		"PMOD":    HexColor(p.PatternModifier),
+		"PACT":    HexColor(p.PatternAction),
 	}
 }
 

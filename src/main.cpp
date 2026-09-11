@@ -16,6 +16,7 @@
 #include "PatternPresets.h"
 #include "Sequencer.h"
 #include "SequencerMode.h"
+#include "SleepMode.h"
 #include "UIMode.h"
 #include "colors.h"
 #include "config.h"
@@ -681,6 +682,18 @@ void on_midi_stop() {
   midi_flush();
 }
 
+void stop_playback() { on_midi_stop(); }
+
+void start_playback() { on_midi_continue(); }
+
+void toggle_playback() {
+  if (clock_running) {
+    on_midi_stop();
+  } else {
+    on_midi_continue();
+  }
+}
+
 // Song Position Pointer arrives while stopped, ahead of a Continue, and counts
 // MIDI beats (sixteenths) from the start of the song.
 void on_midi_song_position(uint32_t beats) { locate(beats * MIDI_CLOCKS_PER_BEAT); }
@@ -692,6 +705,9 @@ void on_midi_reset() {
 }
 
 void handle_midi_in(midiEventPacket_t const &event) {
+  if (mode_manager.current_mode() == &sleep_mode) {
+    return;
+  }
   // The high nibble of the header is the cable number; the low nibble says
   // which message type the packet carries. System real time messages come as
   // single byte packets, and only those are consulted for byte1, so a data

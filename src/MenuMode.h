@@ -15,9 +15,13 @@ public:
 
 private:
   uint32_t current_page_ = 0;
-  static constexpr uint32_t VOICE_HOLD_THRESHOLD_MS = 200;
   uint32_t voice_press_time_ = 0;
   uint32_t pending_voice_ = VOICES;
+
+  bool all_pressed_ = false;
+  bool all_stop_triggered_ = false;
+  bool all_sleep_triggered_ = false;
+  uint32_t all_press_time_ = 0;
 };
 
 extern MenuMode menu_mode;

@@ -1,4 +1,5 @@
 #include "MenuMode.h"
+#include "SleepMode.h"
 #include "UIMode.h"
 #include "VoiceMenuMode.h"
 #include "colors.h"
@@ -20,6 +21,10 @@ void MenuMode::on_enter() {
   current_page_ = (seq.voice_idx < VOICES) ? seq.voice_idx : 0;
   pending_voice_ = VOICES;
   voice_press_time_ = 0;
+  all_pressed_ = false;
+  all_stop_triggered_ = false;
+  all_sleep_triggered_ = false;
+  all_press_time_ = 0;
 
   // Dim all pads initially
   fill_pixels(COLOR_OFF);
@@ -41,6 +46,9 @@ void MenuMode::set_page(uint32_t page) {
 void MenuMode::on_exit() {
   select_voice(current_page_);
   pending_voice_ = VOICES;
+  all_pressed_ = false;
+  all_stop_triggered_ = false;
+  all_sleep_triggered_ = false;
   // Turning off menu display before returning to previous mode
   fill_pixels(COLOR_OFF);
 }
@@ -52,7 +60,30 @@ void MenuMode::on_key(const KeyContext &ctx) {
     return;
   }
 
-  // 2. Fast combo: if a step key is pressed while a voice key is held, immediately activate
+  // 2. Handle ALL button: short tap while stopped starts playback;
+  // holding for >= 1s stops playback; holding for >= 2s enters sleep mode.
+  if (ctx.key == KEY_VOICE_ALL) {
+    if (ctx.pressed) {
+      all_pressed_ = true;
+      all_stop_triggered_ = false;
+      all_sleep_triggered_ = false;
+      all_press_time_ = millis();
+    } else {
+      if (all_pressed_) {
+        all_pressed_ = false;
+        if (!all_stop_triggered_ && !all_sleep_triggered_) {
+          // If stopped and tapped (< HOLD_MEDIUM_MS), start playback.
+          // If already running, short tap is ignored so it won't stop by mistake.
+          if (!clock_running && (millis() - all_press_time_ < HOLD_MEDIUM_MS)) {
+            start_playback();
+          }
+        }
+      }
+    }
+    return;
+  }
+
+  // 3. Fast combo: if a step key is pressed while a voice key is held, immediately activate
   // VoiceMenuMode
   if (ctx.pressed && ctx.is_step() && (ctx.any_voice_held() || pending_voice_ < VOICES)) {
     uint32_t voice = ctx.held_voice_index();
@@ -71,7 +102,7 @@ void MenuMode::on_key(const KeyContext &ctx) {
     }
   }
 
-  // 3. Select menu page using voice pads (0..5), with hold timer to prevent flicker
+  // 4. Select menu page using voice pads (0..5), with hold timer to prevent flicker
   if (ctx.is_voice()) {
     if (ctx.pressed) {
       set_page(ctx.voice_index());
@@ -85,7 +116,7 @@ void MenuMode::on_key(const KeyContext &ctx) {
     return;
   }
 
-  // 4. Step keys: handle page-specific options
+  // 5. Step keys: handle page-specific options
   if (ctx.pressed && ctx.is_step()) {
     uint32_t option_index = ctx.step_index();
     if (option_index == 0) {
@@ -103,9 +134,25 @@ void MenuMode::on_key(const KeyContext &ctx) {
 }
 
 void MenuMode::render_leds() {
-  // Check if a voice key has been held down for >= VOICE_HOLD_THRESHOLD_MS
+  // Check ALL button hold timers:
+  // 1. Hold >= HOLD_LONG_MS (2s) enters SleepMode
+  // 2. Hold >= HOLD_MEDIUM_MS (1s) stops running playback
+  if (all_pressed_) {
+    uint32_t const elapsed = millis() - all_press_time_;
+    if (!all_sleep_triggered_ && elapsed >= HOLD_LONG_MS) {
+      all_sleep_triggered_ = true;
+      all_pressed_ = false;
+      mode_manager.push_mode(&sleep_mode);
+      return;
+    } else if (clock_running && !all_stop_triggered_ && elapsed >= HOLD_MEDIUM_MS) {
+      all_stop_triggered_ = true;
+      stop_playback();
+    }
+  }
+
+  // Check if a voice key has been held down for >= HOLD_SHORT_MS
   if (pending_voice_ < VOICES) {
-    if (millis() - voice_press_time_ >= VOICE_HOLD_THRESHOLD_MS) {
+    if (millis() - voice_press_time_ >= HOLD_SHORT_MS) {
       uint32_t const v = pending_voice_;
       pending_voice_ = VOICES;
       set_page(v);
@@ -118,6 +165,19 @@ void MenuMode::render_leds() {
   // Keep MENU indicator active
   set_pixel(KEY_MENU, COLOR_PPOS);
   set_pixel(KEY_MID_3, COLOR_OFF);
+
+  // ALL button: indicates playback state (green = playing, red = stopped).
+  // Lights white when actively pressed down. If 1s stop hold was triggered,
+  // show red to give immediate feedback that playback has stopped.
+  if (all_pressed_) {
+    if (all_stop_triggered_) {
+      set_pixel(KEY_VOICE_ALL, COLOR_RED);
+    } else {
+      set_pixel(KEY_VOICE_ALL, COLOR_PPOS);
+    }
+  } else {
+    set_pixel(KEY_VOICE_ALL, clock_running ? COLOR_GREEN : COLOR_RED);
+  }
 
   // Highlight the currently active menu page button
   // Flashes in sync with the music: inverted (turns LED off instead of white)

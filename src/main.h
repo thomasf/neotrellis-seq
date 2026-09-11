@@ -64,6 +64,9 @@ void paste_all_slots();
 void clear_pattern();
 void clear_accents();
 void rewind_transport();
+void stop_playback();
+void start_playback();
+void toggle_playback();
 void open_menu();
 void load_kit_preset(uint32_t kit_index);
 

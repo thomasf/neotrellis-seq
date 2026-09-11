@@ -7,6 +7,7 @@
 #include "Sequencer.cpp"
 #include "Sequencer.h"
 #include "UIMode.h"
+#include "colors.h"
 #include "config.h"
 
 void setUp(void) {
@@ -1174,6 +1175,24 @@ void test_mode_manager_stack_transitions(void) {
   TEST_ASSERT_EQUAL_PTR(&seq_m, mm.current_mode());
   TEST_ASSERT_EQUAL_INT(4, fn_m.exits);
   TEST_ASSERT_EQUAL_INT(4, seq_m.enters);
+
+  // Menu -> Sleep -> Pop back to Menu
+  MockStackMode menu_m, sleep_m;
+  mm.push_mode(&menu_m);
+  TEST_ASSERT_EQUAL_PTR(&menu_m, mm.current_mode());
+  TEST_ASSERT_EQUAL_INT(1, menu_m.enters);
+
+  // Holding ALL in Menu pushes SleepMode
+  mm.push_mode(&sleep_m);
+  TEST_ASSERT_EQUAL_PTR(&sleep_m, mm.current_mode());
+  TEST_ASSERT_EQUAL_INT(1, menu_m.exits);
+  TEST_ASSERT_EQUAL_INT(1, sleep_m.enters);
+
+  // Pressing ALL in SleepMode pops back to Menu
+  mm.pop_mode();
+  TEST_ASSERT_EQUAL_PTR(&menu_m, mm.current_mode());
+  TEST_ASSERT_EQUAL_INT(1, sleep_m.exits);
+  TEST_ASSERT_EQUAL_INT(2, menu_m.enters);
 }
 
 void test_fn2_mod_len(void) {
@@ -1295,6 +1314,44 @@ void test_sequencer_64_steps_declutter_and_drift(void) {
   }
 }
 
+
+void test_playback_toggle_logic(void) {
+  bool running = false;
+
+  auto on_key_release = [&](uint32_t press_duration_ms) {
+    if (!running && press_duration_ms < HOLD_MEDIUM_MS) {
+      running = true; // Tap while stopped starts playback
+    }
+  };
+
+  auto on_key_hold = [&](uint32_t elapsed_ms) {
+    if (running && elapsed_ms >= HOLD_MEDIUM_MS) {
+      running = false; // Hold >= 1s while running stops playback
+    }
+  };
+
+  // Initially stopped
+  TEST_ASSERT_FALSE(running);
+
+  // Tap (< HOLD_MEDIUM_MS) while stopped starts playback
+  on_key_release(50);
+  TEST_ASSERT_TRUE(running);
+
+  // Accidental tap (< HOLD_MEDIUM_MS) while running does NOT stop playback
+  on_key_hold(50);
+  on_key_release(50);
+  TEST_ASSERT_TRUE(running); // still running!
+
+  // Accidental short hold (e.g. 500ms) while running does NOT stop playback
+  on_key_hold(500);
+  on_key_release(500);
+  TEST_ASSERT_TRUE(running); // still running!
+
+  // Intentional hold for >= HOLD_MEDIUM_MS (1000ms) stops playback
+  on_key_hold(HOLD_MEDIUM_MS);
+  TEST_ASSERT_FALSE(running); // stopped!
+}
+
 int main(int argc, char **argv) {
   UNITY_BEGIN();
 
@@ -1360,6 +1417,9 @@ int main(int argc, char **argv) {
   RUN_TEST(test_pattern_64_steps);
   RUN_TEST(test_voice_pagination);
   RUN_TEST(test_sequencer_64_steps_declutter_and_drift);
+
+  // Sleep & Playback
+  RUN_TEST(test_playback_toggle_logic);
 
   return UNITY_END();
 }

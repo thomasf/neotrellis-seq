@@ -1048,7 +1048,7 @@
   <tr><td class="k">&larr; PAGE</td><td class="act-name">Previous Page</td><td>Switches the 16-step grid view to the previous page (Page 1&ndash;4). Lights up (<code>COLOR_PMOD</code>) when a previous page exists. Briefly flashes the active page number on the step grid in red.</td></tr>
   <tr><td class="k">PAGE &rarr;</td><td class="act-name">Next Page</td><td>Switches the 16-step grid view to the next page. Lights up (<code>COLOR_PMOD</code>) when the pattern extends into a subsequent page (up to 64 steps). Briefly flashes the active page number on the step grid in red.</td></tr>
   <tr><td class="k">CLEAR</td><td class="act-name">Clear Pattern</td><td>Zeroes every step of the selected pattern across all pages.</td></tr>
-  <tr><td class="k">MENU</td><td class="act-name">Menu Mode</td><td>Enters settings menu (Voice Protect, playback path modifiers, MIDI note assignment). Press MENU again to return to sequencer.</td></tr>
+  <tr><td class="k">MENU</td><td class="act-name">Menu Mode</td><td>Enters settings menu (Voice Protect, playback path modifiers, MIDI note assignment, play/stop toggle, and sleep mode). Press MENU again to return to sequencer.</td></tr>
 </table>
 
 <h2>Held modifiers</h2>
@@ -1419,7 +1419,7 @@
 </section>
 
 <section class="screen-page" id="page-menu">
-<h2 class="screen-title">Menu Mode: Voice Protect &amp; Playback Paths</h2>
+<h2 class="screen-title">Menu Mode: Voice Protect, Playback Paths &amp; Sleep</h2>
 <p class="note">
   Press <code>MENU</code> to enter settings. Voice pads 0&ndash;5 select the settings page
   for that voice (the active voice lights in white). The top-left button (STEP 1) toggles
@@ -1427,6 +1427,8 @@
   4 independent, combinable <strong>Playback Path Modifiers</strong>. All toggles illuminate
   green (<code>COLOR_GREEN</code>) when active and red (<code>COLOR_RED</code>) when inactive.
   Hold any voice pad (<code>VOICE 0&ndash;5</code>) to reassign its MIDI note on the 16-step grid.
+  Tap <code>ALL</code> when stopped to start playback (green). Hold <code>ALL</code> for 1 second while running to stop playback (red), preventing accidental stops during performance.
+  Hold <code>ALL</code> for 2 seconds to enter <strong>Sleep Mode</strong> (stops playback, turns off all LEDs except dim ALL, and locks controls until ALL is pressed again).
 </p>
 
 <div class="scroll">
@@ -1438,7 +1440,7 @@
   <div class="off">&mdash; <i>&larr; PAGE</i></div>
   <div class="off">&mdash; <i>PAGE &rarr;</i></div>
   <div class="ppos">MENU <i>exit</i></div>
-  <div class="off">&mdash; <i>ALL</i></div>
+  <div class="green">PLAY <i>ALL</i></div>
 
   <div class="green">PINGPONG <i>STEP 5</i></div>
   <div class="green">SPIRAL <i>STEP 6</i></div>
@@ -1478,6 +1480,9 @@
   <tr><td class="k">STEP 6 (Row 2)</td><td class="act-name">Spiral Path</td><td>Outside-in clockwise grid traversal (<code>0, 1, 2, 3, 7, 11, 15, 14, 13, 12, 8, 4, 5, 6, 10, 9</code>). Lights green when active, red when inactive.</td></tr>
   <tr><td class="k">STEP 7 (Row 2)</td><td class="act-name">Phase Slip Path</td><td>Rotational phase slip (+1 step offset each completed cycle, staggered by +2 steps per voice). Lights green when active, red when inactive.</td></tr>
   <tr><td class="k">STEP 8 (Row 2)</td><td class="act-name">Mutate Path</td><td>Randomly switches between all unused path modifiers every 4 bars (Stutter, Weave, Drunken, Beat Ping-Pong, Broken Thirds, Downbeat Lock, Pair Swap, Turnaround, Pedal). Lights green when active, red when inactive.</td></tr>
+  <tr><td class="k">ALL (tap)</td><td class="act-name">Start Playback</td><td>Starts sequencer playback when stopped. Ignored while running to prevent stopping playback by mistake.</td></tr>
+  <tr><td class="k">Hold ALL (1s)</td><td class="act-name">Stop Playback</td><td>Stops sequencer playback when running. Illuminates red (<code>COLOR_RED</code>) once stopped.</td></tr>
+  <tr><td class="k">Hold ALL (2s)</td><td class="act-name">Sleep Mode</td><td>Stops sequencer playback, turns off all other LEDs, and locks all keys. The <code>ALL</code> button remains dimly lit (<code>COLOR_DIM_ALL</code>) until pressed again to wake up and return to the sequencer.</td></tr>
   <tr><td class="k">MENU</td><td class="act-name">Exit Menu</td><td>Exits Menu Mode and returns to the sequencer.</td></tr>
 </table>
 </section>
