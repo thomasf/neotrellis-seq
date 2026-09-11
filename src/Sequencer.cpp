@@ -35,6 +35,69 @@ void Pattern::reverse() {
   std::reverse(steps.begin(), steps.begin() + len);
 }
 
+void Pattern::humanize(uint32_t (*random_below)(uint32_t n)) {
+  uint32_t const len = std::min<uint32_t>(length, steps.size());
+  std::array<uint32_t, 16> sounding_indices;
+  uint32_t sounding_count = 0;
+  for (uint32_t i = 0; i < len; i++) {
+    if (steps[i].vel > 0) {
+      sounding_indices[sounding_count++] = i;
+    }
+  }
+  if (sounding_count == 0) {
+    return;
+  }
+
+  uint32_t changes = 0;
+  for (uint32_t s = 0; s < sounding_count; s++) {
+    uint32_t const i = sounding_indices[s];
+    uint8_t const old_vel = steps[i].vel;
+    uint8_t new_vel = old_vel;
+
+    // Determine current dynamic tier:
+    // 0: Ghost (<= 75), 1: Normal (76..114), 2: Accent (>= 115)
+    uint32_t const tier = (old_vel >= 115) ? 2 : ((old_vel <= 75) ? 0 : 1);
+
+    if (tier == 1) {
+      // Normal hit: 25% ghost, 50% stay normal, 25% accent
+      uint32_t const r = random_below(4);
+      if (r == 0) {
+        new_vel = GHOST_VELOCITY;
+      } else if (r == 3) {
+        new_vel = ACCENT_VELOCITY;
+      } else {
+        new_vel = DEFAULT_VELOCITY;
+      }
+    } else if (tier == 0) {
+      // Ghost hit: 60% stay ghost, 40% rise to normal
+      uint32_t const r = random_below(5);
+      new_vel = (r < 2) ? DEFAULT_VELOCITY : GHOST_VELOCITY;
+    } else {
+      // Accent hit: 60% stay accent, 40% drop to normal
+      uint32_t const r = random_below(5);
+      new_vel = (r < 2) ? DEFAULT_VELOCITY : ACCENT_VELOCITY;
+    }
+
+    if (new_vel != old_vel) {
+      steps[i].vel = new_vel;
+      changes++;
+    }
+  }
+
+  // If rolls resulted in no change, force a dynamic shift on one sounding note
+  if (changes == 0) {
+    uint32_t const target_idx = sounding_indices[random_below(sounding_count)];
+    uint8_t const old_vel = steps[target_idx].vel;
+    if (old_vel >= 115) {
+      steps[target_idx].vel = DEFAULT_VELOCITY;
+    } else if (old_vel <= 75) {
+      steps[target_idx].vel = DEFAULT_VELOCITY;
+    } else {
+      steps[target_idx].vel = (random_below(2) == 0) ? ACCENT_VELOCITY : GHOST_VELOCITY;
+    }
+  }
+}
+
 void Pattern::accent_every(uint32_t n) {
   uint32_t const len = std::min<uint32_t>(length, steps.size());
   for (uint32_t i = 0; i < len; i++) {

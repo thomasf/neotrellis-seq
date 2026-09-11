@@ -18,6 +18,7 @@ void tearDown(void) {
 }
 
 static uint32_t mock_random_zero(uint32_t) { return 0; }
+static uint32_t mock_random_three(uint32_t) { return 3; }
 
 void test_step_basics(void) {
   Step s_default;
@@ -150,6 +151,56 @@ void test_pattern_reverse(void) {
   TEST_ASSERT_EQUAL_UINT8(20, p.steps[1].vel);
   TEST_ASSERT_EQUAL_UINT8(30, p.steps[2].vel);
   TEST_ASSERT_EQUAL_UINT8(40, p.steps[3].vel);
+}
+
+void test_pattern_humanize(void) {
+  // Empty pattern should not crash
+  Pattern p_empty;
+  p_empty.length = 16;
+  p_empty.humanize(mock_random_zero);
+  for (uint32_t i = 0; i < 16; i++) {
+    TEST_ASSERT_EQUAL_UINT8(0, p_empty.steps[i].vel);
+  }
+
+  // Zero length should not crash
+  Pattern p_zero;
+  p_zero.length = 0;
+  p_zero.humanize(mock_random_zero);
+
+  // Normal note: with mock_random_zero (r = 0), Normal note drops to GHOST_VELOCITY
+  Pattern p;
+  p.length = 4;
+  p.steps[0].vel = DEFAULT_VELOCITY;
+  p.steps[1].vel = 0; // Rest
+  p.steps[2].vel = DEFAULT_VELOCITY;
+  p.steps[4].vel = 77; // Beyond length
+
+  p.humanize(mock_random_zero);
+  TEST_ASSERT_EQUAL_UINT8(GHOST_VELOCITY, p.steps[0].vel);
+  TEST_ASSERT_EQUAL_UINT8(0, p.steps[1].vel); // Rests stay rests
+  TEST_ASSERT_EQUAL_UINT8(GHOST_VELOCITY, p.steps[2].vel);
+  TEST_ASSERT_EQUAL_UINT8(77, p.steps[4].vel); // Preserved beyond length
+
+  // Normal note with mock_random_three (r = 3): promotes to ACCENT_VELOCITY
+  Pattern p2;
+  p2.length = 4;
+  p2.steps[0].vel = DEFAULT_VELOCITY;
+  p2.humanize(mock_random_three);
+  TEST_ASSERT_EQUAL_UINT8(ACCENT_VELOCITY, p2.steps[0].vel);
+
+  // Accent note with mock_random_zero (r = 0, r < 2 -> drops to DEFAULT_VELOCITY)
+  Pattern p3;
+  p3.length = 4;
+  p3.steps[0].vel = ACCENT_VELOCITY;
+  p3.humanize(mock_random_zero);
+  TEST_ASSERT_EQUAL_UINT8(DEFAULT_VELOCITY, p3.steps[0].vel);
+
+  // Ghost note with mock_random_zero (r = 0, r < 2 -> rises to DEFAULT_VELOCITY)
+  Pattern p4;
+  p4.length = 4;
+  p4.steps[0].vel = GHOST_VELOCITY;
+  p4.humanize(mock_random_zero);
+  TEST_ASSERT_EQUAL_UINT8(DEFAULT_VELOCITY, p4.steps[0].vel);
 }
 
 void test_pattern_accent_every_and_clear_accents(void) {
@@ -1068,6 +1119,7 @@ int main(int argc, char **argv) {
   RUN_TEST(test_pattern_shift);
   RUN_TEST(test_pattern_invert);
   RUN_TEST(test_pattern_reverse);
+  RUN_TEST(test_pattern_humanize);
   RUN_TEST(test_pattern_accent_every_and_clear_accents);
   RUN_TEST(test_pattern_echo);
   RUN_TEST(test_pattern_shuffle);

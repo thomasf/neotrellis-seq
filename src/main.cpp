@@ -221,7 +221,7 @@ constexpr uint32_t KEY_SYNC_INDEX = 12;
 // whether the key is assigned:
 //
 //   row 0: shift left by 1, right by 1, left by 4, right by 4
-//   row 1: deterministic reshapes: reverse, invert, fill empty (which
+//   row 1: reshapes: reverse, invert, humanize, fill empty (which
 //          is random only when no step is free)
 //   row 2: shuffle, echo, drift. With ALL, declutter and life instead, see
 //          transform_board.
@@ -249,6 +249,9 @@ bool apply_transform(uint32_t voice, uint32_t index) {
     break;
   case 5:
     p->invert();
+    break;
+  case 6:
+    p->humanize(random_below);
     break;
   case 7:
     seq.fill_empty(voice, random_below);

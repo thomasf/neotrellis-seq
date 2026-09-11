@@ -34,6 +34,11 @@ public:
   // reverse mirrors the steps within the pattern length, so the last step
   // becomes the first.
   void reverse();
+  // humanize randomly varies the velocities of sounding steps within the pattern
+  // length across ghost (GHOST_VELOCITY), normal (DEFAULT_VELOCITY), and accent
+  // (ACCENT_VELOCITY) levels, adding natural dynamic variation while keeping the
+  // rhythm intact.
+  void humanize(uint32_t (*random_below)(uint32_t n));
   // accent_every accents (ACCENT_VELOCITY) every n-th sounding step within
   // the pattern length, counting from the first step, and drops every other
   // sounding step to DEFAULT_VELOCITY. Silent steps stay silent. n == 0
