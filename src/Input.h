@@ -14,18 +14,18 @@ namespace Mod {
 static constexpr uint32_t NONE = 0;
 static constexpr uint32_t FN1 = (1UL << KEY_FN1);
 static constexpr uint32_t FN2 = (1UL << KEY_FN2);
-static constexpr uint32_t ALL = (1UL << KEY_VOICE_SELECT_ALL);
-static constexpr uint32_t ACCENT = (1UL << KEY_ACCENT);
-static constexpr uint32_t POS = (1UL << KEY_PATTERN_POS);
+static constexpr uint32_t ALL = (1UL << KEY_VOICE_ALL);
+static constexpr uint32_t ACCENT = (1UL << KEY_MID_5);
+static constexpr uint32_t POS = (1UL << KEY_MID_6);
 static constexpr uint32_t LEN = (FN2 | POS);
 static constexpr uint32_t MENU = (1UL << KEY_MENU);
 
-static constexpr uint32_t VOICE_0 = (1UL << KEY_VOICE_SELECT_0);
-static constexpr uint32_t VOICE_1 = (1UL << KEY_VOICE_SELECT_1);
-static constexpr uint32_t VOICE_2 = (1UL << KEY_VOICE_SELECT_2);
-static constexpr uint32_t VOICE_3 = (1UL << KEY_VOICE_SELECT_3);
-static constexpr uint32_t VOICE_4 = (1UL << KEY_VOICE_SELECT_4);
-static constexpr uint32_t VOICE_5 = (1UL << KEY_VOICE_SELECT_5);
+static constexpr uint32_t VOICE_0 = (1UL << KEY_VOICE_1);
+static constexpr uint32_t VOICE_1 = (1UL << KEY_VOICE_2);
+static constexpr uint32_t VOICE_2 = (1UL << KEY_VOICE_3);
+static constexpr uint32_t VOICE_3 = (1UL << KEY_VOICE_4);
+static constexpr uint32_t VOICE_4 = (1UL << KEY_VOICE_5);
+static constexpr uint32_t VOICE_5 = (1UL << KEY_VOICE_6);
 
 static constexpr uint32_t ALL_VOICES = VOICE_0 | VOICE_1 | VOICE_2 | VOICE_3 | VOICE_4 | VOICE_5;
 } // namespace Mod

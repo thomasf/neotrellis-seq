@@ -117,7 +117,7 @@ void MenuMode::render_leds() {
 
   // Keep MENU indicator active
   set_pixel(KEY_MENU, COLOR_PPOS);
-  set_pixel(KEY_CLEAR, COLOR_OFF);
+  set_pixel(KEY_MID_3, COLOR_OFF);
 
   // Highlight the currently active menu page button
   // Flashes in sync with the music: inverted (turns LED off instead of white)

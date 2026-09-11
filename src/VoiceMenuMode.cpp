@@ -64,7 +64,7 @@ void VoiceMenuMode::render_leds() {
 
   // Keep MENU indicator active
   set_pixel(KEY_MENU, COLOR_PPOS);
-  set_pixel(KEY_CLEAR, COLOR_OFF);
+  set_pixel(KEY_MID_3, COLOR_OFF);
 
   // Voice pads (0..5) on the right:
   // Active voice button lights in white (COLOR_PPOS)

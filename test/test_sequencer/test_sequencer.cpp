@@ -1130,6 +1130,31 @@ void test_mode_manager_stack_transitions(void) {
   TEST_ASSERT_EQUAL_PTR(&seq_m, mm.current_mode());
   TEST_ASSERT_EQUAL_INT(2, fn2_m.exits);
   TEST_ASSERT_EQUAL_INT(3, seq_m.enters);
+
+  // Press FN1 -> push fn_m
+  mm.push_mode(&fn_m);
+  TEST_ASSERT_EQUAL_PTR(&fn_m, mm.current_mode());
+  TEST_ASSERT_EQUAL_INT(3, seq_m.exits);
+  TEST_ASSERT_EQUAL_INT(3, fn_m.enters);
+
+  // Press FN2 while in FN1 -> push fn1_fn2_m
+  MockStackMode fn1_fn2_m;
+  mm.push_mode(&fn1_fn2_m);
+  TEST_ASSERT_EQUAL_PTR(&fn1_fn2_m, mm.current_mode());
+  TEST_ASSERT_EQUAL_INT(3, fn_m.exits);
+  TEST_ASSERT_EQUAL_INT(1, fn1_fn2_m.enters);
+
+  // Release FN2 -> pop back to fn_m
+  mm.pop_mode();
+  TEST_ASSERT_EQUAL_PTR(&fn_m, mm.current_mode());
+  TEST_ASSERT_EQUAL_INT(1, fn1_fn2_m.exits);
+  TEST_ASSERT_EQUAL_INT(4, fn_m.enters);
+
+  // Release FN1 -> pop back to seq_m
+  mm.pop_mode();
+  TEST_ASSERT_EQUAL_PTR(&seq_m, mm.current_mode());
+  TEST_ASSERT_EQUAL_INT(4, fn_m.exits);
+  TEST_ASSERT_EQUAL_INT(4, seq_m.enters);
 }
 
 void test_fn2_mod_len(void) {

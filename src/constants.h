@@ -6,8 +6,7 @@
 
 // Voice pads in voice order (0..5)
 inline constexpr uint32_t VOICE_KEYS[VOICES] = {
-    KEY_VOICE_SELECT_0, KEY_VOICE_SELECT_1, KEY_VOICE_SELECT_2,
-    KEY_VOICE_SELECT_3, KEY_VOICE_SELECT_4, KEY_VOICE_SELECT_5,
+    KEY_VOICE_1, KEY_VOICE_2, KEY_VOICE_3, KEY_VOICE_4, KEY_VOICE_5, KEY_VOICE_6,
 };
 
 inline constexpr uint32_t VOICE_COLORS[VOICES] = {
@@ -32,17 +31,17 @@ inline constexpr uint32_t VOICE_ACCENT_COLORS[VOICES] = {
 // key, so `voice_key_to_index(key) < VOICES` doubles as an is-voice-key test.
 constexpr uint32_t voice_key_to_index(uint32_t key) {
   switch (key) {
-  case KEY_VOICE_SELECT_0:
+  case KEY_VOICE_1:
     return 0;
-  case KEY_VOICE_SELECT_1:
+  case KEY_VOICE_2:
     return 1;
-  case KEY_VOICE_SELECT_2:
+  case KEY_VOICE_3:
     return 2;
-  case KEY_VOICE_SELECT_3:
+  case KEY_VOICE_4:
     return 3;
-  case KEY_VOICE_SELECT_4:
+  case KEY_VOICE_5:
     return 4;
-  case KEY_VOICE_SELECT_5:
+  case KEY_VOICE_6:
     return 5;
   default:
     return VOICES;
@@ -76,32 +75,30 @@ constexpr uint32_t voice_index_to_accent_color(uint32_t idx) {
 
 inline constexpr uint32_t step_key[16] = {
     // row 0
-    KEY_SEQ_POS_0,
-    KEY_SEQ_POS_1,
-    KEY_SEQ_POS_2,
-    KEY_SEQ_POS_3,
+    KEY_STEP_1,
+    KEY_STEP_2,
+    KEY_STEP_3,
+    KEY_STEP_4,
     // row 1
-    KEY_SEQ_POS_4,
-    KEY_SEQ_POS_5,
-    KEY_SEQ_POS_6,
-    KEY_SEQ_POS_7,
+    KEY_STEP_5,
+    KEY_STEP_6,
+    KEY_STEP_7,
+    KEY_STEP_8,
     // row 2
-    KEY_SEQ_POS_8,
-    KEY_SEQ_POS_9,
-    KEY_SEQ_POS_10,
-    KEY_SEQ_POS_11,
+    KEY_STEP_9,
+    KEY_STEP_10,
+    KEY_STEP_11,
+    KEY_STEP_12,
     // row 3
-    KEY_SEQ_POS_12,
-    KEY_SEQ_POS_13,
-    KEY_SEQ_POS_14,
-    KEY_SEQ_POS_15,
+    KEY_STEP_13,
+    KEY_STEP_14,
+    KEY_STEP_15,
+    KEY_STEP_16,
 };
 
 constexpr bool is_numpad_key(uint32_t key) {
-  return (key >= KEY_SEQ_POS_0 && key <= KEY_SEQ_POS_3) ||
-         (key >= KEY_SEQ_POS_4 && key <= KEY_SEQ_POS_7) ||
-         (key >= KEY_SEQ_POS_8 && key <= KEY_SEQ_POS_11) ||
-         (key >= KEY_SEQ_POS_12 && key <= KEY_SEQ_POS_15);
+  return (key >= KEY_STEP_1 && key <= KEY_STEP_4) || (key >= KEY_STEP_5 && key <= KEY_STEP_8) ||
+         (key >= KEY_STEP_9 && key <= KEY_STEP_12) || (key >= KEY_STEP_13 && key <= KEY_STEP_16);
 }
 
 // System common / real time status bytes

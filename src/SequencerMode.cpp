@@ -10,11 +10,8 @@ SequencerMode sequencer_mode;
 
 static const KeyBinding SEQUENCER_BINDINGS[] = {
     // Edit actions
-    {KEY_CLEAR, Mod::ACCENT, 0, clear_accents},
-    {KEY_CLEAR, 0, 0, clear_pattern},
-    {KEY_COPY, 0, 0, copy_pattern},
-    {KEY_PASTE, 0, 0, paste_single},
-    {KEY_UNDO, 0, 0, undo},
+    {KEY_MID_3, Mod::ACCENT, 0, clear_accents},
+    {KEY_MID_3, 0, 0, clear_pattern},
 
     // Modal Menu
     {KEY_MENU, 0, 0, open_menu},
@@ -27,18 +24,18 @@ void SequencerMode::on_enter() {
     set_pixel(voice_index_to_key(i), voice_index_to_color(i));
   }
 
-  set_pixel(KEY_PATTERN_POS, COLOR_PMOD);
+  set_pixel(KEY_MID_6, COLOR_PMOD);
   set_pixel(KEY_FN1, COLOR_PMOD);
   set_pixel(KEY_FN2, COLOR_PMOD);
-  set_pixel(KEY_ACCENT, COLOR_PMOD);
+  set_pixel(KEY_MID_5, COLOR_PMOD);
 
-  set_pixel(KEY_COPY, COLOR_PACT);
-  set_pixel(KEY_PASTE, COLOR_PACT);
+  set_pixel(KEY_MID_1, COLOR_OFF);
+  set_pixel(KEY_MID_2, COLOR_OFF);
   set_pixel(KEY_MENU, COLOR_PACT);
-  set_pixel(KEY_CLEAR, COLOR_PACT);
-  set_pixel(KEY_UNDO, COLOR_PACT);
+  set_pixel(KEY_MID_3, COLOR_PACT);
+  set_pixel(KEY_MID_4, COLOR_OFF);
 
-  set_pixel(KEY_VOICE_SELECT_ALL, COLOR_PPOS);
+  set_pixel(KEY_VOICE_ALL, COLOR_PPOS);
 }
 
 void SequencerMode::on_exit() {}
@@ -100,7 +97,9 @@ void SequencerMode::on_key(const KeyContext &ctx) {
       if (ctx.has(Mod::POS)) {
         rewind_transport();
       }
-      if (ctx.has(Mod::ALL)) {
+      if (ctx.has(Mod::FN2)) {
+        mode_manager.push_mode(&fn1_fn2_mode);
+      } else if (ctx.has(Mod::ALL)) {
         mode_manager.push_mode(&fn1_all_mode);
       } else {
         mode_manager.push_mode(&fn1_mode);
@@ -111,7 +110,9 @@ void SequencerMode::on_key(const KeyContext &ctx) {
 
   if (ctx.key == KEY_FN2) {
     if (ctx.pressed) {
-      if (ctx.has(Mod::ALL)) {
+      if (ctx.has(Mod::FN1)) {
+        mode_manager.push_mode(&fn1_fn2_mode);
+      } else if (ctx.has(Mod::ALL)) {
         mode_manager.push_mode(&fn2_all_mode);
       } else {
         mode_manager.push_mode(&fn2_mode);

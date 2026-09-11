@@ -106,41 +106,45 @@ constexpr uint32_t BPM = 120; // tempo for internal clock mode
 // triplets
 constexpr uint32_t CLOCK_DIVISION = 6;
 
-constexpr uint32_t KEY_VOICE_SELECT_0 = 14;
-constexpr uint32_t KEY_VOICE_SELECT_1 = 15;
-constexpr uint32_t KEY_VOICE_SELECT_2 = 22;
-constexpr uint32_t KEY_VOICE_SELECT_3 = 23;
-constexpr uint32_t KEY_VOICE_SELECT_4 = 30;
-constexpr uint32_t KEY_VOICE_SELECT_5 = 31;
-constexpr uint32_t KEY_VOICE_SELECT_ALL = 7;
+constexpr uint32_t KEY_VOICE_1 = 14;
+constexpr uint32_t KEY_VOICE_2 = 15;
+constexpr uint32_t KEY_VOICE_3 = 22;
+constexpr uint32_t KEY_VOICE_4 = 23;
+constexpr uint32_t KEY_VOICE_5 = 30;
+constexpr uint32_t KEY_VOICE_6 = 31;
+constexpr uint32_t KEY_VOICE_ALL = 7;
 
-constexpr uint32_t KEY_FN2 = 29;
-constexpr uint32_t KEY_PATTERN_LEN = KEY_FN2;
-constexpr uint32_t KEY_PATTERN_POS = 21;
-constexpr uint32_t KEY_COPY = 4;
-constexpr uint32_t KEY_PASTE = 5;
-constexpr uint32_t KEY_MENU = 6;
-constexpr uint32_t KEY_CLEAR = 12;
-constexpr uint32_t KEY_UNDO = 13;
+// 2x3 grid above FN keys (Cols 4-5, Rows 0-2)
+constexpr uint32_t KEY_MID_1 = 4;
+constexpr uint32_t KEY_MID_2 = 5;
+constexpr uint32_t KEY_MID_3 = 12;
+constexpr uint32_t KEY_MID_4 = 13;
+constexpr uint32_t KEY_MID_5 = 20;
+constexpr uint32_t KEY_MID_6 = 21;
+
+// FN keys (Cols 4-5, Row 3)
 constexpr uint32_t KEY_FN1 = 28;
-constexpr uint32_t KEY_ACCENT = 20;
+constexpr uint32_t KEY_FN2 = 29;
 
-constexpr uint32_t KEY_SEQ_POS_0 = 0;
-constexpr uint32_t KEY_SEQ_POS_1 = 1;
-constexpr uint32_t KEY_SEQ_POS_2 = 2;
-constexpr uint32_t KEY_SEQ_POS_3 = 3;
-constexpr uint32_t KEY_SEQ_POS_4 = 8;
-constexpr uint32_t KEY_SEQ_POS_5 = 9;
-constexpr uint32_t KEY_SEQ_POS_6 = 10;
-constexpr uint32_t KEY_SEQ_POS_7 = 11;
+// Top-right Menu key (Col 6, Row 0)
+constexpr uint32_t KEY_MENU = 6;
 
-constexpr uint32_t KEY_SEQ_POS_8 = 16;
-constexpr uint32_t KEY_SEQ_POS_9 = 17;
-constexpr uint32_t KEY_SEQ_POS_10 = 18;
-constexpr uint32_t KEY_SEQ_POS_11 = 19;
-constexpr uint32_t KEY_SEQ_POS_12 = 24;
-constexpr uint32_t KEY_SEQ_POS_13 = 25;
-constexpr uint32_t KEY_SEQ_POS_14 = 26;
-constexpr uint32_t KEY_SEQ_POS_15 = 27;
+// 4x4 Step Grid (Cols 0-3, Rows 0-3)
+constexpr uint32_t KEY_STEP_1 = 0;
+constexpr uint32_t KEY_STEP_2 = 1;
+constexpr uint32_t KEY_STEP_3 = 2;
+constexpr uint32_t KEY_STEP_4 = 3;
+constexpr uint32_t KEY_STEP_5 = 8;
+constexpr uint32_t KEY_STEP_6 = 9;
+constexpr uint32_t KEY_STEP_7 = 10;
+constexpr uint32_t KEY_STEP_8 = 11;
+constexpr uint32_t KEY_STEP_9 = 16;
+constexpr uint32_t KEY_STEP_10 = 17;
+constexpr uint32_t KEY_STEP_11 = 18;
+constexpr uint32_t KEY_STEP_12 = 19;
+constexpr uint32_t KEY_STEP_13 = 24;
+constexpr uint32_t KEY_STEP_14 = 25;
+constexpr uint32_t KEY_STEP_15 = 26;
+constexpr uint32_t KEY_STEP_16 = 27;
 
 #endif // CONFIG_H

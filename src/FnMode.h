@@ -4,7 +4,7 @@
 #include "UIMode.h"
 
 // Fn1Mode (FnMode): momentary mode active while holding the FN1 key.
-// Handles single-voice transforms, pattern preset loading, pattern swaps, redo, and paste all.
+// Handles single-voice transforms, pattern preset loading, and pattern swaps.
 class Fn1Mode : public UIMode {
 public:
   void on_enter() override;
@@ -33,7 +33,7 @@ private:
 };
 
 // Fn2Mode: momentary mode active while holding the FN2 key.
-// Handles pattern length adjustments (FN2 + POS + STEP n).
+// Handles copy, paste, undo, redo, and pattern length adjustments (FN2 + POS + STEP n).
 class Fn2Mode : public UIMode {
 public:
   void on_enter() override;
@@ -60,6 +60,20 @@ private:
   void handle_voice(const KeyContext &ctx);
 };
 
+// Fn1Fn2Mode: momentary mode active while holding both FN1 and FN2 keys.
+// Handles multi-pattern operations like paste all slots.
+class Fn1Fn2Mode : public UIMode {
+public:
+  void on_enter() override;
+  void on_exit() override;
+  void on_key(const KeyContext &ctx) override;
+  void render_leds() override;
+
+private:
+  void handle_step(const KeyContext &ctx);
+  void handle_voice(const KeyContext &ctx);
+};
+
 using FnMode = Fn1Mode;
 using FnAllMode = Fn1AllMode;
 
@@ -69,5 +83,6 @@ extern Fn1AllMode fn1_all_mode;
 extern Fn1AllMode &fn_all_mode;
 extern Fn2Mode fn2_mode;
 extern Fn2AllMode fn2_all_mode;
+extern Fn1Fn2Mode fn1_fn2_mode;
 
 #endif // FN_MODE_H

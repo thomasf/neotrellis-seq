@@ -12,15 +12,14 @@ Fn1AllMode fn1_all_mode;
 Fn1AllMode &fn_all_mode = fn1_all_mode;
 Fn2Mode fn2_mode;
 Fn2AllMode fn2_all_mode;
+Fn1Fn2Mode fn1_fn2_mode;
 
 // =============================================================================
 // FnMode: Single-Voice Transforms & Presets (Hold FN1)
 // =============================================================================
 
 static const KeyBinding FN1_BINDINGS[] = {
-    {KEY_PATTERN_POS, 0, 0, rewind_transport},
-    {KEY_UNDO, 0, 0, redo},
-    {KEY_PASTE, 0, 0, paste_all_slots},
+    {KEY_MID_6, 0, 0, rewind_transport},
 };
 static constexpr size_t FN1_BINDING_COUNT = sizeof(FN1_BINDINGS) / sizeof(FN1_BINDINGS[0]);
 
@@ -53,8 +52,14 @@ void FnMode::on_key(const KeyContext &ctx) {
   }
 
   // ALL pressed while in FnMode -> transition to FnAllMode
-  if (ctx.key == KEY_VOICE_SELECT_ALL) {
+  if (ctx.key == KEY_VOICE_ALL) {
     mode_manager.push_mode(&fn_all_mode);
+    return;
+  }
+
+  // FN2 pressed while in FnMode -> transition to Fn1Fn2Mode
+  if (ctx.key == KEY_FN2) {
+    mode_manager.push_mode(&fn1_fn2_mode);
     return;
   }
 
@@ -78,18 +83,18 @@ void FnMode::render_leds() {
   render_pixels();
 
   // Modifiers & action pads
-  set_pixel(KEY_FN1, COLOR_PPOS);              // Active held modifier
-  set_pixel(KEY_VOICE_SELECT_ALL, COLOR_PMOD); // Press for ALL mode
-  set_pixel(KEY_PATTERN_POS, COLOR_PMOD);      // Rewind
-  set_pixel(KEY_UNDO, COLOR_PACT);             // Redo
-  set_pixel(KEY_PASTE, COLOR_PACT);            // Paste All Slots
-  set_pixel(KEY_ACCENT, (held_keys_mask & (1UL << KEY_ACCENT)) ? COLOR_PPOS : COLOR_PMOD);
+  set_pixel(KEY_FN1, COLOR_PPOS);       // Active held modifier
+  set_pixel(KEY_VOICE_ALL, COLOR_PMOD); // Press for ALL mode
+  set_pixel(KEY_FN2, COLOR_PMOD);       // Press for FN1+FN2 mode
+  set_pixel(KEY_MID_6, COLOR_PMOD);     // Rewind
+  set_pixel(KEY_MID_5, (held_keys_mask & (1UL << KEY_MID_5)) ? COLOR_PPOS : COLOR_PMOD);
 
   // Inactive buttons in FnMode
-  set_pixel(KEY_COPY, COLOR_OFF);
-  set_pixel(KEY_CLEAR, COLOR_OFF);
+  set_pixel(KEY_MID_1, COLOR_OFF);
+  set_pixel(KEY_MID_2, COLOR_OFF);
+  set_pixel(KEY_MID_3, COLOR_OFF);
+  set_pixel(KEY_MID_4, COLOR_OFF);
   set_pixel(KEY_MENU, COLOR_OFF);
-  set_pixel(KEY_FN2, COLOR_OFF);
 }
 
 // =============================================================================
@@ -97,9 +102,9 @@ void FnMode::render_leds() {
 // =============================================================================
 
 static const KeyBinding FN1_ALL_BINDINGS[] = {
-    {KEY_FN2, 0, 0, polymeter_patterns},       {KEY_CLEAR, 0, 0, dropout_patterns},
-    {KEY_PATTERN_POS, 0, 0, rewind_transport}, {KEY_UNDO, 0, 0, redo},
-    {KEY_PASTE, 0, 0, paste_all_slots},
+    {KEY_FN2, 0, 0, polymeter_patterns},
+    {KEY_MID_3, 0, 0, dropout_patterns},
+    {KEY_MID_6, 0, 0, rewind_transport},
 };
 static constexpr size_t FN1_ALL_BINDING_COUNT =
     sizeof(FN1_ALL_BINDINGS) / sizeof(FN1_ALL_BINDINGS[0]);
@@ -128,7 +133,7 @@ void FnAllMode::handle_voice(const KeyContext &ctx) {
 
 void FnAllMode::on_key(const KeyContext &ctx) {
   if (!ctx.pressed) {
-    if (ctx.key == KEY_VOICE_SELECT_ALL) {
+    if (ctx.key == KEY_VOICE_ALL) {
       if (ctx.has(Mod::FN1)) {
         mode_manager.pop_mode(); // Return to FnMode
       } else {
@@ -170,22 +175,30 @@ void FnAllMode::render_leds() {
   }
 
   // Modifiers & action pads
-  set_pixel(KEY_FN1, COLOR_PPOS);              // Both modifiers held
-  set_pixel(KEY_VOICE_SELECT_ALL, COLOR_PPOS); // Both modifiers held
-  set_pixel(KEY_FN2, 0x9040D0);                // Polymeter / Odd meters
-  set_pixel(KEY_CLEAR, COLOR_RED);             // Dropout
-  set_pixel(KEY_PATTERN_POS, COLOR_PMOD);      // Rewind
-  set_pixel(KEY_UNDO, COLOR_PACT);             // Redo
-  set_pixel(KEY_PASTE, COLOR_PACT);            // Paste All Slots
-  set_pixel(KEY_ACCENT, (held_keys_mask & (1UL << KEY_ACCENT)) ? COLOR_PPOS : COLOR_PMOD);
+  set_pixel(KEY_FN1, COLOR_PPOS);       // Both modifiers held
+  set_pixel(KEY_VOICE_ALL, COLOR_PPOS); // Both modifiers held
+  set_pixel(KEY_FN2, 0x9040D0);         // Polymeter / Odd meters
+  set_pixel(KEY_MID_3, COLOR_RED);      // Dropout
+  set_pixel(KEY_MID_6, COLOR_PMOD);     // Rewind
+  set_pixel(KEY_MID_5, (held_keys_mask & (1UL << KEY_MID_5)) ? COLOR_PPOS : COLOR_PMOD);
 
-  set_pixel(KEY_COPY, COLOR_OFF);
+  set_pixel(KEY_MID_1, COLOR_OFF);
+  set_pixel(KEY_MID_2, COLOR_OFF);
+  set_pixel(KEY_MID_4, COLOR_OFF);
   set_pixel(KEY_MENU, COLOR_OFF);
 }
 
 // =============================================================================
 // Fn2Mode: Secondary Functions (Hold FN2)
 // =============================================================================
+
+static const KeyBinding FN2_BINDINGS[] = {
+    {KEY_MID_1, 0, 0, copy_pattern},
+    {KEY_MID_2, 0, 0, paste_single},
+    {KEY_MID_3, 0, 0, undo},
+    {KEY_MID_4, 0, 0, redo},
+};
+static constexpr size_t FN2_BINDING_COUNT = sizeof(FN2_BINDINGS) / sizeof(FN2_BINDINGS[0]);
 
 void Fn2Mode::on_enter() {}
 
@@ -213,8 +226,18 @@ void Fn2Mode::on_key(const KeyContext &ctx) {
   }
 
   // ALL pressed while in Fn2Mode -> transition to Fn2AllMode
-  if (ctx.key == KEY_VOICE_SELECT_ALL) {
+  if (ctx.key == KEY_VOICE_ALL) {
     mode_manager.push_mode(&fn2_all_mode);
+    return;
+  }
+
+  // FN1 pressed while in Fn2Mode -> transition to Fn1Fn2Mode
+  if (ctx.key == KEY_FN1) {
+    mode_manager.push_mode(&fn1_fn2_mode);
+    return;
+  }
+
+  if (dispatch_binding(FN2_BINDINGS, FN2_BINDING_COUNT, ctx)) {
     return;
   }
 
@@ -233,20 +256,22 @@ void Fn2Mode::render_leds() {
   render_pixels();
 
   // Modifiers & action pads
-  set_pixel(KEY_FN2, COLOR_PPOS); // Active held modifier
-  set_pixel(KEY_FN1, COLOR_OFF);
-  set_pixel(KEY_VOICE_SELECT_ALL, COLOR_PMOD); // Press for ALL mode
-  set_pixel(KEY_PATTERN_POS,
-            (held_keys_mask & (1UL << KEY_PATTERN_POS)) ? COLOR_PPOS
-                                                        : COLOR_PMOD); // Button above FN2 (LEN)
+  set_pixel(KEY_FN2, COLOR_PPOS);       // Active held modifier
+  set_pixel(KEY_FN1, COLOR_PMOD);       // Press for FN1+FN2 mode
+  set_pixel(KEY_VOICE_ALL, COLOR_PMOD); // Press for ALL mode
+  set_pixel(KEY_MID_6,
+            (held_keys_mask & (1UL << KEY_MID_6)) ? COLOR_PPOS
+                                                  : COLOR_PMOD); // Button above FN2 (LEN)
+
+  // Actions in Fn2Mode
+  set_pixel(KEY_MID_1, COLOR_PACT);
+  set_pixel(KEY_MID_2, COLOR_PACT);
+  set_pixel(KEY_MID_3, COLOR_PACT);
+  set_pixel(KEY_MID_4, COLOR_PACT);
 
   // Inactive buttons in Fn2Mode
-  set_pixel(KEY_COPY, COLOR_OFF);
-  set_pixel(KEY_PASTE, COLOR_OFF);
-  set_pixel(KEY_CLEAR, COLOR_OFF);
-  set_pixel(KEY_UNDO, COLOR_OFF);
   set_pixel(KEY_MENU, COLOR_OFF);
-  set_pixel(KEY_ACCENT, COLOR_OFF);
+  set_pixel(KEY_MID_5, COLOR_OFF);
 }
 
 // =============================================================================
@@ -273,7 +298,7 @@ void Fn2AllMode::handle_voice(const KeyContext &ctx) {}
 
 void Fn2AllMode::on_key(const KeyContext &ctx) {
   if (!ctx.pressed) {
-    if (ctx.key == KEY_VOICE_SELECT_ALL) {
+    if (ctx.key == KEY_VOICE_ALL) {
       if (ctx.has(Mod::FN2)) {
         mode_manager.pop_mode(); // Return to Fn2Mode
       } else {
@@ -310,15 +335,85 @@ void Fn2AllMode::render_leds() {
   }
 
   // Modifiers & action pads
-  set_pixel(KEY_FN2, COLOR_PPOS);              // Both modifiers held
-  set_pixel(KEY_VOICE_SELECT_ALL, COLOR_PPOS); // Both modifiers held
+  set_pixel(KEY_FN2, COLOR_PPOS);       // Both modifiers held
+  set_pixel(KEY_VOICE_ALL, COLOR_PPOS); // Both modifiers held
   set_pixel(KEY_FN1, COLOR_OFF);
-  set_pixel(KEY_PATTERN_POS, (held_keys_mask & (1UL << KEY_PATTERN_POS)) ? COLOR_PPOS : COLOR_PMOD);
+  set_pixel(KEY_MID_6, (held_keys_mask & (1UL << KEY_MID_6)) ? COLOR_PPOS : COLOR_PMOD);
 
-  set_pixel(KEY_COPY, COLOR_OFF);
-  set_pixel(KEY_PASTE, COLOR_OFF);
-  set_pixel(KEY_CLEAR, COLOR_OFF);
-  set_pixel(KEY_UNDO, COLOR_OFF);
+  set_pixel(KEY_MID_1, COLOR_OFF);
+  set_pixel(KEY_MID_2, COLOR_OFF);
+  set_pixel(KEY_MID_3, COLOR_OFF);
+  set_pixel(KEY_MID_4, COLOR_OFF);
   set_pixel(KEY_MENU, COLOR_OFF);
-  set_pixel(KEY_ACCENT, COLOR_OFF);
+  set_pixel(KEY_MID_5, COLOR_OFF);
+}
+
+// =============================================================================
+// Fn1Fn2Mode: Dual-Modifier Functions (Hold FN1 + FN2)
+// =============================================================================
+
+static const KeyBinding FN1_FN2_BINDINGS[] = {
+    {KEY_MID_2, 0, 0, paste_all_slots},
+};
+static constexpr size_t FN1_FN2_BINDING_COUNT =
+    sizeof(FN1_FN2_BINDINGS) / sizeof(FN1_FN2_BINDINGS[0]);
+
+void Fn1Fn2Mode::on_enter() {}
+
+void Fn1Fn2Mode::on_exit() {}
+
+void Fn1Fn2Mode::handle_step(const KeyContext &ctx) {}
+
+void Fn1Fn2Mode::handle_voice(const KeyContext &ctx) {
+  uint32_t const voice = ctx.voice_index();
+  select_voice(voice);
+}
+
+void Fn1Fn2Mode::on_key(const KeyContext &ctx) {
+  if (!ctx.pressed) {
+    if (ctx.key == KEY_FN1) {
+      if (ctx.has(Mod::FN2)) {
+        mode_manager.switch_mode(&fn2_mode);
+      } else {
+        mode_manager.switch_mode(&sequencer_mode);
+      }
+      return;
+    }
+    if (ctx.key == KEY_FN2) {
+      if (ctx.has(Mod::FN1)) {
+        mode_manager.switch_mode(&fn1_mode);
+      } else {
+        mode_manager.switch_mode(&sequencer_mode);
+      }
+      return;
+    }
+    return;
+  }
+
+  if (dispatch_binding(FN1_FN2_BINDINGS, FN1_FN2_BINDING_COUNT, ctx)) {
+    return;
+  }
+
+  if (ctx.is_voice()) {
+    handle_voice(ctx);
+    return;
+  }
+}
+
+void Fn1Fn2Mode::render_leds() {
+  render_pixels();
+
+  // Modifiers & action pads
+  set_pixel(KEY_FN1, COLOR_PPOS);   // Both modifiers held
+  set_pixel(KEY_FN2, COLOR_PPOS);   // Both modifiers held
+  set_pixel(KEY_MID_2, COLOR_PACT); // Paste All Slots
+
+  // Inactive buttons in Fn1Fn2Mode
+  set_pixel(KEY_MID_1, COLOR_OFF);
+  set_pixel(KEY_MID_3, COLOR_OFF);
+  set_pixel(KEY_MID_4, COLOR_OFF);
+  set_pixel(KEY_MENU, COLOR_OFF);
+  set_pixel(KEY_MID_5, COLOR_OFF);
+  set_pixel(KEY_MID_6, COLOR_OFF);
+  set_pixel(KEY_VOICE_ALL, COLOR_OFF);
 }
