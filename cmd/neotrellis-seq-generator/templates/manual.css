@@ -46,12 +46,6 @@
     justify-content: space-between;
     gap: 0.5rem 1rem;
   }
-  .top-nav-title {
-    font-weight: 700;
-    font-size: 0.95rem;
-    color: #111;
-    letter-spacing: -0.01em;
-  }
   .top-nav-links {
     display: flex;
     flex-wrap: wrap;
@@ -122,7 +116,7 @@
   .btn-link svg {
     flex-shrink: 0;
   }
-  .print-only, .print-repo-url { display: none; }
+  .print-repo-url { display: none; }
 
   /* The pad grid: 8 columns x 4 rows, in hardware order. */
   .grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: .4rem;
@@ -134,18 +128,16 @@
   .scroll { overflow-x: auto; }
 
   /* Pad colours */
-  .step  { background: #000a7f; }             /* Dim step, hue follows voice */
-  .voc0  { background: #2050e0; }
-  .voc1  { background: #ad8920; }
-  .voc2  { background: #20bcaf; }
-  .voc3  { background: #489120; }
-  .voc4  { background: #b030b0; }
-  .voc5  { background: #808000; }
+  .step        { background: #000a7f; }
+  .voc0        { background: #2050e0; }
+  .voc1        { background: #ad8920; }
+  .voc2        { background: #20bcaf; }
+  .voc3        { background: #489120; }
+  .voc4        { background: #b030b0; }
+  .voc5        { background: #808000; }
   .act   { background: #8080b0; color: #111; }
   .mod   { background: #808b80; color: #111; }
   .ppos  { background: #d0d0d0; color: #111; }
-  .tool  { background: #902020; color: #fff; }
-  .red   { background: #d02020; color: #fff; }
   .green { background: #20d020; color: #111; }
   .off   { background: #000; color: #777; }
   .held  { outline: 2px solid #fff; outline-offset: -2px; }
@@ -213,38 +205,11 @@
     gap: 6px;
     white-space: nowrap;
   }
-  .plabel {
-    display: inline-block;
-    font: 700 10px/1.2 ui-monospace, monospace;
-    color: #555550;
-    background: #e4e4e0;
-    border-radius: 3px;
-    padding: 1px 4px;
-    min-width: 38px;
-    text-align: center;
-  }
-  .poly-badge {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    background: #e1ebff;
-    color: #1a56db;
-    border-radius: 3px;
-    padding: 1px 5px;
-    margin-top: 3px;
-  }
   .len-badge {
     font-size: 10px;
     font-weight: 600;
     color: #888880;
     margin-left: 6px;
-  }
-  .loop-ref {
-    font-size: 11px !important;
-    color: #888880 !important;
-    font-style: italic;
   }
   .kit-page-block {
     margin-bottom: 0.6rem;
@@ -309,9 +274,6 @@
     font: 11px/1.3 ui-monospace, monospace;
     font-weight: 600;
   }
-  .drum-rack-pad.is-alt {
-    border: 2px dashed rgba(255, 255, 255, 0.9);
-  }
   .drum-rack-pad.unassigned {
     background: #1c1c20;
     color: #6a6a75;
@@ -329,10 +291,6 @@
     font-weight: 700;
     letter-spacing: 0.04em;
     background: rgba(0, 0, 0, 0.35);
-    color: #fff;
-  }
-  .drum-rack-tag.alt-tag {
-    background: rgba(255, 255, 255, 0.3);
     color: #fff;
   }
   .pad-mode-badge {
@@ -521,9 +479,6 @@
       color: #000000 !important;
       border: 0.75pt solid #333333 !important;
     }
-    .drum-rack-pad.is-alt {
-      border: 1.5pt dashed #000000 !important;
-    }
     .drum-rack-pad.unassigned {
       background: #ffffff !important;
       color: #777777 !important;
@@ -531,10 +486,6 @@
     }
     .drum-rack-tag {
       background: #000000 !important;
-      color: #ffffff !important;
-    }
-    .drum-rack-tag.alt-tag {
-      background: #444444 !important;
       color: #ffffff !important;
     }
 
@@ -548,12 +499,12 @@
       color: #555555 !important;
     }
 
-    .act {
+    .act, .green {
       background: #e4e4e4 !important;
       color: #000000 !important;
       border: 1pt solid #222222 !important;
     }
-    .act i {
+    .act i, .green i {
       color: #333333 !important;
     }
 
@@ -751,21 +702,6 @@
       gap: 3pt !important;
       white-space: nowrap !important;
     }
-    .plabel {
-      font-size: 7pt !important;
-      border: 0.5pt solid #888888 !important;
-      background: #f0f0f0 !important;
-      color: #000000 !important;
-      min-width: 26pt !important;
-      padding: 0 2pt !important;
-    }
-    .poly-badge {
-      font-size: 6.5pt !important;
-      border: 0.5pt solid #1a56db !important;
-      background: #f0f4ff !important;
-      color: #1a56db !important;
-      padding: 0 2pt !important;
-    }
     .kit-page-block {
       margin-bottom: 3pt !important;
       page-break-inside: avoid !important;
@@ -781,9 +717,5 @@
       font-size: 7pt !important;
       color: #666666 !important;
       margin-left: 3pt !important;
-    }
-    .loop-ref {
-      font-size: 7.5pt !important;
-      color: #777777 !important;
     }
   }
