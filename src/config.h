@@ -18,7 +18,7 @@ constexpr uint32_t ECHO_STEPS = 2;
 
 // Undo history depth in patterns. An all-voice transform records one entry per
 // voice, so this holds a mix of a few of those and many single edits.
-constexpr uint32_t UNDO_LENGTH = 256;
+constexpr uint32_t UNDO_LENGTH = 512;
 
 // Number of sequencer drum voices.
 #define VOICES 6

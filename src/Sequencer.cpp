@@ -133,6 +133,47 @@ void Pattern::echo() {
   }
 }
 
+bool Pattern::is_page_empty(uint32_t page) const {
+  if (page >= MAX_PAGES) {
+    return true;
+  }
+  uint32_t const start = page * STEPS_PER_PAGE;
+  for (uint32_t i = 0; i < STEPS_PER_PAGE; i++) {
+    if (steps[start + i].vel > 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
+void Pattern::copy_page(uint32_t src_page, uint32_t dst_page) {
+  if (src_page >= MAX_PAGES || dst_page >= MAX_PAGES || src_page == dst_page) {
+    return;
+  }
+  uint32_t const src_start = src_page * STEPS_PER_PAGE;
+  uint32_t const dst_start = dst_page * STEPS_PER_PAGE;
+  for (uint32_t i = 0; i < STEPS_PER_PAGE; i++) {
+    steps[dst_start + i] = steps[src_start + i];
+  }
+}
+
+void Pattern::set_length(uint32_t new_len, bool copy_previous) {
+  if (new_len > PATTERN_STEPS) {
+    new_len = PATTERN_STEPS;
+  }
+  uint32_t const old_pages = page_count();
+  length = new_len;
+  uint32_t const new_pages = page_count();
+
+  if (copy_previous && new_pages > old_pages) {
+    for (uint32_t p = old_pages; p < new_pages; p++) {
+      if (is_page_empty(p)) {
+        copy_page(p - 1, p);
+      }
+    }
+  }
+}
+
 Pattern *Voice::pattern() { return &patterns[pattern_idx]; }
 const Pattern *Voice::pattern() const { return &patterns[pattern_idx]; }
 
@@ -638,7 +679,7 @@ void Sequencer::sync_lengths() {
     if (voices[v].is_protected) {
       continue;
     }
-    voices[v].pattern()->length = len;
+    voices[v].pattern()->set_length(len);
     if (voices[v].current_page >= voices[v].page_count()) {
       voices[v].current_page = voices[v].page_count() - 1;
     }

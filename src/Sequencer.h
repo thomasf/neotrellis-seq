@@ -55,6 +55,20 @@ public:
   // has_sounding_notes reports whether any step within the pattern length has
   // velocity > 0.
   bool has_sounding_notes() const;
+  // is_page_empty reports whether every step on the given page (0..MAX_PAGES-1)
+  // has velocity == 0.
+  bool is_page_empty(uint32_t page) const;
+  // copy_page copies all steps from src_page to dst_page.
+  void copy_page(uint32_t src_page, uint32_t dst_page);
+  // page_count returns the number of 16-step pages required for the pattern length.
+  uint32_t page_count() const {
+    uint32_t const p = (length + STEPS_PER_PAGE - 1) / STEPS_PER_PAGE;
+    return p == 0 ? 1 : (p > MAX_PAGES ? MAX_PAGES : p);
+  }
+  // set_length sets the pattern length (clamped to [0, PATTERN_STEPS]). If
+  // copy_previous is true and the new length expands the pattern into new pages,
+  // any newly added page that is empty is populated by copying the previous page onto it.
+  void set_length(uint32_t new_len, bool copy_previous = true);
   Pattern() = default;
   bool operator==(const Pattern &p) const { return length == p.length && steps == p.steps; }
 };
@@ -79,10 +93,7 @@ public:
   uint16_t path_modifiers = PATH_NONE; // active playback path modifiers
   uint32_t play_head = 0;              // progression step counter
   uint32_t current_page = 0;           // currently visible page (0..MAX_PAGES-1)
-  uint32_t page_count() const {
-    uint32_t const p = (pattern()->length + STEPS_PER_PAGE - 1) / STEPS_PER_PAGE;
-    return p == 0 ? 1 : (p > MAX_PAGES ? MAX_PAGES : p);
-  }
+  uint32_t page_count() const { return pattern()->page_count(); }
   Pattern *pattern();                     // current pattern
   const Pattern *pattern() const;         // current pattern (const)
   void replace_pattern(const Pattern &p); // replace current pattern

@@ -408,16 +408,16 @@ void test_undo_buffer_drop_oldest_group(void) {
   undo.push(4, 0, p);
   undo.push(5, 0, p);
 
-  // Push 254 more single-entry groups on voices 0..2 so total entries = 256
+  // Push (UNDO_LENGTH - 2) more single-entry groups on voices 0..2 so total entries = UNDO_LENGTH
   // (capacity)
-  for (uint32_t i = 1; i <= 254; i++) {
+  for (uint32_t i = 1; i <= UNDO_LENGTH - 2; i++) {
     undo.begin_group();
     undo.push(i % 3, 0, p);
   }
 
-  // At this point buffer is exactly full with 256 entries.
+  // At this point buffer is exactly full with UNDO_LENGTH entries.
   // Pushing one more entry must trigger drop_oldest_group, which should drop
-  // the entire Group 0 (both entries: voice 4 and voice 5), leaving 255
+  // the entire Group 0 (both entries: voice 4 and voice 5), leaving UNDO_LENGTH - 1
   // entries.
   undo.begin_group();
   undo.push(3, 0, p);
@@ -434,7 +434,7 @@ void test_undo_buffer_drop_oldest_group(void) {
     undo.pop();
   }
   TEST_ASSERT_FALSE(found_group_0);
-  TEST_ASSERT_EQUAL_UINT32(255, remaining_count);
+  TEST_ASSERT_EQUAL_UINT32(UNDO_LENGTH - 1, remaining_count);
 }
 
 void test_sequencer_voice_selection(void) {
@@ -1314,6 +1314,97 @@ void test_sequencer_64_steps_declutter_and_drift(void) {
   }
 }
 
+void test_pattern_page_copy_on_length_increase(void) {
+  Pattern p;
+  TEST_ASSERT_EQUAL_UINT32(16, p.length);
+  TEST_ASSERT_EQUAL_UINT32(1, p.page_count());
+
+  // Setup notes on page 0
+  p.steps[0].vel = DEFAULT_VELOCITY;
+  p.steps[4].vel = DEFAULT_VELOCITY;
+  p.steps[8].vel = ACCENT_VELOCITY;
+  p.steps[12].vel = GHOST_VELOCITY;
+
+  TEST_ASSERT_TRUE(p.is_page_empty(1));
+  TEST_ASSERT_TRUE(p.is_page_empty(2));
+  TEST_ASSERT_TRUE(p.is_page_empty(3));
+  TEST_ASSERT_FALSE(p.is_page_empty(0));
+
+  // Expanding to 32 steps (Page 2) copies Page 1 onto Page 2 when empty
+  p.set_length(32);
+  TEST_ASSERT_EQUAL_UINT32(32, p.length);
+  TEST_ASSERT_EQUAL_UINT32(2, p.page_count());
+  TEST_ASSERT_FALSE(p.is_page_empty(1));
+
+  TEST_ASSERT_EQUAL_UINT8(DEFAULT_VELOCITY, p.steps[16].vel);
+  TEST_ASSERT_EQUAL_UINT8(DEFAULT_VELOCITY, p.steps[20].vel);
+  TEST_ASSERT_EQUAL_UINT8(ACCENT_VELOCITY, p.steps[24].vel);
+  TEST_ASSERT_EQUAL_UINT8(GHOST_VELOCITY, p.steps[28].vel);
+  TEST_ASSERT_EQUAL_UINT8(0, p.steps[17].vel);
+
+  // Expanding directly to 64 steps copies forward across newly created empty pages
+  p.set_length(64);
+  TEST_ASSERT_EQUAL_UINT32(64, p.length);
+  TEST_ASSERT_EQUAL_UINT32(4, p.page_count());
+  TEST_ASSERT_FALSE(p.is_page_empty(2));
+  TEST_ASSERT_FALSE(p.is_page_empty(3));
+
+  TEST_ASSERT_EQUAL_UINT8(DEFAULT_VELOCITY, p.steps[32].vel);
+  TEST_ASSERT_EQUAL_UINT8(ACCENT_VELOCITY, p.steps[40].vel);
+  TEST_ASSERT_EQUAL_UINT8(DEFAULT_VELOCITY, p.steps[48].vel);
+  TEST_ASSERT_EQUAL_UINT8(ACCENT_VELOCITY, p.steps[56].vel);
+
+  // Non-empty page is NOT overwritten when lengthened again
+  p.steps[17].vel = 77; // Custom note on page 1
+  p.set_length(16);     // Shrink back to 1 page
+  TEST_ASSERT_EQUAL_UINT32(16, p.length);
+  TEST_ASSERT_EQUAL_UINT32(1, p.page_count());
+  // Step data remains in buffer
+  TEST_ASSERT_EQUAL_UINT8(77, p.steps[17].vel);
+
+  // Lengthen back to 32 steps - page 1 was NOT empty so it should preserve its contents
+  p.set_length(32);
+  TEST_ASSERT_EQUAL_UINT32(32, p.length);
+  TEST_ASSERT_EQUAL_UINT32(2, p.page_count());
+  TEST_ASSERT_EQUAL_UINT8(77, p.steps[17].vel);
+
+  // Expanding with copy_previous = false does NOT copy previous page
+  Pattern p2;
+  p2.steps[0].vel = DEFAULT_VELOCITY;
+  p2.steps[4].vel = ACCENT_VELOCITY;
+  TEST_ASSERT_TRUE(p2.is_page_empty(1));
+  p2.set_length(32, false); // without copying
+  TEST_ASSERT_EQUAL_UINT32(32, p2.length);
+  TEST_ASSERT_EQUAL_UINT32(2, p2.page_count());
+  TEST_ASSERT_TRUE(p2.is_page_empty(1)); // remains empty
+  TEST_ASSERT_EQUAL_UINT8(0, p2.steps[16].vel);
+  TEST_ASSERT_EQUAL_UINT8(0, p2.steps[20].vel);
+
+  // Expanding with copy_previous = true copies previous page
+  p2.set_length(16, false); // shrink back
+  p2.set_length(32, true);  // expand with copy
+  TEST_ASSERT_FALSE(p2.is_page_empty(1));
+  TEST_ASSERT_EQUAL_UINT8(DEFAULT_VELOCITY, p2.steps[16].vel);
+  TEST_ASSERT_EQUAL_UINT8(ACCENT_VELOCITY, p2.steps[20].vel);
+
+  // Voice sync_lengths also populates newly added empty pages
+  Sequencer seq;
+  seq.voices[0].pattern()->steps[0].vel = DEFAULT_VELOCITY;
+  seq.voices[0].pattern()->steps[2].vel = ACCENT_VELOCITY;
+  seq.voices[0].pattern()->set_length(32); // voice 0 has 32 steps, page 1 populated
+  seq.set_voice(0);
+
+  // Voice 1 has 16 steps with different notes
+  seq.voices[1].pattern()->steps[1].vel = DEFAULT_VELOCITY;
+  TEST_ASSERT_EQUAL_UINT32(16, seq.voices[1].pattern()->length);
+  TEST_ASSERT_TRUE(seq.voices[1].pattern()->is_page_empty(1));
+
+  seq.sync_lengths();
+  TEST_ASSERT_EQUAL_UINT32(32, seq.voices[1].pattern()->length);
+  TEST_ASSERT_FALSE(seq.voices[1].pattern()->is_page_empty(1));
+  TEST_ASSERT_EQUAL_UINT8(DEFAULT_VELOCITY, seq.voices[1].pattern()->steps[17].vel);
+  TEST_ASSERT_EQUAL_UINT8(0, seq.voices[1].pattern()->steps[16].vel);
+}
 
 void test_playback_toggle_logic(void) {
   bool running = false;
@@ -1417,6 +1508,7 @@ int main(int argc, char **argv) {
   RUN_TEST(test_pattern_64_steps);
   RUN_TEST(test_voice_pagination);
   RUN_TEST(test_sequencer_64_steps_declutter_and_drift);
+  RUN_TEST(test_pattern_page_copy_on_length_increase);
 
   // Sleep & Playback
   RUN_TEST(test_playback_toggle_logic);

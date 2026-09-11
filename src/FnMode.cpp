@@ -208,7 +208,7 @@ void Fn2Mode::handle_step(const KeyContext &ctx) {
   uint32_t const index = ctx.step_index();
   if (ctx.has(Mod::POS)) {
     create_undo_step();
-    seq.voice->pattern()->length = seq.voice->current_page * STEPS_PER_PAGE + index + 1;
+    seq.voice->pattern()->set_length(seq.voice->current_page * STEPS_PER_PAGE + index + 1);
     if (seq.voice->current_page >= seq.voice->page_count()) {
       seq.voice->current_page = seq.voice->page_count() - 1;
     }
@@ -288,12 +288,14 @@ void Fn2AllMode::on_exit() {}
 void Fn2AllMode::handle_step(const KeyContext &ctx) {
   uint32_t const index = ctx.step_index();
   if (ctx.has(Mod::POS)) {
-    create_undo_step();
-    for (auto &voice : seq.voices) {
-      if (!voice.is_protected) {
-        voice.pattern()->length = voice.current_page * STEPS_PER_PAGE + index + 1;
-        if (voice.current_page >= voice.page_count()) {
-          voice.current_page = voice.page_count() - 1;
+    begin_edit();
+    for (uint32_t voice = 0; voice < VOICES; voice++) {
+      if (!seq.voices[voice].is_protected) {
+        record_undo(voice);
+        seq.voices[voice].pattern()->set_length(seq.voices[voice].current_page * STEPS_PER_PAGE +
+                                                index + 1);
+        if (seq.voices[voice].current_page >= seq.voices[voice].page_count()) {
+          seq.voices[voice].current_page = seq.voices[voice].page_count() - 1;
         }
       }
     }

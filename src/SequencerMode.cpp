@@ -20,6 +20,10 @@ static const KeyBinding SEQUENCER_BINDINGS[] = {
 static constexpr size_t BINDING_COUNT = sizeof(SEQUENCER_BINDINGS) / sizeof(SEQUENCER_BINDINGS[0]);
 
 void SequencerMode::on_enter() {
+  mid1_modified_ = false;
+  mid2_modified_ = false;
+  mid1_press_time_ = 0;
+  mid2_press_time_ = 0;
   for (uint32_t i = 0; i < VOICES; i++) {
     set_pixel(voice_index_to_key(i), voice_index_to_color(i));
   }
@@ -40,7 +44,12 @@ void SequencerMode::on_enter() {
   set_pixel(KEY_VOICE_ALL, COLOR_PPOS);
 }
 
-void SequencerMode::on_exit() {}
+void SequencerMode::on_exit() {
+  mid1_modified_ = false;
+  mid2_modified_ = false;
+  mid1_press_time_ = 0;
+  mid2_press_time_ = 0;
+}
 
 void SequencerMode::handle_release(const KeyContext &ctx) {
   if (ctx.is_voice()) {
@@ -50,25 +59,35 @@ void SequencerMode::handle_release(const KeyContext &ctx) {
 
 void SequencerMode::handle_step(const KeyContext &ctx) {
   uint32_t const index = ctx.step_index();
-  bool const is_mid1_held = (ctx.held_mask & (1UL << KEY_MID_1)) != 0;
-  bool const is_mid2_held = (ctx.held_mask & (1UL << KEY_MID_2)) != 0;
-  bool const page_set_mode = is_mid1_held && is_mid2_held;
+  bool const is_mid1_held = (ctx.held_mask & (1UL << KEY_MID_1)) != 0 &&
+                            (millis() - mid1_press_time_ >= HOLD_SHORT_MS);
+  bool const is_mid2_held = (ctx.held_mask & (1UL << KEY_MID_2)) != 0 &&
+                            (millis() - mid2_press_time_ >= HOLD_SHORT_MS);
 
-  if (page_set_mode) {
+  if (is_mid1_held || is_mid2_held) {
     if (index < MAX_PAGES) {
-      create_undo_step();
+      if (is_mid1_held) {
+        mid1_modified_ = true;
+      }
+      if (is_mid2_held) {
+        mid2_modified_ = true;
+      }
+      bool const copy_previous = is_mid2_held;
       uint32_t const new_len = (index + 1) * STEPS_PER_PAGE;
       if (ctx.has(Mod::ALL)) {
-        for (auto &voice : seq.voices) {
-          if (!voice.is_protected) {
-            voice.pattern()->length = new_len;
-            if (voice.current_page >= voice.page_count()) {
-              voice.current_page = voice.page_count() - 1;
+        begin_edit();
+        for (uint32_t voice = 0; voice < VOICES; voice++) {
+          if (!seq.voices[voice].is_protected) {
+            record_undo(voice);
+            seq.voices[voice].pattern()->set_length(new_len, copy_previous);
+            if (seq.voices[voice].current_page >= seq.voices[voice].page_count()) {
+              seq.voices[voice].current_page = seq.voices[voice].page_count() - 1;
             }
           }
         }
       } else {
-        seq.voice->pattern()->length = new_len;
+        create_undo_step();
+        seq.voice->pattern()->set_length(new_len, copy_previous);
         if (seq.voice->current_page >= seq.voice->page_count()) {
           seq.voice->current_page = seq.voice->page_count() - 1;
         }
@@ -82,7 +101,7 @@ void SequencerMode::handle_step(const KeyContext &ctx) {
 
   if (ctx.has(Mod::LEN)) {
     create_undo_step();
-    seq.voice->pattern()->length = actual_step + 1;
+    seq.voice->pattern()->set_length(actual_step + 1);
     if (seq.voice->current_page >= seq.voice->page_count()) {
       seq.voice->current_page = seq.voice->page_count() - 1;
     }
@@ -166,27 +185,33 @@ void SequencerMode::on_key(const KeyContext &ctx) {
 
   if (ctx.key == KEY_MID_1) {
     if (ctx.pressed) {
-      if (ctx.has(1UL << KEY_MID_2)) {
-        return; // Both MID_1 and MID_2 held: entering page-length set mode
+      mid1_press_time_ = millis();
+      mid1_modified_ = false;
+    } else {
+      uint32_t const elapsed = millis() - mid1_press_time_;
+      if (!mid1_modified_ && elapsed < HOLD_SHORT_MS) {
+        if (seq.voice->current_page > 0) {
+          seq.voice->current_page--;
+        }
+        trigger_page_flash(seq.voice->current_page);
       }
-      if (seq.voice->current_page > 0) {
-        seq.voice->current_page--;
-      }
-      trigger_page_flash(seq.voice->current_page);
     }
     return;
   }
 
   if (ctx.key == KEY_MID_2) {
     if (ctx.pressed) {
-      if (ctx.has(1UL << KEY_MID_1)) {
-        return; // Both MID_1 and MID_2 held: entering page-length set mode
+      mid2_press_time_ = millis();
+      mid2_modified_ = false;
+    } else {
+      uint32_t const elapsed = millis() - mid2_press_time_;
+      if (!mid2_modified_ && elapsed < HOLD_SHORT_MS) {
+        uint32_t const max_pages = seq.voice->page_count();
+        if (seq.voice->current_page + 1 < max_pages) {
+          seq.voice->current_page++;
+        }
+        trigger_page_flash(seq.voice->current_page);
       }
-      uint32_t const max_pages = seq.voice->page_count();
-      if (seq.voice->current_page + 1 < max_pages) {
-        seq.voice->current_page++;
-      }
-      trigger_page_flash(seq.voice->current_page);
     }
     return;
   }
@@ -217,17 +242,21 @@ void SequencerMode::on_key(const KeyContext &ctx) {
 void SequencerMode::render_leds() {
   render_pixels();
 
-  bool const is_mid1_held = (held_keys_mask & (1UL << KEY_MID_1)) != 0;
-  bool const is_mid2_held = (held_keys_mask & (1UL << KEY_MID_2)) != 0;
-  bool const page_set_mode = is_mid1_held && is_mid2_held;
+  bool const is_mid1_pressed = (held_keys_mask & (1UL << KEY_MID_1)) != 0;
+  bool const is_mid2_pressed = (held_keys_mask & (1UL << KEY_MID_2)) != 0;
+  bool const is_mid1_held = is_mid1_pressed && (millis() - mid1_press_time_ >= HOLD_SHORT_MS);
+  bool const is_mid2_held = is_mid2_pressed && (millis() - mid2_press_time_ >= HOLD_SHORT_MS);
 
-  if (page_set_mode) {
-    set_pixel(KEY_MID_1, COLOR_PPOS);
-    set_pixel(KEY_MID_2, COLOR_PPOS);
+  if (is_mid1_held || is_mid2_held) {
+    uint32_t const cur_page = seq.voice->current_page;
+    uint32_t const total_pages = seq.voice->page_count();
 
-    uint32_t const cur_pages = seq.voice->page_count();
+    set_pixel(KEY_MID_1, is_mid1_pressed ? COLOR_PPOS : (cur_page > 0 ? COLOR_PMOD : COLOR_OFF));
+    set_pixel(KEY_MID_2,
+              is_mid2_pressed ? COLOR_PPOS : (cur_page + 1 < total_pages ? COLOR_PMOD : COLOR_OFF));
+
     for (uint32_t p = 0; p < MAX_PAGES; p++) {
-      set_pixel(step_key[p], (p < cur_pages) ? COLOR_TOOL : COLOR_OFF);
+      set_pixel(step_key[p], (p < total_pages) ? COLOR_TOOL : COLOR_OFF);
     }
     for (uint32_t s = MAX_PAGES; s < 16; s++) {
       set_pixel(step_key[s], COLOR_OFF);
@@ -237,15 +266,15 @@ void SequencerMode::render_leds() {
     uint32_t const total_pages = seq.voice->page_count();
 
     if (cur_page > 0) {
-      set_pixel(KEY_MID_1, is_mid1_held ? COLOR_PPOS : COLOR_PMOD);
+      set_pixel(KEY_MID_1, is_mid1_pressed ? COLOR_PPOS : COLOR_PMOD);
     } else {
-      set_pixel(KEY_MID_1, is_mid1_held ? COLOR_PPOS : COLOR_OFF);
+      set_pixel(KEY_MID_1, is_mid1_pressed ? COLOR_PPOS : COLOR_OFF);
     }
 
     if (cur_page + 1 < total_pages) {
-      set_pixel(KEY_MID_2, is_mid2_held ? COLOR_PPOS : COLOR_PMOD);
+      set_pixel(KEY_MID_2, is_mid2_pressed ? COLOR_PPOS : COLOR_PMOD);
     } else {
-      set_pixel(KEY_MID_2, is_mid2_held ? COLOR_PPOS : COLOR_OFF);
+      set_pixel(KEY_MID_2, is_mid2_pressed ? COLOR_PPOS : COLOR_OFF);
     }
   }
 

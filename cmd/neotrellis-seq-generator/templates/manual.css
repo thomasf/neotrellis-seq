@@ -123,7 +123,7 @@
           background: #16161a; border-radius: 12px; padding: .8rem; min-width: 44rem; }
   .grid div { border-radius: 7px; padding: .4rem .45rem .5rem; color: #fff;
               min-height: 3.4rem; font-size: .8rem; font-weight: 600; }
-  .grid i { display: block; font: 11px/1.6 ui-monospace, monospace;
+  .grid i { display: block; font: 10px/1.6 ui-monospace, monospace;
             font-style: normal; font-weight: 400; opacity: .65; }
   .scroll { overflow-x: auto; }
 
@@ -142,7 +142,7 @@
   .off   { background: #000; color: #777; }
   .held  { outline: 2px solid #fff; outline-offset: -2px; }
 
-  table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+  table { border-collapse: collapse; width: 100%; font-size: .8rem; }
   th, td { text-align: left; padding: .4rem .7rem .4rem 0; border-bottom: 1px solid #dcdcd6; }
   th { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #6b6b66; }
 
@@ -164,6 +164,24 @@
   .vtag.v3 { background: #489120; color: #ffffff; }
   .vtag.v4 { background: #b030b0; color: #ffffff; }
   .vtag.v5 { background: #808000; color: #ffffff; }
+
+  .btn, .btag {
+    display: inline-block;
+    font: 700 11px/1.25 ui-monospace, monospace;
+    padding: 1.5px 5px;
+    border-radius: 3px;
+    background: #e2e2dc;
+    color: #111111;
+    border: 1px solid #bebeb6;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    vertical-align: middle;
+    box-sizing: border-box;
+  }
+  .btn i, .btag i {
+    font-style: italic;
+  }
 
   .kit-voices {
     display: flex;
@@ -675,6 +693,23 @@
       margin-right: 6pt !important;
       flex-shrink: 0 !important;
       letter-spacing: 0.04em !important;
+    }
+    .btn, .btag {
+      display: inline-block !important;
+      font-size: 8pt !important;
+      font-weight: 700 !important;
+      line-height: 1.15 !important;
+      padding: 0.5pt 3.5pt !important;
+      border: 0.6pt solid #444444 !important;
+      background: #f0f0f0 !important;
+      color: #000000 !important;
+      border-radius: 2pt !important;
+      box-sizing: border-box !important;
+      vertical-align: middle !important;
+      white-space: nowrap !important;
+    }
+    .btn i, .btag i {
+      font-style: italic !important;
     }
     .kit-voices {
       gap: 0.5pt !important;

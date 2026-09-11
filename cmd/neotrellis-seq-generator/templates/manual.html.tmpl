@@ -39,7 +39,7 @@
 <p class="note">
   Standalone 6-voice polyphonic USB-MIDI step sequencer for the Adafruit NeoTrellis M4
   (SAMD51 Cortex-M4 at 120&thinsp;MHz, 8&times;4 RGB elastomeric keypad). Features polymetric track
-  lengths (up to 64 steps across 4 pages), 4-level velocity dynamics, generative algorithmic transforms, and 256-step undo/redo.
+  lengths (up to 64 steps across 4 pages), 4-level velocity dynamics, generative algorithmic transforms, and 512-step undo/redo.
 </p>
 
 <div class="project-bar">
@@ -65,7 +65,7 @@
   <tr><td class="k">Pattern Memory</td><td>16 pattern slots per voice (96 total), switchable on the fly without interrupting playback.</td></tr>
   <tr><td class="k">Track Length</td><td>Independent length per voice (1&ndash;64 steps across up to 4 switchable 16-step pages) for evolving polymeters and extended phrases.</td></tr>
   <tr><td class="k">Velocities</td><td>4 expressive levels: Accent (127), Normal (99), Ghost / Muted (50), and Rest / Silence (0).</td></tr>
-  <tr><td class="k">Undo / Redo</td><td>256 edits deep across all voices. Swaps and all-voice transforms undo/redo in a single press.</td></tr>
+  <tr><td class="k">Undo / Redo</td><td>512 edits deep across all voices. Swaps and all-voice transforms undo/redo in a single press.</td></tr>
   <tr><td class="k">Transforms</td><td>Algorithmic generators: Game of Life, Shift, Echo, Invert, Humanize, Drift, Declutter, Fill Empty.</td></tr>
   <tr><td class="k">MIDI Transport</td><td>Class-compliant USB-MIDI following host clock (24 PPQN), start, stop, continue, and SPP.</td></tr>
 </table>
@@ -135,26 +135,28 @@
 <h2>Presses</h2>
 <table>
   <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
-  <tr><td class="k">STEP <i>n</i></td><td class="act-name">Toggle Step</td><td>Toggles the note on step <i>n</i> of the selected pattern (on active page, up to 64 steps).</td></tr>
-  <tr><td class="k">VOICE <i>v</i></td><td class="act-name">Select Voice</td><td>Selects voice <i>v</i> for editing, flashes active page number in red on step grid, and lights up while it fires.</td></tr>
-  <tr><td class="k">&larr; PAGE</td><td class="act-name">Previous Page</td><td>Switches the 16-step grid view to the previous page (Page 1&ndash;4). Lights up when a previous page exists. Briefly flashes the active page number on the step grid in red.</td></tr>
-  <tr><td class="k">PAGE &rarr;</td><td class="act-name">Next Page</td><td>Switches the 16-step grid view to the next page. Lights up when the pattern extends into a subsequent page (up to 64 steps). Briefly flashes the active page number on the step grid in red.</td></tr>
-  <tr><td class="k">CLEAR</td><td class="act-name">Clear Pattern</td><td>Zeroes every step of the selected pattern across all pages.</td></tr>
-  <tr><td class="k">MENU</td><td class="act-name">Menu Mode</td><td>Enters settings menu (Voice Protect, playback path modifiers, MIDI note assignment, play/stop toggle, and sleep mode). Press MENU again to return to sequencer.</td></tr>
+  <tr><td class="k"><span class="btn">STEP <i>n</i></span></td><td class="act-name">Toggle Step</td><td>Toggles the note on step <i>n</i> of the selected pattern (on active page, up to 64 steps).</td></tr>
+  <tr><td class="k"><span class="btn">VOICE <i>v</i></span></td><td class="act-name">Select Voice</td><td>Selects voice <i>v</i> for editing, flashes active page number in red on step grid, and lights up while it fires.</td></tr>
+  <tr><td class="k"><span class="btn">&larr; PAGE</span></td><td class="act-name">Previous Page</td><td>Switches the 16-step grid view to the previous page (Page 1&ndash;4). Lights up when a previous page exists. Briefly flashes the active page number on the step grid in red. Hold and tap STEP 1&ndash;4 to set pattern length without copying.</td></tr>
+  <tr><td class="k"><span class="btn">PAGE &rarr;</span></td><td class="act-name">Next Page</td><td>Switches the 16-step grid view to the next page. Lights up when the pattern extends into a subsequent page (up to 64 steps). Briefly flashes the active page number on the step grid in red. Hold and tap STEP 1&ndash;4 to set pattern length and copy onto new empty pages.</td></tr>
+  <tr><td class="k"><span class="btn">CLEAR</span></td><td class="act-name">Clear Pattern</td><td>Zeroes every step of the selected pattern across all pages.</td></tr>
+  <tr><td class="k"><span class="btn">MENU</span></td><td class="act-name">Menu Mode</td><td>Enters settings menu (Voice Protect, playback path modifiers, MIDI note assignment, play/stop toggle, and sleep mode). Press MENU again to return to sequencer.</td></tr>
 </table>
 
 <h2>Held modifiers</h2>
 <table>
   <tr><th>Combination</th><th>Action</th><th>Description</th></tr>
-  <tr><td class="k">&larr; PAGE + PAGE &rarr;</td><td class="act-name">Page Length Mode</td><td>Holding both page buttons enters page length set mode. Both buttons light white, and steps 1&ndash;4 illuminate in red up to current page count. Tap STEP 1, 2, 3, or 4 to set pattern length to 16, 32, 48, or 64 steps.</td></tr>
-  <tr><td class="k">&larr; PAGE + PAGE &rarr; + ALL</td><td class="act-name">Set All Page Lengths</td><td>Holding both page buttons with ALL, then tapping STEP 1&ndash;4 sets pattern length to 16, 32, 48, or 64 steps across all unprotected voices simultaneously.</td></tr>
-  <tr><td class="k">ACCENT + STEP <i>n</i></td><td class="act-name">Accent Step</td><td>Accents step <i>n</i> (velocity 127) on the active page. Toggles an accented step back to normal velocity (99); switches a silent step on accented.</td></tr>
-  <tr><td class="k">ACCENT + CLEAR</td><td class="act-name">Clear Accents</td><td>Removes all accents from the selected pattern across all pages, leaving notes in place.</td></tr>
-  <tr><td class="k">POS + STEP <i>n</i></td><td class="act-name">Set Position</td><td>Moves the selected voice&rsquo;s playhead to step <i>n</i> on the active page.</td></tr>
-  <tr><td class="k">POS + ALL + STEP <i>n</i></td><td class="act-name">Set All Position</td><td>Moves every voice&rsquo;s playhead to step <i>n</i> on the active page simultaneously.</td></tr>
-  <tr><td class="k">POS + FN1</td><td class="act-name">Rewind Transport</td><td>Resets playback position of all voices to step 0 and arms them to fire on next step/clock (can also be pressed as FN1 + POS).</td></tr>
-  <tr><td class="k">VOICE <i>v</i> + STEP <i>n</i></td><td class="act-name">Select Pattern</td><td>Selects pattern slot <i>n</i> for voice <i>v</i> without modifying step data. Multiple voice pads can be held at once. Flashes active page in red.</td></tr>
-  <tr><td class="k">ALL + STEP <i>n</i></td><td class="act-name">Select All Patterns</td><td>Selects pattern slot <i>n</i> for all unprotected voices simultaneously (protected voices remain on their current slot). Flashes active page in red.</td></tr>
+  <tr><td class="k"><span class="btn">&larr; PAGE</span> + <span class="btn">STEP <i>n</i></span></td><td class="act-name">Set Length (No Copy)</td><td>Holding &larr; PAGE illuminates steps 1&ndash;4 in red up to current page count. Tap STEP 1, 2, 3, or 4 to set pattern length to 16, 32, 48, or 64 steps without copying pattern data to newly added pages.</td></tr>
+  <tr><td class="k"><span class="btn">PAGE &rarr;</span> + <span class="btn">STEP <i>n</i></span></td><td class="act-name">Set Length (Copy)</td><td>Holding PAGE &rarr; illuminates steps 1&ndash;4 in red up to current page count. Tap STEP 1, 2, 3, or 4 to set pattern length to 16, 32, 48, or 64 steps. If newly added pages are empty, the previous page is copied onto them.</td></tr>
+  <tr><td class="k"><span class="btn">&larr; PAGE</span> + <span class="btn">ALL</span> + <span class="btn">STEP <i>n</i></span></td><td class="act-name">Set All Lengths (No Copy)</td><td>Holding &larr; PAGE with ALL, then tapping STEP 1&ndash;4 sets pattern length to 16, 32, 48, or 64 steps across all unprotected voices simultaneously without copying.</td></tr>
+  <tr><td class="k"><span class="btn">PAGE &rarr;</span> + <span class="btn">ALL</span> + <span class="btn">STEP <i>n</i></span></td><td class="act-name">Set All Lengths (Copy)</td><td>Holding PAGE &rarr; with ALL, then tapping STEP 1&ndash;4 sets pattern length to 16, 32, 48, or 64 steps across all unprotected voices simultaneously, copying previous pages onto newly added empty pages.</td></tr>
+  <tr><td class="k"><span class="btn">ACCENT</span> + <span class="btn">STEP <i>n</i></span></td><td class="act-name">Accent Step</td><td>Accents step <i>n</i> (velocity 127) on the active page. Toggles an accented step back to normal velocity (99); switches a silent step on accented.</td></tr>
+  <tr><td class="k"><span class="btn">ACCENT</span> + <span class="btn">CLEAR</span></td><td class="act-name">Clear Accents</td><td>Removes all accents from the selected pattern across all pages, leaving notes in place.</td></tr>
+  <tr><td class="k"><span class="btn">POS</span> + <span class="btn">STEP <i>n</i></span></td><td class="act-name">Set Position</td><td>Moves the selected voice&rsquo;s playhead to step <i>n</i> on the active page.</td></tr>
+  <tr><td class="k"><span class="btn">POS</span> + <span class="btn">ALL</span> + <span class="btn">STEP <i>n</i></span></td><td class="act-name">Set All Position</td><td>Moves every voice&rsquo;s playhead to step <i>n</i> on the active page simultaneously.</td></tr>
+  <tr><td class="k"><span class="btn">POS</span> + <span class="btn">FN1</span></td><td class="act-name">Rewind Transport</td><td>Resets playback position of all voices to step 0 and arms them to fire on next step/clock (can also be pressed as FN1 + POS).</td></tr>
+  <tr><td class="k"><span class="btn">VOICE <i>v</i></span> + <span class="btn">STEP <i>n</i></span></td><td class="act-name">Select Pattern</td><td>Selects pattern slot <i>n</i> for voice <i>v</i> without modifying step data. Multiple voice pads can be held at once. Flashes active page in red.</td></tr>
+  <tr><td class="k"><span class="btn">ALL</span> + <span class="btn">STEP <i>n</i></span></td><td class="act-name">Select All Patterns</td><td>Selects pattern slot <i>n</i> for all unprotected voices simultaneously (protected voices remain on their current slot). Flashes active page in red.</td></tr>
 </table>
 </section>
 
@@ -217,18 +219,18 @@
 
 <table>
   <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
-  <tr><td class="k">STEP 1, 2</td><td class="act-name">Shift &plusmn;1</td><td>Shifts pattern left (STEP 1) or right (STEP 2) by 1 step, wrapping within length.</td></tr>
-  <tr><td class="k">STEP 3, 4</td><td class="act-name">Shift &plusmn;4</td><td>Shifts pattern left (STEP 3) or right (STEP 4) by 4 steps, wrapping within length.</td></tr>
-  <tr><td class="k">STEP 5</td><td class="act-name">Reverse</td><td>Reverses the pattern within its active length.</td></tr>
-  <tr><td class="k">STEP 6</td><td class="act-name">Invert</td><td>Inverts sounding and silent steps, keeping active pattern length.</td></tr>
-  <tr><td class="k">STEP 7</td><td class="act-name">Humanize</td><td>Randomly varies sounding step velocities between ghost, normal, and accent, adding natural groove dynamics.</td></tr>
-  <tr><td class="k">STEP 8</td><td class="act-name">Fill Empty</td><td>Adds notes on steps where no other voice sounds, prioritizing least crowded steps.</td></tr>
-  <tr><td class="k">STEP 9</td><td class="act-name">Shuffle</td><td>Randomly shuffles step order within the active pattern length.</td></tr>
-  <tr><td class="k">STEP 10</td><td class="act-name">Echo</td><td>Copies each note 2 steps later at half velocity. Repeated presses add successive echoes.</td></tr>
-  <tr><td class="k">STEP 11</td><td class="act-name">Drift</td><td>Moves one note 1 step left or right onto a free step, preserving velocity.</td></tr>
-  <tr><td class="k">ACCENT + STEP <i>n</i></td><td class="act-name">Load Preset</td><td>Loads pattern preset <i>n</i> (1&ndash;16), incorporating accents, normal hits, and ghost notes.</td></tr>
-  <tr><td class="k">POS</td><td class="act-name">Rewind</td><td>Resets playback position of all voices to step 0 and arms them to fire on next step/clock.</td></tr>
-  <tr><td class="k">VOICE <i>v</i></td><td class="act-name">Swap Pattern</td><td>Swaps selected pattern with voice <i>v</i>&rsquo;s current pattern.</td></tr>
+  <tr><td class="k"><span class="btn">STEP 1</span>, <span class="btn">STEP 2</span></td><td class="act-name">Shift &plusmn;1</td><td>Shifts pattern left (STEP 1) or right (STEP 2) by 1 step, wrapping within length.</td></tr>
+  <tr><td class="k"><span class="btn">STEP 3</span>, <span class="btn">STEP 4</span></td><td class="act-name">Shift &plusmn;4</td><td>Shifts pattern left (STEP 3) or right (STEP 4) by 4 steps, wrapping within length.</td></tr>
+  <tr><td class="k"><span class="btn">STEP 5</span></td><td class="act-name">Reverse</td><td>Reverses the pattern within its active length.</td></tr>
+  <tr><td class="k"><span class="btn">STEP 6</span></td><td class="act-name">Invert</td><td>Inverts sounding and silent steps, keeping active pattern length.</td></tr>
+  <tr><td class="k"><span class="btn">STEP 7</span></td><td class="act-name">Humanize</td><td>Randomly varies sounding step velocities between ghost, normal, and accent, adding natural groove dynamics.</td></tr>
+  <tr><td class="k"><span class="btn">STEP 8</span></td><td class="act-name">Fill Empty</td><td>Adds notes on steps where no other voice sounds, prioritizing least crowded steps.</td></tr>
+  <tr><td class="k"><span class="btn">STEP 9</span></td><td class="act-name">Shuffle</td><td>Randomly shuffles step order within the active pattern length.</td></tr>
+  <tr><td class="k"><span class="btn">STEP 10</span></td><td class="act-name">Echo</td><td>Copies each note 2 steps later at half velocity. Repeated presses add successive echoes.</td></tr>
+  <tr><td class="k"><span class="btn">STEP 11</span></td><td class="act-name">Drift</td><td>Moves one note 1 step left or right onto a free step, preserving velocity.</td></tr>
+  <tr><td class="k"><span class="btn">ACCENT</span> + <span class="btn">STEP <i>n</i></span></td><td class="act-name">Load Preset</td><td>Loads pattern preset <i>n</i> (1&ndash;16), incorporating accents, normal hits, and ghost notes.</td></tr>
+  <tr><td class="k"><span class="btn">POS</span></td><td class="act-name">Rewind</td><td>Resets playback position of all voices to step 0 and arms them to fire on next step/clock.</td></tr>
+  <tr><td class="k"><span class="btn">VOICE <i>v</i></span></td><td class="act-name">Swap Pattern</td><td>Swaps selected pattern with voice <i>v</i>&rsquo;s current pattern.</td></tr>
 </table>
 </section>
 
@@ -292,16 +294,16 @@
 
 <table>
   <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
-  <tr><td class="k">STEP 1&ndash;7, 9, 10</td><td class="act-name">Transform All</td><td>Applies corresponding single-voice transform to all unprotected voices simultaneously.</td></tr>
-  <tr><td class="k">STEP 8</td><td class="act-name">Interlocking Fill</td><td>Fill empty for each voice in sequence, creating complementary interlocking parts.</td></tr>
-  <tr><td class="k">STEP 11</td><td class="act-name">Declutter</td><td>Silences one randomly chosen voice on steps where two or more voices collide (never silences protected voices).</td></tr>
-  <tr><td class="k">STEP 12</td><td class="act-name">Life</td><td>Advances Conway&rsquo;s Game of Life across voices on the virtual board (protected voices do not change).</td></tr>
-  <tr><td class="k">ACCENT + STEP <i>n</i></td><td class="act-name">Load Kit Preset</td><td>Loads pattern preset <i>n</i> (1&ndash;16) across all unprotected voices.</td></tr>
-  <tr><td class="k">STEP 13</td><td class="act-name">Sync Lengths</td><td>Sets unprotected voice loop lengths to match the selected voice&rsquo;s current pattern length (up to 64 steps).</td></tr>
-  <tr><td class="k">FN2</td><td class="act-name">Odd Meters</td><td>Assigns odd lengths (5, 7, 9, 11, 13, 15) randomly across unprotected voices without altering step data.</td></tr>
-  <tr><td class="k">CLEAR</td><td class="act-name">Dropout</td><td>Silences half of currently sounding unprotected voices at random (minimum 1 voice per press).</td></tr>
-  <tr><td class="k">POS</td><td class="act-name">Rewind</td><td>Resets playback position of all voices to step 0 and arms them to fire on next step/clock.</td></tr>
-  <tr><td class="k">VOICE <i>v</i></td><td class="act-name">Swap Pattern</td><td>Swaps selected pattern with voice <i>v</i>&rsquo;s current pattern.</td></tr>
+  <tr><td class="k"><span class="btn">STEP 1&ndash;7, 9, 10</span></td><td class="act-name">Transform All</td><td>Applies corresponding single-voice transform to all unprotected voices simultaneously.</td></tr>
+  <tr><td class="k"><span class="btn">STEP 8</span></td><td class="act-name">Interlocking Fill</td><td>Fill empty for each voice in sequence, creating complementary interlocking parts.</td></tr>
+  <tr><td class="k"><span class="btn">STEP 11</span></td><td class="act-name">Declutter</td><td>Silences one randomly chosen voice on steps where two or more voices collide (never silences protected voices).</td></tr>
+  <tr><td class="k"><span class="btn">STEP 12</span></td><td class="act-name">Life</td><td>Advances Conway&rsquo;s Game of Life across voices on the virtual board (protected voices do not change).</td></tr>
+  <tr><td class="k"><span class="btn">ACCENT</span> + <span class="btn">STEP <i>n</i></span></td><td class="act-name">Load Kit Preset</td><td>Loads pattern preset <i>n</i> (1&ndash;16) across all unprotected voices.</td></tr>
+  <tr><td class="k"><span class="btn">STEP 13</span></td><td class="act-name">Sync Lengths</td><td>Sets unprotected voice loop lengths to match the selected voice&rsquo;s current pattern length (up to 64 steps).</td></tr>
+  <tr><td class="k"><span class="btn">FN2</span></td><td class="act-name">Odd Meters</td><td>Assigns odd lengths (5, 7, 9, 11, 13, 15) randomly across unprotected voices without altering step data.</td></tr>
+  <tr><td class="k"><span class="btn">CLEAR</span></td><td class="act-name">Dropout</td><td>Silences half of currently sounding unprotected voices at random (minimum 1 voice per press).</td></tr>
+  <tr><td class="k"><span class="btn">POS</span></td><td class="act-name">Rewind</td><td>Resets playback position of all voices to step 0 and arms them to fire on next step/clock.</td></tr>
+  <tr><td class="k"><span class="btn">VOICE <i>v</i></span></td><td class="act-name">Swap Pattern</td><td>Swaps selected pattern with voice <i>v</i>&rsquo;s current pattern.</td></tr>
 </table>
 </section>
 
@@ -365,13 +367,13 @@
 
 <table>
   <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
-  <tr><td class="k">COPY (pad 4)</td><td class="act-name">Copy Pattern</td><td>Copies the active voice&rsquo;s current pattern to the paste buffer.</td></tr>
-  <tr><td class="k">PASTE (pad 5)</td><td class="act-name">Paste Pattern</td><td>Overwrites the active voice&rsquo;s current pattern with the paste buffer.</td></tr>
-  <tr><td class="k">CLEAR (pad 12)</td><td class="act-name">Undo</td><td>Steps back through pattern edits (256 deep). Restores to original voice and slot.</td></tr>
-  <tr><td class="k">REDO (pad 13)</td><td class="act-name">Redo</td><td>Redoes the last undone edit. Subsequent new edits clear redo history.</td></tr>
-  <tr><td class="k">POS + STEP <i>n</i></td><td class="act-name">Set Length</td><td>Sets the active voice&rsquo;s pattern loop length to step <i>n</i> on the active page (<code>page &times; 16 + n</code>, up to 64 steps; hold FN2 + POS, tap step 1&ndash;16).</td></tr>
-  <tr><td class="k">ALL + &hellip;</td><td class="act-name">Function 2 All</td><td>Applies secondary functions across all unprotected voices simultaneously (see below).</td></tr>
-  <tr><td class="k">FN1 + &hellip;</td><td class="act-name">FN1+FN2</td><td>Accesses dual-modifier functions: paste to all pattern slots (see below).</td></tr>
+  <tr><td class="k"><span class="btn">COPY</span> (pad 4)</td><td class="act-name">Copy Pattern</td><td>Copies the active voice&rsquo;s current pattern to the paste buffer.</td></tr>
+  <tr><td class="k"><span class="btn">PASTE</span> (pad 5)</td><td class="act-name">Paste Pattern</td><td>Overwrites the active voice&rsquo;s current pattern with the paste buffer.</td></tr>
+  <tr><td class="k"><span class="btn">CLEAR</span> (pad 12)</td><td class="act-name">Undo</td><td>Steps back through pattern edits (512 deep). Restores to original voice and slot.</td></tr>
+  <tr><td class="k"><span class="btn">REDO</span> (pad 13)</td><td class="act-name">Redo</td><td>Redoes the last undone edit. Subsequent new edits clear redo history.</td></tr>
+  <tr><td class="k"><span class="btn">POS</span> + <span class="btn">STEP <i>n</i></span></td><td class="act-name">Set Length</td><td>Sets the active voice&rsquo;s pattern loop length to step <i>n</i> on the active page (<code>page &times; 16 + n</code>, up to 64 steps; hold FN2 + POS, tap step 1&ndash;16).</td></tr>
+  <tr><td class="k"><span class="btn">ALL</span> + &hellip;</td><td class="act-name">Function 2 All</td><td>Applies secondary functions across all unprotected voices simultaneously (see below).</td></tr>
+  <tr><td class="k"><span class="btn">FN1</span> + &hellip;</td><td class="act-name">FN1+FN2</td><td>Accesses dual-modifier functions: paste to all pattern slots (see below).</td></tr>
 </table>
 </section>
 
@@ -433,7 +435,7 @@
 
 <table>
   <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
-  <tr><td class="k">POS + STEP <i>n</i></td><td class="act-name">Set All Lengths</td><td>Sets pattern loop lengths to step <i>n</i> on the active page (<code>current page &times; 16 + n</code>, up to 64 steps) across all unprotected voices simultaneously (hold FN2 + ALL + POS, tap step 1&ndash;16). Protected voices remain unchanged.</td></tr>
+  <tr><td class="k"><span class="btn">POS</span> + <span class="btn">STEP <i>n</i></span></td><td class="act-name">Set All Lengths</td><td>Sets pattern loop lengths to step <i>n</i> on the active page (<code>current page &times; 16 + n</code>, up to 64 steps) across all unprotected voices simultaneously (hold FN2 + ALL + POS, tap step 1&ndash;16). Protected voices remain unchanged.</td></tr>
 </table>
 </section>
 
@@ -495,8 +497,8 @@
 
 <table>
   <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
-  <tr><td class="k">PASTE (pad 5)</td><td class="act-name">Paste All Slots</td><td>Overwrites all 16 pattern slots of the selected voice with the paste buffer (hold FN1 + FN2, tap pad 5).</td></tr>
-  <tr><td class="k">VOICE <i>v</i></td><td class="act-name">Select Voice</td><td>Selects voice <i>v</i> for editing.</td></tr>
+  <tr><td class="k"><span class="btn">PASTE</span> (pad 5)</td><td class="act-name">Paste All Slots</td><td>Overwrites all 16 pattern slots of the selected voice with the paste buffer (hold FN1 + FN2, tap pad 5).</td></tr>
+  <tr><td class="k"><span class="btn">VOICE <i>v</i></span></td><td class="act-name">Select Voice</td><td>Selects voice <i>v</i> for editing.</td></tr>
 </table>
 </section>
 
@@ -555,17 +557,17 @@
 
 <table>
   <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
-  <tr><td class="k">VOICE 0&ndash;5 (tap)</td><td class="act-name">Select Voice Page</td><td>Selects which voice&rsquo;s settings page is displayed. Active voice button lights in white. Voice buttons continue to flash in sync with playback (inverted: turning off briefly instead of turning white when a note plays).</td></tr>
-  <tr><td class="k">Hold VOICE 0&ndash;5</td><td class="act-name">Voice Menu</td><td>Hold a voice pad (or tap a step while holding) to enter the Voice Menu and reassign its MIDI note on the 4&times;4 drum rack grid. Release to return.</td></tr>
-  <tr><td class="k">STEP 1 (Row 1)</td><td class="act-name">Toggle Voice Protect</td><td>Protects the voice from all global actions (<code>ALL</code> and <code>FN1 + ALL</code> transforms, kits, and length changes). Its pattern stays untouched unless edited directly.</td></tr>
-  <tr><td class="k">STEP 5 (Row 2)</td><td class="act-name">Ping-Pong Path</td><td>Forward-then-reverse bounce without repeating ends (e.g. <code>0 &rarr; 1 &rarr; 2 &rarr; 3 &rarr; 2 &rarr; 1</code>). Lights green when active, red when inactive.</td></tr>
-  <tr><td class="k">STEP 6 (Row 2)</td><td class="act-name">Spiral Path</td><td>Outside-in clockwise grid traversal (<code>0, 1, 2, 3, 7, 11, 15, 14, 13, 12, 8, 4, 5, 6, 10, 9</code>). Lights green when active, red when inactive.</td></tr>
-  <tr><td class="k">STEP 7 (Row 2)</td><td class="act-name">Phase Slip Path</td><td>Rotational phase slip (+1 step offset each completed cycle, staggered by +2 steps per voice). Lights green when active, red when inactive.</td></tr>
-  <tr><td class="k">STEP 8 (Row 2)</td><td class="act-name">Mutate Path</td><td>Randomly switches between all unused path modifiers every 4 bars (Stutter, Weave, Drunken, Beat Ping-Pong, Broken Thirds, Downbeat Lock, Pair Swap, Turnaround, Pedal). Lights green when active, red when inactive.</td></tr>
-  <tr><td class="k">ALL (tap)</td><td class="act-name">Start Playback</td><td>Starts sequencer playback when stopped. Ignored while running to prevent stopping playback by mistake.</td></tr>
-  <tr><td class="k">Hold ALL (1s)</td><td class="act-name">Stop Playback</td><td>Stops sequencer playback when running. Illuminates red once stopped.</td></tr>
-  <tr><td class="k">Hold ALL (2s)</td><td class="act-name">Sleep Mode</td><td>Stops sequencer playback, turns off all other LEDs, and locks all keys. The <code>ALL</code> button remains dimly lit until pressed again to wake up and return to the sequencer.</td></tr>
-  <tr><td class="k">MENU</td><td class="act-name">Exit Menu</td><td>Exits Menu Mode and returns to the sequencer.</td></tr>
+  <tr><td class="k"><span class="btn">VOICE 0&ndash;5</span> (tap)</td><td class="act-name">Select Voice Page</td><td>Selects which voice&rsquo;s settings page is displayed. Active voice button lights in white. Voice buttons continue to flash in sync with playback (inverted: turning off briefly instead of turning white when a note plays).</td></tr>
+  <tr><td class="k">Hold <span class="btn">VOICE 0&ndash;5</span></td><td class="act-name">Voice Menu</td><td>Hold a voice pad (or tap a step while holding) to enter the Voice Menu and reassign its MIDI note on the 4&times;4 drum rack grid. Release to return.</td></tr>
+  <tr><td class="k"><span class="btn">STEP 1</span> (Row 1)</td><td class="act-name">Toggle Voice Protect</td><td>Protects the voice from all global actions (<code>ALL</code> and <code>FN1 + ALL</code> transforms, kits, and length changes). Its pattern stays untouched unless edited directly.</td></tr>
+  <tr><td class="k"><span class="btn">STEP 5</span> (Row 2)</td><td class="act-name">Ping-Pong Path</td><td>Forward-then-reverse bounce without repeating ends (e.g. <code>0 &rarr; 1 &rarr; 2 &rarr; 3 &rarr; 2 &rarr; 1</code>). Lights green when active, red when inactive.</td></tr>
+  <tr><td class="k"><span class="btn">STEP 6</span> (Row 2)</td><td class="act-name">Spiral Path</td><td>Outside-in clockwise grid traversal (<code>0, 1, 2, 3, 7, 11, 15, 14, 13, 12, 8, 4, 5, 6, 10, 9</code>). Lights green when active, red when inactive.</td></tr>
+  <tr><td class="k"><span class="btn">STEP 7</span> (Row 2)</td><td class="act-name">Phase Slip Path</td><td>Rotational phase slip (+1 step offset each completed cycle, staggered by +2 steps per voice). Lights green when active, red when inactive.</td></tr>
+  <tr><td class="k"><span class="btn">STEP 8</span> (Row 2)</td><td class="act-name">Mutate Path</td><td>Randomly switches between all unused path modifiers every 4 bars (Stutter, Weave, Drunken, Beat Ping-Pong, Broken Thirds, Downbeat Lock, Pair Swap, Turnaround, Pedal). Lights green when active, red when inactive.</td></tr>
+  <tr><td class="k"><span class="btn">ALL</span> (tap)</td><td class="act-name">Start Playback</td><td>Starts sequencer playback when stopped. Ignored while running to prevent stopping playback by mistake.</td></tr>
+  <tr><td class="k">Hold <span class="btn">ALL</span> (1s)</td><td class="act-name">Stop Playback</td><td>Stops sequencer playback when running. Illuminates red once stopped.</td></tr>
+  <tr><td class="k">Hold <span class="btn">ALL</span> (2s)</td><td class="act-name">Sleep Mode</td><td>Stops sequencer playback, turns off all other LEDs, and locks all keys. The <code>ALL</code> button remains dimly lit until pressed again to wake up and return to the sequencer.</td></tr>
+  <tr><td class="k"><span class="btn">MENU</span></td><td class="act-name">Exit Menu</td><td>Exits Menu Mode and returns to the sequencer.</td></tr>
 </table>
 </section>
 
@@ -629,11 +631,11 @@
 
 <table>
   <tr><th>Pad</th><th>Action</th><th>Description</th></tr>
-  <tr><td class="k">STEP 1&ndash;16</td><td class="act-name">Assign / Swap Note</td><td>Assigns the 4&times;4 drum rack MIDI note (notes 36&ndash;51) of that step to the currently held voice. If another voice already owns that note, the two voices swap their notes.</td></tr>
-  <tr><td class="k">Hold VOICE 0&ndash;5</td><td class="act-name">Active Voice Focus</td><td>Holding any voice pad for &ge;&thinsp;200ms keeps Voice Menu Mode active. The active voice lights in white, and its assigned step pad also illuminates in white.</td></tr>
-  <tr><td class="k">Release VOICE</td><td class="act-name">Return to Menu</td><td>Releasing the held voice pad returns immediately to Menu Mode.</td></tr>
-  <tr><td class="k">VOICE 0&ndash;5 (tap other)</td><td class="act-name">Switch Edit Voice</td><td>Tapping another voice pad switches the active editing voice to that channel.</td></tr>
-  <tr><td class="k">MENU</td><td class="act-name">Exit Sequencer</td><td>Exits Menu Mode and Voice Menu Mode, returning directly to the sequencer.</td></tr>
+  <tr><td class="k"><span class="btn">STEP 1&ndash;16</span></td><td class="act-name">Assign / Swap Note</td><td>Assigns the 4&times;4 drum rack MIDI note (notes 36&ndash;51) of that step to the currently held voice. If another voice already owns that note, the two voices swap their notes.</td></tr>
+  <tr><td class="k">Hold <span class="btn">VOICE 0&ndash;5</span></td><td class="act-name">Active Voice Focus</td><td>Holding any voice pad for &ge;&thinsp;200ms keeps Voice Menu Mode active. The active voice lights in white, and its assigned step pad also illuminates in white.</td></tr>
+  <tr><td class="k">Release <span class="btn">VOICE</span></td><td class="act-name">Return to Menu</td><td>Releasing the held voice pad returns immediately to Menu Mode.</td></tr>
+  <tr><td class="k"><span class="btn">VOICE 0&ndash;5</span> (tap other)</td><td class="act-name">Switch Edit Voice</td><td>Tapping another voice pad switches the active editing voice to that channel.</td></tr>
+  <tr><td class="k"><span class="btn">MENU</span></td><td class="act-name">Exit Sequencer</td><td>Exits Menu Mode and Voice Menu Mode, returning directly to the sequencer.</td></tr>
 </table>
 </section>
 

@@ -14,6 +14,11 @@ private:
   void handle_release(const KeyContext &ctx);
   void handle_step(const KeyContext &ctx);
   void handle_voice(const KeyContext &ctx);
+
+  bool mid1_modified_ = false;
+  bool mid2_modified_ = false;
+  uint32_t mid1_press_time_ = 0;
+  uint32_t mid2_press_time_ = 0;
 };
 
 extern SequencerMode sequencer_mode;

@@ -12,7 +12,7 @@
   <tr><th>Pad</th><th>Preset Name</th><th>Rhythm Pattern (16 Steps / Row)</th></tr>
   {{- range .Presets }}
   <tr>
-    <td class="k">STEP {{ .Pad }}</td>
+    <td class="k"><span class="btn">STEP {{ .Pad }}</span></td>
     <td>{{ .Name }}{{ if gt .Length 16 }} <span class="len-badge">({{ .Length }} steps)</span>{{ end }}</td>
     <td class="rhythm-cell">
       {{- if eq (len .Pages) 1 }}
